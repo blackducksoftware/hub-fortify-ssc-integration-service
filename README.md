@@ -1,2 +1,2 @@
-# hub-fortify-batch
-Repository to store all the batch jobs related to Hub and Fortify
+# hub-fortify-integration
+Repository to store all the Hub and Fortify integration codes
