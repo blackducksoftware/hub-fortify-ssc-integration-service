@@ -23,13 +23,9 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -43,13 +39,11 @@ import com.blackducksoftware.integration.fortify.batch.writer.FortifyPushWriter;
 
 @Configuration
 @EnableBatchProcessing
-@EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class })
-@Import({ BatchScheduler.class })
 @SuppressWarnings("rawtypes")
 public class BlackDuckFortifyPushData implements JobExecutionListener {
 
     @Autowired
-    private SimpleJobLauncher jobLauncher;
+    private BatchScheduler batchScheduler;
 
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
@@ -87,7 +81,7 @@ public class BlackDuckFortifyPushData implements JobExecutionListener {
         JobParameters param = new JobParametersBuilder().addString("JobID",
                 String.valueOf(System.currentTimeMillis())).toJobParameters();
 
-        JobExecution execution = jobLauncher.run(pushBlackDuckScanToFortifyJob(), param);
+        JobExecution execution = batchScheduler.jobLauncher().run(pushBlackDuckScanToFortifyJob(), param);
 
         System.out.println("Job finished with status :" + execution.getStatus());
     }
