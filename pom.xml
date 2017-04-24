@@ -21,6 +21,16 @@
 		<java-version>1.8</java-version>
 		<junit-version>4.12</junit-version>
 		<spring-boot-version>1.5.2.RELEASE</spring-boot-version>
+		<spring.aop>4.3.5.RELEASE</spring.aop>
+        <spring.asm>3.1.4.RELEASE</spring.asm>
+        <spring.beans>4.3.5.RELEASE</spring.beans>
+        <spring.context>4.3.5.RELEASE</spring.context>
+        <spring.context.support>4.3.5.RELEASE</spring.context.support>
+        <spring.core>4.3.5.RELEASE</spring.core>
+        <spring.expression>4.3.5.RELEASE</spring.expression>
+        <spring.web>4.3.5.RELEASE</spring.web>
+        <spring.webmvc>4.3.5.RELEASE</spring.webmvc>
+        <spring.security>4.2.1.RELEASE</spring.security>
 	</properties>
 
 	<build>
@@ -73,6 +83,80 @@
 			<artifactId>spring-boot-starter-batch</artifactId>
 			<version>${spring-boot-version}</version>
 		</dependency>
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring-boot-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.aop}</version>
+        </dependency>
+        <!-- dependency> <groupId>org.springframework</groupId> <artifactId>spring-asm</artifactId> 
+            <version>${spring.asm}</version> </dependency -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.beans}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.context}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.context.support}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.core}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <version>${spring.expression}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.web}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.webmvc}</version>
+        </dependency>
+        <!-- Spring Security Dependencies -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${spring.security}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-asm</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${spring.security}</version>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+			<version>${spring-boot-version}</version>
+		</dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>3.3.1</version>
+        </dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
