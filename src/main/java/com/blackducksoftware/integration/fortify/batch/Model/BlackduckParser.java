@@ -11,6 +11,6 @@
  */
 package com.blackducksoftware.integration.fortify.batch.Model;
 
-public class BlackDuckParser {
+public class BlackduckParser {
 
 }

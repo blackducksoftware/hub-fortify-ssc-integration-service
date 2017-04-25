@@ -11,11 +11,6 @@
  */
 package com.blackducksoftware.integration.fortify.batch.util;
 
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.net.URL;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -64,7 +59,7 @@ public class RestConnectionHelper {
         return env.getProperty("HUB_PASSWORD");
     }
 
-    public CredentialsRestConnection getIntegrationHubRestConnection() throws IllegalArgumentException, EncryptionException, HubIntegrationException {
+    public CredentialsRestConnection getApplicationPropertyRestConnection() throws IllegalArgumentException, EncryptionException, HubIntegrationException {
         return getRestConnection(getHubServerConfig());
     }
 
@@ -97,21 +92,9 @@ public class RestConnectionHelper {
     }
 
     public HubServicesFactory createHubServicesFactory(final IntLogger logger) throws IllegalArgumentException, EncryptionException, HubIntegrationException {
-        final RestConnection restConnection = getIntegrationHubRestConnection();
+        final RestConnection restConnection = getApplicationPropertyRestConnection();
         restConnection.logger = logger;
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
     }
-
-    public File getFile(final String classpathResource) {
-        try {
-            final URL url = Thread.currentThread().getContextClassLoader().getResource(classpathResource);
-            final File file = new File(url.toURI().getPath());
-            return file;
-        } catch (final Exception e) {
-            fail("Could not get file: " + e.getMessage());
-            return null;
-        }
-    }
-
 }
