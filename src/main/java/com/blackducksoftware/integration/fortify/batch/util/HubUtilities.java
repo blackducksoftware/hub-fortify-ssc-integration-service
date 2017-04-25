@@ -11,11 +11,13 @@
  */
 package com.blackducksoftware.integration.fortify.batch.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
+import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.project.ProjectRequestService;
@@ -35,28 +37,43 @@ public class HubUtilities {
     @Autowired
     private RestConnectionHelper restConnectionHelper;
 
-    public List<VulnerableComponentView> getVulnerabilityComponentViews(final String projectName, final String versionName)
+    public List<VulnerableComponentView> getVulnerabilityComponentViews(final ProjectVersionView projectVersionItem)
             throws IllegalArgumentException, IntegrationException {
-        hubServicesFactory = restConnectionHelper.createHubServicesFactory();
-        final ProjectView projectItem = getProjectView(projectName);
-        final ProjectVersionView projectVersionItem = getProjectVersionRequestService(projectItem, versionName);
-        final String vulnerabililtyBomComponentUrl = getVulnerabililtyBomComponentUrl(projectVersionItem);
-        System.out.println("vulnerabililtyBomComponentUrl::" + vulnerabililtyBomComponentUrl);
-        return getVulnerabililtyComponentViews(vulnerabililtyBomComponentUrl);
+        if (projectVersionItem != null) {
+            final String vulnerabililtyBomComponentUrl = getVulnerabililtyBomComponentUrl(projectVersionItem);
+            System.out.println("vulnerabililtyBomComponentUrl::" + vulnerabililtyBomComponentUrl);
+            return getVulnerabililtyComponentViews(vulnerabililtyBomComponentUrl);
+        }
+        return new ArrayList<>();
     }
 
-    private ProjectView getProjectView(final String projectName) throws IntegrationException {
+    public ProjectVersionView getProjectVersion(final String projectName, final String versionName) throws IllegalArgumentException, IntegrationException {
+        hubServicesFactory = restConnectionHelper.createHubServicesFactory();
+        final ProjectView projectItem = getProjectByProjectName(projectName);
+        return getProjectVersion(projectItem, versionName);
+    }
+
+    public List<ProjectView> getAllProjects() throws IntegrationException {
+        hubServicesFactory = restConnectionHelper.createHubServicesFactory();
+        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService(hubServicesFactory.getRestConnection().logger);
+        return projectRequestService.getAllProjects();
+    }
+
+    private ProjectView getProjectByProjectName(final String projectName) throws IntegrationException {
         final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService(hubServicesFactory.getRestConnection().logger);
         return projectRequestService.getProjectByName(projectName);
     }
 
-    private ProjectVersionView getProjectVersionRequestService(final ProjectView projectItem, final String versionName) throws IntegrationException {
+    private ProjectVersionView getProjectVersion(final ProjectView projectItem, final String versionName) throws IntegrationException {
         final ProjectVersionRequestService projectVersionRequestService = hubServicesFactory
                 .createProjectVersionRequestService(hubServicesFactory.getRestConnection().logger);
         return projectVersionRequestService.getProjectVersion(projectItem, versionName);
     }
 
-    private String getVulnerabililtyBomComponentUrl(final ProjectVersionView projectVersionItem) throws HubIntegrationException {
+    private String getVulnerabililtyBomComponentUrl(final ProjectVersionView projectVersionItem)
+            throws HubIntegrationException, IllegalArgumentException, EncryptionException {
+        if (hubServicesFactory == null)
+            hubServicesFactory = restConnectionHelper.createHubServicesFactory();
         final MetaService metaService = hubServicesFactory.createMetaService(hubServicesFactory.getRestConnection().logger);
         return metaService.getFirstLink(projectVersionItem, MetaService.VULNERABLE_COMPONENTS_LINK);
     }
