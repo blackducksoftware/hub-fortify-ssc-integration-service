@@ -79,9 +79,8 @@ public class HubServices {
     }
 
     private List<VulnerableComponentView> getVulnerabililtyComponentViews(final String vulnerabililtyBomComponentUrl) throws IntegrationException {
-        final HubResponseService hubResponseService = new HubResponseService(hubServicesFactory.getRestConnection());
-        HubPagedRequest hubPagedRequest = new HubPagedRequest(hubServicesFactory.getRestConnection());
-        hubPagedRequest.url = vulnerabililtyBomComponentUrl;
+        final HubResponseService hubResponseService = hubServicesFactory.createHubResponseService();
+        HubPagedRequest hubPagedRequest = hubResponseService.getHubRequestFactory().createPagedRequest(vulnerabililtyBomComponentUrl);
         return hubResponseService.getAllItems(hubPagedRequest, VulnerableComponentView.class);
     }
 }
