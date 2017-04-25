@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyPushData;
+import com.blackducksoftware.integration.fortify.batch.job.BlackduckFortifyPushData;
 import com.blackducksoftware.integration.fortify.batch.util.RestConnectionHelper;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.model.view.VulnerabilityView;
@@ -19,9 +19,9 @@ import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { Application.class })
-public class BlackDuckFortifyPushDataTest extends TestCase {
+public class BlackduckFortifyPushDataTest extends TestCase {
     @Autowired
-    private BlackDuckFortifyPushData pushBlackDuckScanToFortifyJob;
+    private BlackduckFortifyPushData pushBlackDuckScanToFortifyJob;
 
     @Autowired
     private RestConnectionHelper restConnectionHelper;

@@ -31,7 +31,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchScheduler;
-import com.blackducksoftware.integration.fortify.batch.Model.BlackDuckParser;
+import com.blackducksoftware.integration.fortify.batch.Model.BlackduckParser;
 import com.blackducksoftware.integration.fortify.batch.Model.FortifyParser;
 import com.blackducksoftware.integration.fortify.batch.processor.BlackduckFortifyProcessor;
 import com.blackducksoftware.integration.fortify.batch.reader.BlackduckScanReader;
@@ -40,7 +40,7 @@ import com.blackducksoftware.integration.fortify.batch.writer.FortifyPushWriter;
 @Configuration
 @EnableBatchProcessing
 @SuppressWarnings("rawtypes")
-public class BlackDuckFortifyPushData implements JobExecutionListener {
+public class BlackduckFortifyPushData implements JobExecutionListener {
 
     @Autowired
     private BatchScheduler batchScheduler;
@@ -98,7 +98,7 @@ public class BlackDuckFortifyPushData implements JobExecutionListener {
     @Bean
     public Step pushBlackDuckScanToFortifyStep() {
         return stepBuilderFactory.get("Extract Latest Scan from Blackduck -> Transform -> Push Data To Fortify")
-                .<BlackDuckParser, FortifyParser> chunk(10000)
+                .<BlackduckParser, FortifyParser> chunk(10000)
                 .reader(getBlackduckScanReader())
                 .processor(getBlackduckFortifyProcessor())
                 .writer(getFortifyPushWriter())
