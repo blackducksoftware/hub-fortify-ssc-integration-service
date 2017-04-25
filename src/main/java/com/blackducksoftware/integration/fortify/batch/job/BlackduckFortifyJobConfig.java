@@ -34,8 +34,8 @@ import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.Model.BlackduckParser;
 import com.blackducksoftware.integration.fortify.batch.Model.FortifyParser;
 import com.blackducksoftware.integration.fortify.batch.processor.BlackduckFortifyProcessor;
-import com.blackducksoftware.integration.fortify.batch.reader.BlackduckScanReader;
-import com.blackducksoftware.integration.fortify.batch.writer.FortifyPushWriter;
+import com.blackducksoftware.integration.fortify.batch.reader.BlackduckReader;
+import com.blackducksoftware.integration.fortify.batch.writer.FortifyWriter;
 
 @Configuration
 @EnableBatchProcessing
@@ -52,8 +52,8 @@ public class BlackduckFortifyJobConfig implements JobExecutionListener {
     private StepBuilderFactory stepBuilderFactory;
 
     @Bean
-    public BlackduckScanReader getBlackduckScanReader() {
-        return new BlackduckScanReader();
+    public BlackduckReader getBlackduckScanReader() {
+        return new BlackduckReader();
     }
 
     @Bean
@@ -62,8 +62,8 @@ public class BlackduckFortifyJobConfig implements JobExecutionListener {
     }
 
     @Bean
-    public FortifyPushWriter getFortifyPushWriter() {
-        return new FortifyPushWriter();
+    public FortifyWriter getFortifyPushWriter() {
+        return new FortifyWriter();
     }
 
     @Bean

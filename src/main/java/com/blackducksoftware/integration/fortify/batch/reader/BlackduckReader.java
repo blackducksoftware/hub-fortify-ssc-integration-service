@@ -7,7 +7,7 @@ import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BlackduckScanReader<BlackDuckParser> implements ItemReader<BlackDuckParser> {
+public class BlackduckReader<BlackDuckParser> implements ItemReader<BlackDuckParser> {
 
     @Override
     public BlackDuckParser read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
