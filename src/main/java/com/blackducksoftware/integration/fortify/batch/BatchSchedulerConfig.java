@@ -23,7 +23,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @EnableScheduling
-public class BatchScheduler {
+public class BatchSchedulerConfig {
 
     @Bean
     public PlatformTransactionManager transactionManager() {

@@ -30,7 +30,7 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import com.blackducksoftware.integration.fortify.batch.BatchScheduler;
+import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.Model.BlackduckParser;
 import com.blackducksoftware.integration.fortify.batch.Model.FortifyParser;
 import com.blackducksoftware.integration.fortify.batch.processor.BlackduckFortifyProcessor;
@@ -40,16 +40,16 @@ import com.blackducksoftware.integration.fortify.batch.writer.FortifyPushWriter;
 @Configuration
 @EnableBatchProcessing
 @SuppressWarnings("rawtypes")
-public class BlackduckFortifyPushData implements JobExecutionListener {
+public class BlackduckFortifyJobConfig implements JobExecutionListener {
 
     @Autowired
-    private BatchScheduler batchScheduler;
+    private BatchSchedulerConfig batchScheduler;
 
     @Autowired
-    public JobBuilderFactory jobBuilderFactory;
+    private JobBuilderFactory jobBuilderFactory;
 
     @Autowired
-    public StepBuilderFactory stepBuilderFactory;
+    private StepBuilderFactory stepBuilderFactory;
 
     @Bean
     public BlackduckScanReader getBlackduckScanReader() {
