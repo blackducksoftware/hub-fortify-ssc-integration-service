@@ -29,13 +29,13 @@ import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { Application.class })
-public class HubServiceUtilitiesTest extends TestCase {
+public class HubServicesTest extends TestCase {
     private final String PROJECT_NAME = "solrWar2";
 
     private final String VERSION_NAME = "4.10.4";
 
     @Autowired
-    private HubServiceUtilities hubUtilities;
+    private HubServices hubUtilities;
 
     @Test
     public void getAllProjects() {

@@ -31,7 +31,7 @@ import com.blackducksoftware.integration.hub.service.HubResponseService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 
 @Configuration
-public class HubServiceUtilities {
+public class HubServices {
     private static HubServicesFactory hubServicesFactory;
 
     @Autowired
