@@ -59,7 +59,16 @@ public class HubServices {
         return projectRequestService.getAllProjects();
     }
 
-    private ProjectView getProjectByProjectName(final String projectName) throws IntegrationException {
+    public List<ProjectVersionView> getProjectVersionsByProject(final ProjectView project) throws IntegrationException {
+        hubServicesFactory = restConnectionHelper.createHubServicesFactory();
+        final ProjectVersionRequestService projectVersionRequestService = hubServicesFactory
+                .createProjectVersionRequestService(hubServicesFactory.getRestConnection().logger);
+        return projectVersionRequestService.getAllProjectVersions(project);
+    }
+
+    public ProjectView getProjectByProjectName(final String projectName) throws IntegrationException {
+        if (hubServicesFactory == null)
+            hubServicesFactory = restConnectionHelper.createHubServicesFactory();
         final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService(hubServicesFactory.getRestConnection().logger);
         return projectRequestService.getProjectByName(projectName);
     }
