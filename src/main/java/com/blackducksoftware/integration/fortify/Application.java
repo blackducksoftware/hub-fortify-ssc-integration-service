@@ -9,7 +9,7 @@
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
  */
-package com.blackducksoftware.integration.fortify.batch;
+package com.blackducksoftware.integration.fortify;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

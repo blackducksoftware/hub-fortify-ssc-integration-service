@@ -30,30 +30,30 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import com.blackducksoftware.integration.fortify.batch.BatchScheduler;
-import com.blackducksoftware.integration.fortify.batch.Model.BlackDuckParser;
+import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
+import com.blackducksoftware.integration.fortify.batch.Model.BlackduckParser;
 import com.blackducksoftware.integration.fortify.batch.Model.FortifyParser;
 import com.blackducksoftware.integration.fortify.batch.processor.BlackduckFortifyProcessor;
-import com.blackducksoftware.integration.fortify.batch.reader.BlackduckScanReader;
-import com.blackducksoftware.integration.fortify.batch.writer.FortifyPushWriter;
+import com.blackducksoftware.integration.fortify.batch.reader.BlackduckReader;
+import com.blackducksoftware.integration.fortify.batch.writer.FortifyWriter;
 
 @Configuration
 @EnableBatchProcessing
 @SuppressWarnings("rawtypes")
-public class BlackDuckFortifyPushData implements JobExecutionListener {
+public class BlackduckFortifyJobConfig implements JobExecutionListener {
 
     @Autowired
-    private BatchScheduler batchScheduler;
+    private BatchSchedulerConfig batchScheduler;
 
     @Autowired
-    public JobBuilderFactory jobBuilderFactory;
+    private JobBuilderFactory jobBuilderFactory;
 
     @Autowired
-    public StepBuilderFactory stepBuilderFactory;
+    private StepBuilderFactory stepBuilderFactory;
 
     @Bean
-    public BlackduckScanReader getBlackduckScanReader() {
-        return new BlackduckScanReader();
+    public BlackduckReader getBlackduckScanReader() {
+        return new BlackduckReader();
     }
 
     @Bean
@@ -62,8 +62,8 @@ public class BlackDuckFortifyPushData implements JobExecutionListener {
     }
 
     @Bean
-    public FortifyPushWriter getFortifyPushWriter() {
-        return new FortifyPushWriter();
+    public FortifyWriter getFortifyPushWriter() {
+        return new FortifyWriter();
     }
 
     @Bean
@@ -98,7 +98,7 @@ public class BlackDuckFortifyPushData implements JobExecutionListener {
     @Bean
     public Step pushBlackDuckScanToFortifyStep() {
         return stepBuilderFactory.get("Extract Latest Scan from Blackduck -> Transform -> Push Data To Fortify")
-                .<BlackDuckParser, FortifyParser> chunk(10000)
+                .<BlackduckParser, FortifyParser> chunk(10000)
                 .reader(getBlackduckScanReader())
                 .processor(getBlackduckFortifyProcessor())
                 .writer(getFortifyPushWriter())
