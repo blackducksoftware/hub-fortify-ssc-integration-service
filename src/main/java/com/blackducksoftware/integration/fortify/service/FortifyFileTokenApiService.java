@@ -14,8 +14,10 @@ package com.blackducksoftware.integration.fortify.service;
 import com.blackducksoftware.integration.fortify.datamodel.FileToken;
 import com.blackducksoftware.integration.fortify.datamodel.FileTokenResponse;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
@@ -23,4 +25,8 @@ public interface FortifyFileTokenApiService {
     @Headers({ "Accept: application/json", "Content-Type:application/json" })
     @POST("api/v1/fileTokens")
     Call<FileTokenResponse> getFileToken(@Body FileToken fileToken);
+
+    @Headers({ "Accept: application/json", "Content-Type:application/json" })
+    @DELETE("api/v1/fileTokens")
+    Call<ResponseBody> deleteFileToken();
 }

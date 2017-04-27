@@ -22,11 +22,11 @@ import com.blackducksoftware.integration.fortify.datamodel.FileTokenResponse;
 
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.Route;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
@@ -45,7 +45,7 @@ public class FortifyFileTokenApi {
 
     private FortifyFileTokenApiService apiService;
 
-    public void init() {
+    private void init() {
         okBuilder = getHeader(env.getProperty("FORTIFY_USERNAME"), env.getProperty("FORTIFY_PASSWORD"));
         retrofit = new Retrofit.Builder().baseUrl(env.getProperty("FORTIFY_SERVER_URL")).addConverterFactory(GsonConverterFactory.create())
                 .client(okBuilder.build()).build();
@@ -53,9 +53,19 @@ public class FortifyFileTokenApi {
     }
 
     public FileTokenResponse getFileToken(FileToken fileToken) throws IOException {
+        if (okBuilder == null)
+            init();
         Call<FileTokenResponse> fileTokenResponseCall = apiService.getFileToken(fileToken);
         FileTokenResponse fileTokenResponse = fileTokenResponseCall.execute().body();
         return fileTokenResponse;
+    }
+
+    public int deleteFileToken() throws IOException {
+        if (okBuilder == null)
+            init();
+        Call<ResponseBody> deleteTokenResponseCall = apiService.deleteFileToken();
+        int responseCode = deleteTokenResponseCall.execute().code();
+        return responseCode;
     }
 
     private Builder getHeader(String userName, String password) {
@@ -72,19 +82,6 @@ public class FortifyFileTokenApi {
             }
         });
 
-        okBuilder.addInterceptor(new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                Request request;
-                try {
-                    request = chain.request().newBuilder()
-                            .addHeader("Cache-Control", "no-cache").build();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                return chain.proceed(request);
-            }
-        });
         okBuilder.addInterceptor(logging);
         return okBuilder;
     }

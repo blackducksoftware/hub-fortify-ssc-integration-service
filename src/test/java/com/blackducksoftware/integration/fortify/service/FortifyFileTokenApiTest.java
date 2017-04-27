@@ -33,8 +33,13 @@ public class FortifyFileTokenApiTest extends TestCase {
     public void getFileToken() throws Exception {
         FileToken fileToken = new FileToken();
         fileToken.setFileTokenType("UPLOAD");
-        fortifyFileTokenApi.init();
         FileTokenResponse fileTokenResponse = fortifyFileTokenApi.getFileToken(fileToken);
         System.out.println("fileTokenResponse::" + fileTokenResponse.getData().getToken());
+    }
+
+    @Test
+    public void deleteFileToken() throws Exception {
+        int responseCode = fortifyFileTokenApi.deleteFileToken();
+        System.out.println("Response code::" + responseCode);
     }
 }
