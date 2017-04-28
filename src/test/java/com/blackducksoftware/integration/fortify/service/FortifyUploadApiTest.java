@@ -13,6 +13,7 @@ package com.blackducksoftware.integration.fortify.service;
 
 import java.io.File;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,8 @@ public class FortifyUploadApiTest extends TestCase {
         System.out.println("File Token::" + token);
         File file = new File("/Users/smanikantan/Downloads/security.zip");
         Call<ResponseBody> uploadVulnerabilityResponse = fortifyUploadApi.uploadVulnerabilityByProjectVersion(token, 2l, file);
-        System.out.println("uploadVulnerabilityResponse::" + uploadVulnerabilityResponse.execute().body());
+        ResponseBody uploadVulnerabilityResponseBody = uploadVulnerabilityResponse.execute().body();
+        System.out.println("uploadVulnerabilityResponse::" + uploadVulnerabilityResponseBody);
+        Assert.assertNotNull(uploadVulnerabilityResponseBody);
     }
 }
