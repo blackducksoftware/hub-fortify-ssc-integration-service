@@ -31,8 +31,8 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.Model.BlackduckParser;
-import com.blackducksoftware.integration.fortify.batch.Model.FortifyParser;
+import com.blackducksoftware.integration.fortify.batch.model.BlackduckParser;
+import com.blackducksoftware.integration.fortify.batch.model.FortifyParser;
 import com.blackducksoftware.integration.fortify.batch.processor.BlackduckFortifyProcessor;
 import com.blackducksoftware.integration.fortify.batch.reader.BlackduckReader;
 import com.blackducksoftware.integration.fortify.batch.writer.FortifyWriter;

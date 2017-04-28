@@ -11,6 +11,8 @@
  */
 package com.blackducksoftware.integration.fortify.service;
 
+import java.io.File;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,24 +24,29 @@ import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
 
 import junit.framework.TestCase;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { Application.class })
-public class FortifyFileTokenApiTest extends TestCase {
+public class FortifyUploadApiTest extends TestCase {
+
     @Autowired
     private FortifyFileTokenApi fortifyFileTokenApi;
 
+    @Autowired
+    private FortifyUploadApi fortifyUploadApi;
+
     @Test
-    public void getFileToken() throws Exception {
+    public void uploadCSVFile() throws Exception {
         FileToken fileToken = new FileToken();
         fileToken.setFileTokenType("UPLOAD");
         FileTokenResponse fileTokenResponse = fortifyFileTokenApi.getFileToken(fileToken);
-        System.out.println("fileTokenResponse::" + fileTokenResponse.getData().getToken());
-    }
-
-    @Test
-    public void deleteFileToken() throws Exception {
-        int responseCode = fortifyFileTokenApi.deleteFileToken();
-        System.out.println("Response code::" + responseCode);
+        String token = fileTokenResponse.getData().getToken();
+        System.out.println("File Token::" + token);
+        File file = new File("/Users/smanikantan/Documents/Fortify/security.zip");
+        Call<ResponseBody> uploadVulnerabilityResponse = fortifyUploadApi.uploadVulnerabilityByProjectVersion(token, "2", "17.10.0158", "Submit Query",
+                "security.zip", file);
+        System.out.println("uploadVulnerabilityResponse::" + uploadVulnerabilityResponse.execute().body());
     }
 }

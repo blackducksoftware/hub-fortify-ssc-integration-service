@@ -9,8 +9,8 @@
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
  */
-package com.blackducksoftware.integration.fortify.batch.Model;
+package com.blackducksoftware.integration.fortify.batch.model;
 
-public class BlackduckParser {
+public class FortifyParser {
 
 }

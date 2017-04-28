@@ -11,8 +11,8 @@
  */
 package com.blackducksoftware.integration.fortify.service;
 
-import com.blackducksoftware.integration.fortify.datamodel.FileToken;
-import com.blackducksoftware.integration.fortify.datamodel.FileTokenResponse;
+import com.blackducksoftware.integration.fortify.model.FileToken;
+import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

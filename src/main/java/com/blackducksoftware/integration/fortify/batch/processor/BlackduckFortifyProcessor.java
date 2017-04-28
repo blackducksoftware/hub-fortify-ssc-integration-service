@@ -3,7 +3,7 @@ package com.blackducksoftware.integration.fortify.batch.processor;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
-import com.blackducksoftware.integration.fortify.batch.Model.FortifyParser;
+import com.blackducksoftware.integration.fortify.batch.model.FortifyParser;
 
 @Component
 public class BlackduckFortifyProcessor<BlackDuckParser> implements ItemProcessor<BlackDuckParser, FortifyParser> {

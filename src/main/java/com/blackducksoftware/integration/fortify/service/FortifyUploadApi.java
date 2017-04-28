@@ -11,20 +11,22 @@
  */
 package com.blackducksoftware.integration.fortify.service;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.env.Environment;
-
-import com.blackducksoftware.integration.fortify.model.FileToken;
-import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
+import org.springframework.stereotype.Component;
 
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.Route;
@@ -34,8 +36,9 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@Configuration
-public class FortifyFileTokenApi {
+@Component
+@ConfigurationProperties(value = "classpath:application.properties")
+public class FortifyUploadApi {
     @Autowired
     private Environment env;
 
@@ -43,29 +46,26 @@ public class FortifyFileTokenApi {
 
     private Retrofit retrofit;
 
-    private FortifyFileTokenApiService apiService;
+    private FortifyUploadApiService apiService;
 
-    private void init() {
+    public void init() {
         okBuilder = getHeader(env.getProperty("FORTIFY_USERNAME"), env.getProperty("FORTIFY_PASSWORD"));
         retrofit = new Retrofit.Builder().baseUrl(env.getProperty("FORTIFY_SERVER_URL")).addConverterFactory(GsonConverterFactory.create())
                 .client(okBuilder.build()).build();
-        apiService = retrofit.create(FortifyFileTokenApiService.class);
+        apiService = retrofit.create(FortifyUploadApiService.class);
     }
 
-    public FileTokenResponse getFileToken(FileToken fileToken) throws IOException {
+    public Call<ResponseBody> uploadVulnerabilityByProjectVersion(String fileToken, String entityId,
+            String clientVersion, String uploadType, String fileName,
+            File file) throws IOException {
         if (okBuilder == null)
             init();
-        Call<FileTokenResponse> fileTokenResponseCall = apiService.getFileToken(fileToken);
-        FileTokenResponse fileTokenResponse = fileTokenResponseCall.execute().body();
-        return fileTokenResponse;
-    }
-
-    public int deleteFileToken() throws IOException {
-        if (okBuilder == null)
-            init();
-        Call<ResponseBody> deleteTokenResponseCall = apiService.deleteFileToken();
-        int responseCode = deleteTokenResponseCall.execute().code();
-        return responseCode;
+        RequestBody mFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), mFile);
+        Call<ResponseBody> uploadVulnerabilityResponse = apiService.uploadVulnerabilityByProjectVersion(fileToken, entityId, clientVersion,
+                uploadType, fileName, fileToUpload);
+        System.out.println("vulnerabilityResponse::" + uploadVulnerabilityResponse);
+        return uploadVulnerabilityResponse;
     }
 
     private Builder getHeader(String userName, String password) {
