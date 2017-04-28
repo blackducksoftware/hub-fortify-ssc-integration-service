@@ -18,14 +18,13 @@ import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
-import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface FortifyUploadApiService {
     @Multipart
-    @Headers({ "Accept: application/xml, text/xml, */*; q=0.01", "Content-Type: multipart/form-data", "Accept-Encoding: gzip, deflate",
+    @Headers({ "Accept: application/xml, text/xml, */*; q=0.01", "Accept-Encoding: gzip, deflate",
             "Content-Length: 7092" })
-    @POST("upload/resultFileUpload.html?mat={fileToken}")
-    Call<ResponseBody> uploadVulnerabilityByProjectVersion(@Path("fileToken") String fileToken, @Part("entityId") String entityId,
-            @Part("clientVersion") String clientVersion, @Part("Upload") String uploadType, @Part("Filename") String fileName,
+    @POST("upload/resultFileUpload.html")
+    Call<ResponseBody> uploadVulnerabilityByProjectVersion(@Query("mat") String fileToken, @Part("entityId") long entityId,
             @Part MultipartBody.Part file);
 }

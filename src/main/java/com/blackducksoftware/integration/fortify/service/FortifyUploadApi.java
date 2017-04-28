@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +36,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 @Component
-@ConfigurationProperties(value = "classpath:application.properties")
 public class FortifyUploadApi {
     @Autowired
     private Environment env;
@@ -55,16 +53,12 @@ public class FortifyUploadApi {
         apiService = retrofit.create(FortifyUploadApiService.class);
     }
 
-    public Call<ResponseBody> uploadVulnerabilityByProjectVersion(String fileToken, String entityId,
-            String clientVersion, String uploadType, String fileName,
-            File file) throws IOException {
+    public Call<ResponseBody> uploadVulnerabilityByProjectVersion(String fileToken, long entityId, File file) throws IOException {
         if (okBuilder == null)
             init();
-        RequestBody mFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), mFile);
-        Call<ResponseBody> uploadVulnerabilityResponse = apiService.uploadVulnerabilityByProjectVersion(fileToken, entityId, clientVersion,
-                uploadType, fileName, fileToUpload);
-        System.out.println("vulnerabilityResponse::" + uploadVulnerabilityResponse);
+        RequestBody mFile = RequestBody.create(MediaType.parse("application/zip"), file);
+        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("files[]", file.getName(), mFile);
+        Call<ResponseBody> uploadVulnerabilityResponse = apiService.uploadVulnerabilityByProjectVersion(fileToken, entityId, fileToUpload);
         return uploadVulnerabilityResponse;
     }
 
