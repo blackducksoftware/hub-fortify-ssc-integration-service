@@ -12,6 +12,7 @@
 package com.blackducksoftware.integration.fortify.batch.job;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -31,10 +32,12 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.Model.BlackduckParser;
-import com.blackducksoftware.integration.fortify.batch.Model.FortifyParser;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.model.BlackduckParser;
+import com.blackducksoftware.integration.fortify.batch.model.FortifyParser;
 import com.blackducksoftware.integration.fortify.batch.processor.BlackduckFortifyProcessor;
 import com.blackducksoftware.integration.fortify.batch.reader.BlackduckReader;
+import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.writer.FortifyWriter;
 
 @Configuration
@@ -46,10 +49,15 @@ public class BlackduckFortifyJobConfig implements JobExecutionListener {
     private BatchSchedulerConfig batchScheduler;
 
     @Autowired
+    private MappingParser parser;
+
+    @Autowired
     private JobBuilderFactory jobBuilderFactory;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
+
+    private final String MAPPING_FILE = "src/main/resources/mapping.json";
 
     @Bean
     public BlackduckReader getBlackduckScanReader() {
@@ -112,6 +120,8 @@ public class BlackduckFortifyJobConfig implements JobExecutionListener {
 
     @Override
     public void beforeJob(JobExecution arg0) {
-        System.out.println("Inside before Job");
+        List<BlackDuckFortifyMapper> mappingObj = parser.createMapping(MAPPING_FILE);
+        System.out.println("Inside before Job :" + mappingObj);
+        // TO DO: Pass the mappingObj to the reader
     }
 }
