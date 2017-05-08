@@ -9,21 +9,20 @@
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
  */
-package com.blackducksoftware.integration.fortify.datamodel;
+package com.blackducksoftware.integration.fortify.batch.model;
 
-public class FileToken {
-    private String fileTokenType;
+import java.util.Date;
 
-    public String getFileTokenType() {
-        return fileTokenType;
+import com.blackducksoftware.integration.hub.model.HubView;
+
+public class RiskProfile extends HubView {
+    private Date bomLastUpdatedAt;
+
+    public Date getBomLastUpdatedAt() {
+        return bomLastUpdatedAt;
     }
 
-    public void setFileTokenType(String fileTokenType) {
-        this.fileTokenType = fileTokenType;
-    }
-
-    @Override
-    public String toString() {
-        return fileTokenType;
+    public void setBomLastUpdatedAt(Date bomLastUpdatedAt) {
+        this.bomLastUpdatedAt = bomLastUpdatedAt;
     }
 }

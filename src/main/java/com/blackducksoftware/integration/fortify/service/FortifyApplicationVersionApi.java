@@ -17,16 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import com.blackducksoftware.integration.fortify.model.FileToken;
-import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
+import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 import okhttp3.Route;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
@@ -35,7 +34,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 @Configuration
-public class FortifyFileTokenApi {
+public class FortifyApplicationVersionApi {
     @Autowired
     private Environment env;
 
@@ -43,29 +42,22 @@ public class FortifyFileTokenApi {
 
     private Retrofit retrofit;
 
-    private FortifyFileTokenApiService apiService;
+    private FortifyApplicationVersionApiService apiService;
 
     private void init() {
         okBuilder = getHeader(env.getProperty("FORTIFY_USERNAME"), env.getProperty("FORTIFY_PASSWORD"));
         retrofit = new Retrofit.Builder().baseUrl(env.getProperty("FORTIFY_SERVER_URL")).addConverterFactory(GsonConverterFactory.create())
                 .client(okBuilder.build()).build();
-        apiService = retrofit.create(FortifyFileTokenApiService.class);
+        apiService = retrofit.create(FortifyApplicationVersionApiService.class);
     }
 
-    public FileTokenResponse getFileToken(FileToken fileToken) throws IOException {
-        if (okBuilder == null)
+    public FortifyApplicationResponse getApplicationByName(String fields, String filter) throws IOException {
+        if (okBuilder == null) {
             init();
-        Call<FileTokenResponse> fileTokenResponseCall = apiService.getFileToken(fileToken);
-        FileTokenResponse fileTokenResponse = fileTokenResponseCall.execute().body();
-        return fileTokenResponse;
-    }
-
-    public int deleteFileToken() throws IOException {
-        if (okBuilder == null)
-            init();
-        Call<ResponseBody> deleteTokenResponseCall = apiService.deleteFileToken();
-        int responseCode = deleteTokenResponseCall.execute().code();
-        return responseCode;
+        }
+        Call<FortifyApplicationResponse> apiApplicationResponseCall = apiService.getApplicationByName(fields, filter);
+        FortifyApplicationResponse applicationAPIResponse = apiApplicationResponseCall.execute().body();
+        return applicationAPIResponse;
     }
 
     private Builder getHeader(String userName, String password) {
@@ -82,6 +74,19 @@ public class FortifyFileTokenApi {
             }
         });
 
+        okBuilder.addInterceptor(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request request;
+                try {
+                    request = chain.request().newBuilder()
+                            .addHeader("Cache-Control", "no-cache").build();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                return chain.proceed(request);
+            }
+        });
         okBuilder.addInterceptor(logging);
         return okBuilder;
     }
