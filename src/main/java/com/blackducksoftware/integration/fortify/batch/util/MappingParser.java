@@ -22,11 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
-<<<<<<< HEAD
-import com.blackducksoftware.integration.fortify.service.Fortify_ApplicationVersionApi;
-=======
 import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
->>>>>>> release_hub_fortify_integration_1.0
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
@@ -43,11 +39,7 @@ public class MappingParser {
     private final String Q_connector = "+ and +";
 
     @Autowired
-<<<<<<< HEAD
-    private Fortify_ApplicationVersionApi fortifyApplicationVersionApi;
-=======
     private FortifyApplicationVersionApi fortifyApplicationVersionApi;
->>>>>>> release_hub_fortify_integration_1.0
 
     /**
      * @param filePath

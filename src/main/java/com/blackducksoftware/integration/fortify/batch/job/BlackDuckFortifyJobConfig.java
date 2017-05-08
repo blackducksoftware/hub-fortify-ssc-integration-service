@@ -33,17 +33,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
-<<<<<<< HEAD:src/main/java/com/blackducksoftware/integration/fortify/batch/job/BlackduckFortifyJobConfig.java
-import com.blackducksoftware.integration.fortify.batch.model.BlackduckParser;
-import com.blackducksoftware.integration.fortify.batch.model.FortifyParser;
-import com.blackducksoftware.integration.fortify.batch.processor.BlackduckFortifyProcessor;
-import com.blackducksoftware.integration.fortify.batch.reader.BlackduckReader;
-=======
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.fortify.batch.processor.BlackDuckFortifyProcessor;
 import com.blackducksoftware.integration.fortify.batch.reader.BlackDuckReader;
->>>>>>> release_hub_fortify_integration_1.0:src/main/java/com/blackducksoftware/integration/fortify/batch/job/BlackDuckFortifyJobConfig.java
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.writer.FortifyWriter;
 
