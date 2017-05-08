@@ -11,22 +11,20 @@
  */
 package com.blackducksoftware.integration.fortify.service;
 
-import com.blackducksoftware.integration.fortify.model.FileToken;
-import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
-
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.DELETE;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
+import retrofit2.http.Query;
 
-public interface FortifyFileTokenApiService {
-    @Headers({ "Accept: application/json", "Content-Type:application/json" })
-    @POST("api/v1/fileTokens")
-    Call<FileTokenResponse> getFileToken(@Body FileToken fileToken);
-
-    @Headers({ "Accept: application/json", "Content-Type:application/json" })
-    @DELETE("api/v1/fileTokens")
-    Call<ResponseBody> deleteFileToken();
+public interface FortifyUploadApiService {
+    @Multipart
+    @Headers({ "Accept: application/xml, text/xml, */*; q=0.01", "Accept-Encoding: gzip, deflate", "Content-Length: 7092" })
+    @POST("upload/resultFileUpload.html")
+    Call<ResponseBody> uploadVulnerabilityByProjectVersion(@Query("mat") String fileToken, @Part("entityId") long entityId,
+            @Part("engineType") RequestBody engineType, @Part MultipartBody.Part file);
 }

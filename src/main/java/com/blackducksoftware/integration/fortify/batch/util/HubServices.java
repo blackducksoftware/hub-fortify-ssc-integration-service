@@ -12,6 +12,7 @@
 package com.blackducksoftware.integration.fortify.batch.util;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +20,16 @@ import org.springframework.context.annotation.Configuration;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.batch.model.RiskProfile;
+import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.project.ProjectRequestService;
 import com.blackducksoftware.integration.hub.api.project.version.ProjectVersionRequestService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.model.view.ProjectView;
-import com.blackducksoftware.integration.hub.model.view.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.request.HubPagedRequest;
+import com.blackducksoftware.integration.hub.request.HubRequest;
 import com.blackducksoftware.integration.hub.service.HubResponseService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 
@@ -41,7 +44,6 @@ public class HubServices {
             throws IllegalArgumentException, IntegrationException {
         if (projectVersionItem != null) {
             final String vulnerabililtyBomComponentUrl = getVulnerabililtyBomComponentUrl(projectVersionItem);
-            System.out.println("vulnerabililtyBomComponentUrl::" + vulnerabililtyBomComponentUrl);
             return getVulnerabililtyComponentViews(vulnerabililtyBomComponentUrl);
         }
         return new ArrayList<>();
@@ -91,5 +93,29 @@ public class HubServices {
         final HubResponseService hubResponseService = hubServicesFactory.createHubResponseService();
         HubPagedRequest hubPagedRequest = hubResponseService.getHubRequestFactory().createPagedRequest(vulnerabililtyBomComponentUrl);
         return hubResponseService.getAllItems(hubPagedRequest, VulnerableComponentView.class);
+    }
+
+    private String getProjectVersionRiskProfileUrl(final ProjectVersionView projectVersionItem)
+            throws HubIntegrationException, IllegalArgumentException, EncryptionException {
+        if (hubServicesFactory == null)
+            hubServicesFactory = restConnectionHelper.createHubServicesFactory();
+        final MetaService metaService = hubServicesFactory.createMetaService(hubServicesFactory.getRestConnection().logger);
+        return metaService.getFirstLink(projectVersionItem, MetaService.RISK_PROFILE_LINK);
+    }
+
+    private RiskProfile getBomLastUpdatedAt(final String projectVersionRiskProfileLink) throws IntegrationException {
+        final HubResponseService hubResponseService = hubServicesFactory.createHubResponseService();
+        HubRequest hubRequest = hubResponseService.getHubRequestFactory().createRequest(projectVersionRiskProfileLink);
+        return hubResponseService.getItem(hubRequest, RiskProfile.class);
+    }
+
+    public Date getBomLastUpdatedAt(final ProjectVersionView projectVersionItem)
+            throws IllegalArgumentException, IntegrationException {
+        if (projectVersionItem != null) {
+            final String projectVersionRiskProfileUrl = getProjectVersionRiskProfileUrl(projectVersionItem);
+            RiskProfile riskProfile = getBomLastUpdatedAt(projectVersionRiskProfileUrl);
+            return riskProfile.getBomLastUpdatedAt();
+        }
+        return null;
     }
 }

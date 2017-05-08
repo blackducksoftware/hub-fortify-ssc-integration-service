@@ -11,6 +11,8 @@
  */
 package com.blackducksoftware.integration.fortify.service;
 
+import java.io.IOException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,28 +20,25 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.fortify.Application;
-import com.blackducksoftware.integration.fortify.model.FileToken;
-import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
-
-import junit.framework.TestCase;
+import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { Application.class })
-public class FortifyFileTokenApiTest extends TestCase {
+
+public class FortifyApplicationVersionApitTest {
+
+    String FIELDS = "id";
+
+    String QUERY = "name:1.3+and+project.name:Logistics";
+
     @Autowired
-    private FortifyFileTokenApi fortifyFileTokenApi;
+    private FortifyApplicationVersionApi fortifyApplicationVersionApi;
 
     @Test
-    public void getFileToken() throws Exception {
-        FileToken fileToken = new FileToken();
-        fileToken.setFileTokenType("UPLOAD");
-        FileTokenResponse fileTokenResponse = fortifyFileTokenApi.getFileToken(fileToken);
-        System.out.println("fileTokenResponse::" + fileTokenResponse.getData().getToken());
+    public void getApplicationVersionTest() throws IOException {
+        FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationByName(FIELDS, QUERY);
+        System.out.println("ID: " + response.getData().get(0).getId());
+        System.out.println(response.toString());
     }
 
-    @Test
-    public void deleteFileToken() throws Exception {
-        int responseCode = fortifyFileTokenApi.deleteFileToken();
-        System.out.println("Response code::" + responseCode);
-    }
 }

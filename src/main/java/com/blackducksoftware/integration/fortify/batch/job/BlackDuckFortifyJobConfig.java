@@ -33,17 +33,23 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+<<<<<<< HEAD:src/main/java/com/blackducksoftware/integration/fortify/batch/job/BlackduckFortifyJobConfig.java
 import com.blackducksoftware.integration.fortify.batch.model.BlackduckParser;
 import com.blackducksoftware.integration.fortify.batch.model.FortifyParser;
 import com.blackducksoftware.integration.fortify.batch.processor.BlackduckFortifyProcessor;
 import com.blackducksoftware.integration.fortify.batch.reader.BlackduckReader;
+=======
+import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
+import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
+import com.blackducksoftware.integration.fortify.batch.processor.BlackDuckFortifyProcessor;
+import com.blackducksoftware.integration.fortify.batch.reader.BlackDuckReader;
+>>>>>>> release_hub_fortify_integration_1.0:src/main/java/com/blackducksoftware/integration/fortify/batch/job/BlackDuckFortifyJobConfig.java
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.writer.FortifyWriter;
 
 @Configuration
 @EnableBatchProcessing
-@SuppressWarnings("rawtypes")
-public class BlackduckFortifyJobConfig implements JobExecutionListener {
+public class BlackDuckFortifyJobConfig implements JobExecutionListener {
 
     @Autowired
     private BatchSchedulerConfig batchScheduler;
@@ -60,13 +66,13 @@ public class BlackduckFortifyJobConfig implements JobExecutionListener {
     private final String MAPPING_FILE = "src/main/resources/mapping.json";
 
     @Bean
-    public BlackduckReader getBlackduckScanReader() {
-        return new BlackduckReader();
+    public BlackDuckReader getBlackduckScanReader() {
+        return new BlackDuckReader();
     }
 
     @Bean
-    public BlackduckFortifyProcessor getBlackduckFortifyProcessor() {
-        return new BlackduckFortifyProcessor();
+    public BlackDuckFortifyProcessor getBlackduckFortifyProcessor() {
+        return new BlackDuckFortifyProcessor();
     }
 
     @Bean
@@ -102,11 +108,10 @@ public class BlackduckFortifyJobConfig implements JobExecutionListener {
                 .flow(pushBlackDuckScanToFortifyStep()).end().build();
     }
 
-    @SuppressWarnings("unchecked")
     @Bean
     public Step pushBlackDuckScanToFortifyStep() {
         return stepBuilderFactory.get("Extract Latest Scan from Blackduck -> Transform -> Push Data To Fortify")
-                .<BlackduckParser, FortifyParser> chunk(10000)
+                .<List<VulnerableComponentView>, List<Vulnerability>> chunk(10000)
                 .reader(getBlackduckScanReader())
                 .processor(getBlackduckFortifyProcessor())
                 .writer(getFortifyPushWriter())

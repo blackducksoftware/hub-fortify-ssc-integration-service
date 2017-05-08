@@ -11,6 +11,9 @@
  */
 package com.blackducksoftware.integration.fortify.service;
 
+import java.io.File;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,24 +25,33 @@ import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
 
 import junit.framework.TestCase;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { Application.class })
-public class FortifyFileTokenApiTest extends TestCase {
+public class FortifyUploadApiTest extends TestCase {
+
     @Autowired
     private FortifyFileTokenApi fortifyFileTokenApi;
 
+    @Autowired
+    private FortifyUploadApi fortifyUploadApi;
+
     @Test
-    public void getFileToken() throws Exception {
+    public void uploadCSVFile() throws Exception {
         FileToken fileToken = new FileToken();
         fileToken.setFileTokenType("UPLOAD");
         FileTokenResponse fileTokenResponse = fortifyFileTokenApi.getFileToken(fileToken);
-        System.out.println("fileTokenResponse::" + fileTokenResponse.getData().getToken());
-    }
+        String token = fileTokenResponse.getData().getToken();
+        System.out.println("File Token::" + token);
 
-    @Test
-    public void deleteFileToken() throws Exception {
-        int responseCode = fortifyFileTokenApi.deleteFileToken();
-        System.out.println("Response code::" + responseCode);
+        // File file = new File("/Users/smanikantan/Downloads/security.csv");
+        File file = new File("/Users/smanikantan/Documents/hub-fortify-integration/security.csv");
+        System.out.println("file::" + file);
+        Call<ResponseBody> uploadVulnerabilityResponse = fortifyUploadApi.uploadVulnerabilityByProjectVersion(token, 2l, file);
+        ResponseBody uploadVulnerabilityResponseBody = uploadVulnerabilityResponse.execute().body();
+        System.out.println("uploadVulnerabilityResponse::" + uploadVulnerabilityResponseBody);
+        Assert.assertNotNull(uploadVulnerabilityResponseBody);
     }
 }

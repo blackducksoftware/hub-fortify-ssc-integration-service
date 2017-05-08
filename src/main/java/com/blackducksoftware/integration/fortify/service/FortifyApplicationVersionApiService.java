@@ -8,25 +8,21 @@
  * disclose such Confidential Information and shall use it only in
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
+ *
+ *
+ * @author: hsathe
  */
 package com.blackducksoftware.integration.fortify.service;
 
-import com.blackducksoftware.integration.fortify.model.FileToken;
-import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
+import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.DELETE;
+import retrofit2.http.GET;
 import retrofit2.http.Headers;
-import retrofit2.http.POST;
+import retrofit2.http.Query;
 
-public interface FortifyFileTokenApiService {
+public interface FortifyApplicationVersionApiService {
     @Headers({ "Accept: application/json", "Content-Type:application/json" })
-    @POST("api/v1/fileTokens")
-    Call<FileTokenResponse> getFileToken(@Body FileToken fileToken);
-
-    @Headers({ "Accept: application/json", "Content-Type:application/json" })
-    @DELETE("api/v1/fileTokens")
-    Call<ResponseBody> deleteFileToken();
+    @GET("api/v1/projectVersions")
+    Call<FortifyApplicationResponse> getApplicationByName(@Query("fields") String fields, @Query("q") String filter);
 }
