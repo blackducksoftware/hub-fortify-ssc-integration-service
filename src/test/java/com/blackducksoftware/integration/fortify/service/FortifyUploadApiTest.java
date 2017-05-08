@@ -45,7 +45,10 @@ public class FortifyUploadApiTest extends TestCase {
         FileTokenResponse fileTokenResponse = fortifyFileTokenApi.getFileToken(fileToken);
         String token = fileTokenResponse.getData().getToken();
         System.out.println("File Token::" + token);
-        File file = new File("/Users/smanikantan/Downloads/security.zip");
+
+        // File file = new File("/Users/smanikantan/Downloads/security.csv");
+        File file = new File("/Users/smanikantan/Documents/hub-fortify-integration/security.csv");
+        System.out.println("file::" + file);
         Call<ResponseBody> uploadVulnerabilityResponse = fortifyUploadApi.uploadVulnerabilityByProjectVersion(token, 2l, file);
         ResponseBody uploadVulnerabilityResponseBody = uploadVulnerabilityResponse.execute().body();
         System.out.println("uploadVulnerabilityResponse::" + uploadVulnerabilityResponseBody);

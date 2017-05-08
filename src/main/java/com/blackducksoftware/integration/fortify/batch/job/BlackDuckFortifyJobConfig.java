@@ -12,6 +12,7 @@
 package com.blackducksoftware.integration.fortify.batch.job;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -31,19 +32,23 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.model.BlackduckParser;
-import com.blackducksoftware.integration.fortify.batch.model.FortifyParser;
-import com.blackducksoftware.integration.fortify.batch.processor.BlackduckFortifyProcessor;
-import com.blackducksoftware.integration.fortify.batch.reader.BlackduckReader;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
+import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
+import com.blackducksoftware.integration.fortify.batch.processor.BlackDuckFortifyProcessor;
+import com.blackducksoftware.integration.fortify.batch.reader.BlackDuckReader;
+import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.writer.FortifyWriter;
 
 @Configuration
 @EnableBatchProcessing
-@SuppressWarnings("rawtypes")
-public class BlackduckFortifyJobConfig implements JobExecutionListener {
+public class BlackDuckFortifyJobConfig implements JobExecutionListener {
 
     @Autowired
     private BatchSchedulerConfig batchScheduler;
+
+    @Autowired
+    private MappingParser parser;
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -51,14 +56,16 @@ public class BlackduckFortifyJobConfig implements JobExecutionListener {
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
+    private final String MAPPING_FILE = "src/main/resources/mapping.json";
+
     @Bean
-    public BlackduckReader getBlackduckScanReader() {
-        return new BlackduckReader();
+    public BlackDuckReader getBlackduckScanReader() {
+        return new BlackDuckReader();
     }
 
     @Bean
-    public BlackduckFortifyProcessor getBlackduckFortifyProcessor() {
-        return new BlackduckFortifyProcessor();
+    public BlackDuckFortifyProcessor getBlackduckFortifyProcessor() {
+        return new BlackDuckFortifyProcessor();
     }
 
     @Bean
@@ -94,11 +101,10 @@ public class BlackduckFortifyJobConfig implements JobExecutionListener {
                 .flow(pushBlackDuckScanToFortifyStep()).end().build();
     }
 
-    @SuppressWarnings("unchecked")
     @Bean
     public Step pushBlackDuckScanToFortifyStep() {
         return stepBuilderFactory.get("Extract Latest Scan from Blackduck -> Transform -> Push Data To Fortify")
-                .<BlackduckParser, FortifyParser> chunk(10000)
+                .<List<VulnerableComponentView>, List<Vulnerability>> chunk(10000)
                 .reader(getBlackduckScanReader())
                 .processor(getBlackduckFortifyProcessor())
                 .writer(getFortifyPushWriter())
@@ -112,6 +118,8 @@ public class BlackduckFortifyJobConfig implements JobExecutionListener {
 
     @Override
     public void beforeJob(JobExecution arg0) {
-        System.out.println("Inside before Job");
+        List<BlackDuckFortifyMapper> mappingObj = parser.createMapping(MAPPING_FILE);
+        System.out.println("Inside before Job :" + mappingObj);
+        // TO DO: Pass the mappingObj to the reader
     }
 }

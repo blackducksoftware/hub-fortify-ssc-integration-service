@@ -12,6 +12,7 @@
 package com.blackducksoftware.integration.fortify.service;
 
 import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Headers;
@@ -25,5 +26,5 @@ public interface FortifyUploadApiService {
     @Headers({ "Accept: application/xml, text/xml, */*; q=0.01", "Accept-Encoding: gzip, deflate", "Content-Length: 7092" })
     @POST("upload/resultFileUpload.html")
     Call<ResponseBody> uploadVulnerabilityByProjectVersion(@Query("mat") String fileToken, @Part("entityId") long entityId,
-            @Part MultipartBody.Part file);
+            @Part("engineType") RequestBody engineType, @Part MultipartBody.Part file);
 }

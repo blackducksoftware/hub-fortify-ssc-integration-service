@@ -2,7 +2,7 @@
  * Copyright (C) 2017 Black Duck Software Inc.
  * http://www.blackducksoftware.com/
  * All rights reserved.
- * 
+ *
  * This software is the confidential and proprietary information of
  * Black Duck Software ("Confidential Information"). You shall not
  * disclose such Confidential Information and shall use it only in
@@ -11,6 +11,18 @@
  */
 package com.blackducksoftware.integration.fortify.batch.model;
 
-public class FortifyParser {
+import java.util.Date;
 
+import com.blackducksoftware.integration.hub.model.HubView;
+
+public class RiskProfile extends HubView {
+    private Date bomLastUpdatedAt;
+
+    public Date getBomLastUpdatedAt() {
+        return bomLastUpdatedAt;
+    }
+
+    public void setBomLastUpdatedAt(Date bomLastUpdatedAt) {
+        this.bomLastUpdatedAt = bomLastUpdatedAt;
+    }
 }

@@ -12,6 +12,7 @@
 package com.blackducksoftware.integration.fortify.batch.util;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
@@ -22,9 +23,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.Application;
+import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.model.view.ProjectView;
-import com.blackducksoftware.integration.hub.model.view.VulnerableComponentView;
 
 import junit.framework.TestCase;
 
@@ -128,5 +129,20 @@ public class HubServicesTest extends TestCase {
         List<VulnerableComponentView> vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItem);
         System.out.println("vulnerableComponentViews size::" + vulnerableComponentViews.size() + ", vulnerableComponentViews::" + vulnerableComponentViews);
         assertNotNull(vulnerableComponentViews);
+    }
+
+    @Test
+    public void getBomLastUpdatedAt() throws IllegalArgumentException, IntegrationException {
+        ProjectVersionView projectVersionItem = null;
+        try {
+            projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IntegrationException e) {
+            e.printStackTrace();
+        }
+        Date bomLastUpdatedAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
+        System.out.println("bomLastUpdatedAt::" + bomLastUpdatedAt);
+        assertNotNull(bomLastUpdatedAt);
     }
 }
