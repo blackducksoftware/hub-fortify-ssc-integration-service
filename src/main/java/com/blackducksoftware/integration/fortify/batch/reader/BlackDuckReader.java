@@ -6,47 +6,64 @@ import java.util.List;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.NonTransientResourceException;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 
-@Component
+@Configuration
 public class BlackDuckReader implements ItemReader<List<VulnerableComponentView>>, StepExecutionListener {
-    private Date bomUpdatedValueAt = null;
+    private StepExecution stepExecution;
+
+    private List<BlackDuckFortifyMapper> blackDuckFortifyMappers;
+
+    private int readCount = 0;
+
+    private BlackDuckFortifyMapper blackDuckFortifyMapper = null;
+
+    private Date bomUpdatedValueAt;
 
     @Autowired
     private HubServices hubServices;
 
     @Override
-    public List<VulnerableComponentView> read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
-        ProjectVersionView projectVersionItem = null;
-        List<VulnerableComponentView> vulnerableComponentViews;
-        try {
-            projectVersionItem = hubServices.getProjectVersion("", "");
+    public synchronized List<VulnerableComponentView> read() throws IllegalArgumentException, IntegrationException {
+
+        if (readCount < blackDuckFortifyMappers.size()) {
+            blackDuckFortifyMapper = blackDuckFortifyMappers.get(readCount++);
+            System.out.println("blackDuckFortifyMapper::" + blackDuckFortifyMapper.toString());
+            ProjectVersionView projectVersionItem = null;
+            List<VulnerableComponentView> vulnerableComponentViews;
+            projectVersionItem = hubServices.getProjectVersion(blackDuckFortifyMapper.getHubProject(), blackDuckFortifyMapper.getHubProjectVersion());
             vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItem);
             bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
-        } catch (IllegalArgumentException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException(e1);
-        } catch (IntegrationException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException(e1);
+            ExecutionContext stepContext = this.stepExecution.getExecutionContext();
+            stepContext.put("hubProjectName", blackDuckFortifyMapper.getHubProject());
+            stepContext.put("hubProjectVersionName", blackDuckFortifyMapper.getHubProjectVersion());
+            stepContext.put("fortifyApplicationId", blackDuckFortifyMapper.getFortifyApplicationId());
+            stepContext.put("bomUpdatedValueAt", bomUpdatedValueAt);
+            return vulnerableComponentViews;
+        } else {
+            return null;
         }
-        return vulnerableComponentViews;
     }
 
+    @BeforeStep
+    public void saveStepExecution(StepExecution stepExecution) {
+        this.stepExecution = stepExecution;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        // TODO Auto-generated method stub
-
+        blackDuckFortifyMappers = (List<BlackDuckFortifyMapper>) stepExecution.getJobExecution().getExecutionContext().get("BlackDuckFortifyMapper");
     }
 
     @Override
