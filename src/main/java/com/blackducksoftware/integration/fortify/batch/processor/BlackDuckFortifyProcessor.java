@@ -1,5 +1,6 @@
 package com.blackducksoftware.integration.fortify.batch.processor;
 
+import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -7,6 +8,8 @@ import java.util.stream.Collectors;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +18,9 @@ import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponent
 
 @Component
 public class BlackDuckFortifyProcessor implements ItemProcessor<List<VulnerableComponentView>, List<Vulnerability>>, StepExecutionListener {
+    private StepExecution stepExecution;
+
+    private Date bomUpdatedValueAt;
 
     private final Function<VulnerableComponentView, Vulnerability> transformMapping = new Function<VulnerableComponentView, Vulnerability>() {
 
@@ -31,7 +37,7 @@ public class BlackDuckFortifyProcessor implements ItemProcessor<List<VulnerableC
             vulnerability.setChannelVersionOriginId(String.valueOf(vulnerableComponentView.getComponentVersionOriginId()));
             vulnerability.setChannelVersionOriginName(String.valueOf(vulnerableComponentView.getComponentVersionName()));
             vulnerability.setVulnerabilityId(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getVulnerabilityName()));
-            vulnerability.setDescription(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getDescription()));
+            vulnerability.setDescription(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getDescription().replaceAll("\\r\\n", "")));
             vulnerability.setPublishedOn(vulnerableComponentView.getVulnerabilityWithRemediation().getVulnerabilityPublishedDate());
             vulnerability.setUpdatedOn(vulnerableComponentView.getVulnerabilityWithRemediation().getVulnerabilityUpdatedDate());
             vulnerability.setBaseScore(vulnerableComponentView.getVulnerabilityWithRemediation().getBaseScore());
@@ -44,14 +50,25 @@ public class BlackDuckFortifyProcessor implements ItemProcessor<List<VulnerableC
             vulnerability.setUrl("NVD".equalsIgnoreCase(vulnerableComponentView.getVulnerabilityWithRemediation().getSource())
                     ? "http://web.nvd.nist.gov/view/vuln/detail?vulnId=" + vulnerableComponentView.getVulnerabilityWithRemediation().getVulnerabilityName()
                     : "");
-            vulnerability.setScanDate(null);
+            vulnerability.setScanDate(bomUpdatedValueAt);
             return vulnerability;
         }
     };
 
     @Override
     public List<Vulnerability> process(List<VulnerableComponentView> vulnerableComponentViews) throws Exception {
+        ExecutionContext stepContext = this.stepExecution.getExecutionContext();
+        final String projectName = (String) stepContext.get("hubProjectName");
+        final String projectVersionName = (String) stepContext.get("hubProjectVersionName");
+        bomUpdatedValueAt = (Date) stepContext.get("bomUpdatedValueAt");
+        System.out.println(
+                "Process :: Project name::" + projectName + ", projectVersionName::" + projectVersionName + ", bomUpdatedValueAt::" + bomUpdatedValueAt);
         return vulnerableComponentViews.stream().map(transformMapping).collect(Collectors.<Vulnerability> toList());
+    }
+
+    @BeforeStep
+    public void saveStepExecution(StepExecution stepExecution) {
+        this.stepExecution = stepExecution;
     }
 
     @Override
@@ -61,7 +78,7 @@ public class BlackDuckFortifyProcessor implements ItemProcessor<List<VulnerableC
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        return null;
+        return ExitStatus.COMPLETED;
     }
 
 }

@@ -48,13 +48,13 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     private BatchSchedulerConfig batchScheduler;
 
     @Autowired
-    private MappingParser parser;
-
-    @Autowired
     private JobBuilderFactory jobBuilderFactory;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private MappingParser parser;
 
     private final String MAPPING_FILE = "src/main/resources/mapping.json";
 
@@ -112,14 +112,15 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     }
 
     @Override
-    public void afterJob(JobExecution arg0) {
-        System.out.println("Inside after Job");
+    public void afterJob(JobExecution jobExecution) {
+        System.out.println("Completed Job::" + new Date());
     }
 
     @Override
-    public void beforeJob(JobExecution arg0) {
-        List<BlackDuckFortifyMapper> mappingObj = parser.createMapping(MAPPING_FILE);
-        System.out.println("Inside before Job :" + mappingObj);
-        // TO DO: Pass the mappingObj to the reader
+    public void beforeJob(JobExecution jobExecution) {
+        System.out.println("Start Job::" + new Date());
+        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = parser.createMapping(MAPPING_FILE);
+        System.out.println("blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
+        jobExecution.getExecutionContext().put("BlackDuckFortifyMapper", blackDuckFortifyMappers);
     }
 }

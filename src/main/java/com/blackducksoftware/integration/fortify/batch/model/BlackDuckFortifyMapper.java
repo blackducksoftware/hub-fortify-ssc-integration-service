@@ -11,7 +11,9 @@
  */
 package com.blackducksoftware.integration.fortify.batch.model;
 
-public class BlackDuckFortifyMapper {
+import java.io.Serializable;
+
+public class BlackDuckFortifyMapper implements Serializable {
     private String hubProject;
 
     private String hubProjectVersion;
