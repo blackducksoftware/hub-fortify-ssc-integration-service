@@ -30,13 +30,13 @@ import com.google.gson.reflect.TypeToken;
 @Component
 public class MappingParser {
 
-    private final String FIELDS = "id,name";
+    private final String FIELDS = "id";
 
     private final String Q_project = "project.name:";
 
     private final String Q_version = "name:";
 
-    private final String Q_connector = "+ and +";
+    private final String Q_connector = "+and+";
 
     @Autowired
     private FortifyApplicationVersionApi fortifyApplicationVersionApi;
