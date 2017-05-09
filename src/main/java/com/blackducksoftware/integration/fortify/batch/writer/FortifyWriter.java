@@ -49,7 +49,8 @@ public class FortifyWriter implements ItemWriter<List<Vulnerability>>, StepExecu
         final String projectName = (String) stepContext.get("hubProjectName");
         final String projectVersionName = (String) stepContext.get("hubProjectVersionName");
         final int fortifyApplicationId = (int) stepContext.get("fortifyApplicationId");
-        System.out.println("Writer :: Project name::" + projectName + ", projectVersionName::" + projectVersionName);
+        System.out.println(
+                "Writer :: Project name::" + projectName + ", projectVersionName::" + projectVersionName + ", fortifyApplicationId::" + fortifyApplicationId);
 
         final String fileName = projectName + UNDERSCORE + projectVersionName + UNDERSCORE
                 + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
