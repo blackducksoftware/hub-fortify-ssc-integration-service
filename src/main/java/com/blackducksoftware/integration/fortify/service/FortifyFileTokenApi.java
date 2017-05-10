@@ -46,8 +46,8 @@ public class FortifyFileTokenApi {
     private FortifyFileTokenApiService apiService;
 
     private void init() {
-        okBuilder = getHeader(env.getProperty("FORTIFY_USERNAME"), env.getProperty("FORTIFY_PASSWORD"));
-        retrofit = new Retrofit.Builder().baseUrl(env.getProperty("FORTIFY_SERVER_URL")).addConverterFactory(GsonConverterFactory.create())
+        okBuilder = getHeader(env.getProperty("fortify.username"), env.getProperty("fortify.password"));
+        retrofit = new Retrofit.Builder().baseUrl(env.getProperty("fortify.server.url")).addConverterFactory(GsonConverterFactory.create())
                 .client(okBuilder.build()).build();
         apiService = retrofit.create(FortifyFileTokenApiService.class);
     }
