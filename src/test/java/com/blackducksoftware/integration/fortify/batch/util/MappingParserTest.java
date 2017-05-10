@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.fortify.Application;
@@ -27,37 +28,22 @@ import junit.framework.TestCase;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { Application.class })
 public class MappingParserTest extends TestCase {
-    private final String mappingFilePath = "src/main/resources/mapping.json";
+
+    @Autowired
+    private Environment env;
 
     @Autowired
     private MappingParser parser;
 
     @Test
     public void testMappingFileParser() throws Exception {
-        // MappingParser parser;
         List<BlackDuckFortifyMapper> mapping;
         try {
-            // parser = new MappingParser();
-            mapping = parser.createMapping(mappingFilePath);
+            mapping = parser.createMapping(env.getProperty("hub.fortify.mapping.file.path"));
             System.out.println(mapping);
         } catch (Exception e) {
             e.printStackTrace();
             // Logger info to be added
         }
     }
-
-    // @Test
-    // public void addApplicationIdToResponseTest() {
-    // // MappingParser parser;
-    // List<BlackDuckFortifyMapper> mapping;
-    // try {
-    // // parser = new MappingParser();
-    // mapping = parser.createMapping(mappingFilePath);
-    // List<BlackDuckFortifyMapper> mappingObj = parser.addApplicationIdToResponse(mapping);
-    // System.out.println(mappingObj);
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // }
-
 }
