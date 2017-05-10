@@ -8,7 +8,6 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,12 +18,9 @@ import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 
 @Configuration
-public class BlackDuckReader implements ItemReader<List<VulnerableComponentView>>, StepExecutionListener {
+public class BlackDuckReader<T> extends ListItemReader<T> implements StepExecutionListener {
+
     private StepExecution stepExecution;
-
-    private int readCount = 0;
-
-    private List<BlackDuckFortifyMapper> blackDuckFortifyMappers;
 
     private BlackDuckFortifyMapper blackDuckFortifyMapper = null;
 
@@ -35,11 +31,9 @@ public class BlackDuckReader implements ItemReader<List<VulnerableComponentView>
 
     @SuppressWarnings("unchecked")
     @Override
-    public synchronized List<VulnerableComponentView> read() throws IllegalArgumentException, IntegrationException {
-        ExecutionContext jobContext = this.stepExecution.getJobExecution().getExecutionContext();
-        blackDuckFortifyMappers = (List<BlackDuckFortifyMapper>) jobContext.get("blackDuckFortifyMapper");
-        if (readCount < blackDuckFortifyMappers.size()) {
-            blackDuckFortifyMapper = blackDuckFortifyMappers.get(readCount++);
+    public synchronized T read() throws IllegalArgumentException, IntegrationException {
+        blackDuckFortifyMapper = (BlackDuckFortifyMapper) super.read();
+        if (blackDuckFortifyMapper != null) {
             System.out.println("blackDuckFortifyMapper::" + blackDuckFortifyMapper.toString());
             ProjectVersionView projectVersionItem = null;
             List<VulnerableComponentView> vulnerableComponentViews;
@@ -51,20 +45,23 @@ public class BlackDuckReader implements ItemReader<List<VulnerableComponentView>
             stepContext.put("hubProjectVersionName", blackDuckFortifyMapper.getHubProjectVersion());
             stepContext.put("fortifyApplicationId", blackDuckFortifyMapper.getFortifyApplicationId());
             stepContext.put("bomUpdatedValueAt", bomUpdatedValueAt);
-            return vulnerableComponentViews;
+            return (T) vulnerableComponentViews;
         } else {
             return null;
         }
     }
 
+    @SuppressWarnings("unchecked")
     @BeforeStep
     public void saveStepExecution(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
+        ExecutionContext jobContext = this.stepExecution.getJobExecution().getExecutionContext();
+        list = (List<T>) jobContext.get("blackDuckFortifyMapper");
     }
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        readCount = 0;
+
     }
 
     @Override

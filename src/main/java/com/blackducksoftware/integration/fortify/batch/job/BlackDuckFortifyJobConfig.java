@@ -53,8 +53,8 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     private StepBuilderFactory stepBuilderFactory;
 
     @Bean
-    public BlackDuckReader getBlackduckScanReader() {
-        return new BlackDuckReader();
+    public <T> BlackDuckReader<T> getBlackduckScanReader() {
+        return new BlackDuckReader<>();
     }
 
     @Bean
