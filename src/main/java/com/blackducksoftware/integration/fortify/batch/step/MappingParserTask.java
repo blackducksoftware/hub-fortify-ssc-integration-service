@@ -23,6 +23,7 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
@@ -33,12 +34,14 @@ public class MappingParserTask implements Tasklet, StepExecutionListener {
     @Autowired
     private MappingParser parser;
 
-    private final String MAPPING_FILE = "src/main/resources/mapping.json";
+    @Autowired
+    private Environment env;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         System.out.println("Started MappingParserTask");
-        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = parser.createMapping(MAPPING_FILE);
+        System.out.println("Found Mapping file:: " + env.getProperty("hub.fortify.mapping.file.path"));
+        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = parser.createMapping(env.getProperty("hub.fortify.mapping.file.path"));
         ExecutionContext stepContext = chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
         stepContext.put("blackDuckFortifyMapper", blackDuckFortifyMappers);
         System.out.println("blackDuckFortifyMappers :" + stepContext.get("blackDuckFortifyMapper"));
