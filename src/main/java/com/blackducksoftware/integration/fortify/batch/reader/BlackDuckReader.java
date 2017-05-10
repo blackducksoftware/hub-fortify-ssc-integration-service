@@ -22,9 +22,9 @@ import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 public class BlackDuckReader implements ItemReader<List<VulnerableComponentView>>, StepExecutionListener {
     private StepExecution stepExecution;
 
-    private List<BlackDuckFortifyMapper> blackDuckFortifyMappers;
-
     private int readCount = 0;
+
+    private List<BlackDuckFortifyMapper> blackDuckFortifyMappers;
 
     private BlackDuckFortifyMapper blackDuckFortifyMapper = null;
 
@@ -33,9 +33,11 @@ public class BlackDuckReader implements ItemReader<List<VulnerableComponentView>
     @Autowired
     private HubServices hubServices;
 
+    @SuppressWarnings("unchecked")
     @Override
     public synchronized List<VulnerableComponentView> read() throws IllegalArgumentException, IntegrationException {
-
+        ExecutionContext jobContext = this.stepExecution.getJobExecution().getExecutionContext();
+        blackDuckFortifyMappers = (List<BlackDuckFortifyMapper>) jobContext.get("blackDuckFortifyMapper");
         if (readCount < blackDuckFortifyMappers.size()) {
             blackDuckFortifyMapper = blackDuckFortifyMappers.get(readCount++);
             System.out.println("blackDuckFortifyMapper::" + blackDuckFortifyMapper.toString());
@@ -60,10 +62,9 @@ public class BlackDuckReader implements ItemReader<List<VulnerableComponentView>
         this.stepExecution = stepExecution;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        blackDuckFortifyMappers = (List<BlackDuckFortifyMapper>) stepExecution.getJobExecution().getExecutionContext().get("BlackDuckFortifyMapper");
+        readCount = 0;
     }
 
     @Override

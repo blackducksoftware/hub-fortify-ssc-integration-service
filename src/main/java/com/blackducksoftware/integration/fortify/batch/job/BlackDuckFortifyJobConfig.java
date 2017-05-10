@@ -32,12 +32,11 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.fortify.batch.processor.BlackDuckFortifyProcessor;
 import com.blackducksoftware.integration.fortify.batch.reader.BlackDuckReader;
-import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
+import com.blackducksoftware.integration.fortify.batch.step.MappingParserTask;
 import com.blackducksoftware.integration.fortify.batch.writer.FortifyWriter;
 
 @Configuration
@@ -53,11 +52,6 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
-    @Autowired
-    private MappingParser parser;
-
-    private final String MAPPING_FILE = "src/main/resources/mapping.json";
-
     @Bean
     public BlackDuckReader getBlackduckScanReader() {
         return new BlackDuckReader();
@@ -69,8 +63,13 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     }
 
     @Bean
-    public FortifyWriter getFortifyPushWriter() {
+    public FortifyWriter getFortifyWriter() {
         return new FortifyWriter();
+    }
+
+    @Bean
+    public MappingParserTask getMappingParserTask() {
+        return new MappingParserTask();
     }
 
     @Bean
@@ -82,15 +81,9 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
 
     @Scheduled(cron = "${cron.expressions}")
     public void execute() throws Exception {
-
-        System.out.println("Job Started at :" + new Date());
-
         JobParameters param = new JobParametersBuilder().addString("JobID",
                 String.valueOf(System.currentTimeMillis())).toJobParameters();
-
-        JobExecution execution = batchScheduler.jobLauncher().run(pushBlackDuckScanToFortifyJob(), param);
-
-        System.out.println("Job finished with status :" + execution.getStatus());
+        batchScheduler.jobLauncher().run(pushBlackDuckScanToFortifyJob(), param);
     }
 
     @Bean
@@ -98,29 +91,33 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
         return jobBuilderFactory.get("Push Blackduck Scan data to Fortify Job")
                 .incrementer(new RunIdIncrementer())
                 .listener(this)
-                .flow(pushBlackDuckScanToFortifyStep()).end().build();
+                .flow(createMappingParserStep())
+                .next(pushBlackDuckScanToFortifyStep()).end().build();
+    }
+
+    @Bean
+    public Step createMappingParserStep() {
+        return stepBuilderFactory.get("Parse the Mapping.json -> Transform to Mapping parser object")
+                .tasklet(getMappingParserTask()).build();
     }
 
     @Bean
     public Step pushBlackDuckScanToFortifyStep() {
         return stepBuilderFactory.get("Extract Latest Scan from Blackduck -> Transform -> Push Data To Fortify")
-                .<List<VulnerableComponentView>, List<Vulnerability>> chunk(10000)
+                .<List<VulnerableComponentView>, List<Vulnerability>> chunk(1)
                 .reader(getBlackduckScanReader())
                 .processor(getBlackduckFortifyProcessor())
-                .writer(getFortifyPushWriter())
+                .writer(getFortifyWriter())
                 .taskExecutor(taskExecutor()).build();
     }
 
     @Override
     public void afterJob(JobExecution jobExecution) {
-        System.out.println("Completed Job::" + new Date());
+        System.out.println("Completed Job Time::" + new Date());
     }
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
-        System.out.println("Start Job::" + new Date());
-        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = parser.createMapping(MAPPING_FILE);
-        System.out.println("blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
-        jobExecution.getExecutionContext().put("BlackDuckFortifyMapper", blackDuckFortifyMappers);
+        System.out.println("Started Job Time::" + new Date());
     }
 }
