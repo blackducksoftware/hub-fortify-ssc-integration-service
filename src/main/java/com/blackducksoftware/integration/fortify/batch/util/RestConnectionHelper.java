@@ -39,24 +39,24 @@ public class RestConnectionHelper {
 
     public HubServerConfig getHubServerConfig() {
         HubServerConfigBuilder builder = new HubServerConfigBuilder();
-        builder.setHubUrl(env.getProperty("HUB_SERVER_URL"));
-        builder.setUsername(env.getProperty("HUB_USERNAME"));
-        builder.setPassword(env.getProperty("HUB_PASSWORD"));
-        builder.setTimeout(env.getProperty("HUB_TIMEOUT"));
+        builder.setHubUrl(env.getProperty("hub.server.url"));
+        builder.setUsername(env.getProperty("hub.username"));
+        builder.setPassword(env.getProperty("hub.password"));
+        builder.setTimeout(env.getProperty("hub.timeout"));
 
         return builder.build();
     }
 
     public String getIntegrationHubServerUrl() {
-        return env.getProperty("HUB_SERVER_URL");
+        return env.getProperty("hub.server.url");
     }
 
     public String getUsername() {
-        return env.getProperty("HUB_USERNAME");
+        return env.getProperty("hub.username");
     }
 
     public String getPassword() {
-        return env.getProperty("HUB_PASSWORD");
+        return env.getProperty("hub.password");
     }
 
     public CredentialsRestConnection getApplicationPropertyRestConnection() throws IllegalArgumentException, EncryptionException, HubIntegrationException {
