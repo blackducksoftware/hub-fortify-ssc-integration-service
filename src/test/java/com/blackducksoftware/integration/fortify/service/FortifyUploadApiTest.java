@@ -23,10 +23,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.blackducksoftware.integration.fortify.Application;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
+import com.blackducksoftware.integration.fortify.model.JobStatusResponse;
 
 import junit.framework.TestCase;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { Application.class })
@@ -47,10 +46,9 @@ public class FortifyUploadApiTest extends TestCase {
         System.out.println("File Token::" + token);
 
         // File file = new File("/Users/smanikantan/Downloads/security.csv");
-        File file = new File("/Users/smanikantan/Documents/hub-fortify-integration/security.csv");
+        File file = new File("/Users/smanikantan/Documents/hub-fortify-integration/report/solrWar2_4.10.4_20170510160506866.csv");
         System.out.println("file::" + file);
-        Call<ResponseBody> uploadVulnerabilityResponse = fortifyUploadApi.uploadVulnerabilityByProjectVersion(token, 2l, file);
-        ResponseBody uploadVulnerabilityResponseBody = uploadVulnerabilityResponse.execute().body();
+        JobStatusResponse uploadVulnerabilityResponseBody = fortifyUploadApi.uploadVulnerabilityByProjectVersion(token, 2l, file);
         System.out.println("uploadVulnerabilityResponse::" + uploadVulnerabilityResponseBody);
         Assert.assertNotNull(uploadVulnerabilityResponseBody);
     }

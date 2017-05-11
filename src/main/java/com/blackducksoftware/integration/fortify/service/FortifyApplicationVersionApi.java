@@ -62,7 +62,7 @@ public class FortifyApplicationVersionApi {
 
     private Builder getHeader(String userName, String password) {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(Level.BODY);
+        logging.setLevel(Level.BASIC);
         OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
 
         okBuilder.authenticator(new Authenticator() {
