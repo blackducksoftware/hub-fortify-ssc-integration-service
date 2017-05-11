@@ -11,7 +11,13 @@
  */
 package com.blackducksoftware.integration.fortify.batch.step;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
@@ -19,17 +25,20 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.util.CSVUtils;
+import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
+import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
+import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 
 @Configuration
-public class MappingParserTask implements Tasklet, StepExecutionListener {
+public class Initializer implements Tasklet, StepExecutionListener {
 
     @Autowired
     private MappingParser parser;
@@ -37,14 +46,36 @@ public class MappingParserTask implements Tasklet, StepExecutionListener {
     @Autowired
     private Environment env;
 
+    @Autowired
+    private HubServices hubServices;
+
+    @Autowired
+    private FortifyFileTokenApi fortifyFileTokenApi;
+
+    @Autowired
+    private FortifyUploadApi fortifyUploadApi;
+
+    @Autowired
+    private CSVUtils csvUtils;
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         System.out.println("Started MappingParserTask");
+
+        Arrays.stream(new File(env.getProperty("hub.fortify.report.dir")).listFiles()).forEach(File::delete);
         System.out.println("Found Mapping file:: " + env.getProperty("hub.fortify.mapping.file.path"));
         final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = parser.createMapping(env.getProperty("hub.fortify.mapping.file.path"));
-        ExecutionContext stepContext = chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
-        stepContext.put("blackDuckFortifyMapper", blackDuckFortifyMappers);
-        System.out.println("blackDuckFortifyMappers :" + stepContext.get("blackDuckFortifyMapper"));
+        System.out.println("blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
+
+        ExecutorService exec = Executors.newFixedThreadPool(5);
+        List<Future<?>> futures = new ArrayList<>(blackDuckFortifyMappers.size());
+        for (BlackDuckFortifyMapper blackDuckFortifyMapper : blackDuckFortifyMappers) {
+            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapper, hubServices, env, fortifyFileTokenApi, fortifyUploadApi, csvUtils)));
+        }
+        for (Future<?> f : futures) {
+            f.get(); // wait for a processor to complete
+        }
+
         return RepeatStatus.FINISHED;
     }
 

@@ -13,8 +13,11 @@ package com.blackducksoftware.integration.fortify.batch.model;
 
 import java.util.Date;
 
+import org.springframework.context.annotation.Configuration;
+
 import com.blackducksoftware.integration.hub.model.HubView;
 
+@Configuration
 public class RiskProfile extends HubView {
     private Date bomLastUpdatedAt;
 

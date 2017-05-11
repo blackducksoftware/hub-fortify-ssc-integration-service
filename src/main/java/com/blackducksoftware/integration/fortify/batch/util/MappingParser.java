@@ -76,7 +76,7 @@ public class MappingParser {
             try {
                 String Q = Q_version + fortify_applicationVersion + Q_connector + Q_project + fortify_applicationName;
                 FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationByName(FIELDS, Q);
-                System.out.println("Generating response from the method: " + response.getData().get(0).getId());
+                System.out.println("Fortify Application Id::" + response.getData().get(0).getId());
                 if (response.getData() != null) {
                     element.setFortifyApplicationId(response.getData().get(0).getId());
                 } else {

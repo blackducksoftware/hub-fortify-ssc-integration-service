@@ -14,9 +14,13 @@ package com.blackducksoftware.integration.fortify.service;
 import java.io.File;
 import java.io.IOException;
 
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+
+import com.blackducksoftware.integration.fortify.model.JobStatusResponse;
 
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
@@ -27,13 +31,9 @@ import okhttp3.OkHttpClient.Builder;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 import okhttp3.Route;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
-import retrofit2.Call;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 @Component
 public class FortifyUploadApi {
@@ -42,30 +42,41 @@ public class FortifyUploadApi {
 
     private OkHttpClient.Builder okBuilder;
 
-    private Retrofit retrofit;
-
-    private FortifyUploadApiService apiService;
+    private OkHttpClient okHttpClient;
 
     public void init() {
         okBuilder = getHeader(env.getProperty("fortify.username"), env.getProperty("fortify.password"));
-        retrofit = new Retrofit.Builder().baseUrl(env.getProperty("fortify.server.url")).addConverterFactory(GsonConverterFactory.create())
-                .client(okBuilder.build()).build();
-        apiService = retrofit.create(FortifyUploadApiService.class);
+        okHttpClient = okBuilder.build();
     }
 
-    public Call<ResponseBody> uploadVulnerabilityByProjectVersion(String fileToken, long entityId, File file) throws IOException {
+    public JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws IOException, IllegalArgumentException {
         if (okBuilder == null)
             init();
-        RequestBody engineType = RequestBody.create(MediaType.parse("text/plain"), "BLACKDUCK");
-        RequestBody mFile = RequestBody.create(MediaType.parse("text/csv"), file);
-        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("files[]", file.getName(), mFile);
-        Call<ResponseBody> uploadVulnerabilityResponse = apiService.uploadVulnerabilityByProjectVersion(fileToken, entityId, engineType, fileToUpload);
-        return uploadVulnerabilityResponse;
+
+        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        builder.addFormDataPart("entityId", String.valueOf(entityIdVal));
+        builder.addFormDataPart("engineType", "BLACKDUCK");
+        builder.addFormDataPart("files[]", file.getName(), RequestBody.create(MediaType.parse("text/csv"), file));
+
+        RequestBody requestBody = builder.build();
+
+        Request request = new Request.Builder().url(env.getProperty("fortify.server.url") + "upload/resultFileUpload.html?mat=" + fileToken).post(requestBody)
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+        Serializer serializer = new Persister();
+        JobStatusResponse jobStatusResponse;
+        try {
+            jobStatusResponse = serializer.read(JobStatusResponse.class, response.body().string());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error while generating the upload response");
+        }
+
+        return jobStatusResponse;
     }
 
     private Builder getHeader(String userName, String password) {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(Level.BODY);
+        logging.setLevel(Level.BASIC);
         OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
 
         okBuilder.authenticator(new Authenticator() {

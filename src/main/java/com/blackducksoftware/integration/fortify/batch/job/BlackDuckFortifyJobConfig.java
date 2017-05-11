@@ -11,8 +11,16 @@
  */
 package com.blackducksoftware.integration.fortify.batch.job;
 
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.List;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -27,17 +35,13 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
-import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
-import com.blackducksoftware.integration.fortify.batch.processor.BlackDuckFortifyProcessor;
-import com.blackducksoftware.integration.fortify.batch.reader.BlackDuckReader;
-import com.blackducksoftware.integration.fortify.batch.step.MappingParserTask;
-import com.blackducksoftware.integration.fortify.batch.writer.FortifyWriter;
+import com.blackducksoftware.integration.fortify.batch.step.Initializer;
 
 @Configuration
 @EnableBatchProcessing
@@ -52,30 +56,20 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
-    @Bean
-    public <T> BlackDuckReader<T> getBlackduckScanReader() {
-        return new BlackDuckReader<>();
-    }
+    @Autowired
+    private Environment env;
+
+    private String startJobTimeStamp;
 
     @Bean
-    public BlackDuckFortifyProcessor getBlackduckFortifyProcessor() {
-        return new BlackDuckFortifyProcessor();
-    }
-
-    @Bean
-    public FortifyWriter getFortifyWriter() {
-        return new FortifyWriter();
-    }
-
-    @Bean
-    public MappingParserTask getMappingParserTask() {
-        return new MappingParserTask();
+    public Initializer getMappingParserTask() {
+        return new Initializer();
     }
 
     @Bean
     public TaskExecutor taskExecutor() {
         SimpleAsyncTaskExecutor asyncTaskExecutor = new SimpleAsyncTaskExecutor("spring_batch");
-        asyncTaskExecutor.setConcurrencyLimit(5);
+        asyncTaskExecutor.setConcurrencyLimit(2);
         return asyncTaskExecutor;
     }
 
@@ -92,7 +86,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
                 .incrementer(new RunIdIncrementer())
                 .listener(this)
                 .flow(createMappingParserStep())
-                .next(pushBlackDuckScanToFortifyStep()).end().build();
+                .end().build();
     }
 
     @Bean
@@ -101,23 +95,24 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
                 .tasklet(getMappingParserTask()).build();
     }
 
-    @Bean
-    public Step pushBlackDuckScanToFortifyStep() {
-        return stepBuilderFactory.get("Extract Latest Scan from Blackduck -> Transform -> Push Data To Fortify")
-                .<List<VulnerableComponentView>, List<Vulnerability>> chunk(1)
-                .reader(getBlackduckScanReader())
-                .processor(getBlackduckFortifyProcessor())
-                .writer(getFortifyWriter())
-                .taskExecutor(taskExecutor()).build();
-    }
-
     @Override
     public void afterJob(JobExecution jobExecution) {
         System.out.println("Completed Job Time::" + new Date());
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(env.getProperty("hub.fortify.batch.job.status.file.path")), "utf-8"))) {
+            writer.write(startJobTimeStamp);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
         System.out.println("Started Job Time::" + new Date());
+        startJobTimeStamp = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss:SSS").format(LocalDateTime.now());
     }
 }
