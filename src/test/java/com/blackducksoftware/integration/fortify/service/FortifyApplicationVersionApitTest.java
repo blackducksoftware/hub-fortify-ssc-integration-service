@@ -22,7 +22,7 @@ import com.blackducksoftware.integration.fortify.model.FortifyApplicationRespons
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-public final class FortifyApplicationVersionApitTest extends TestCase {
+public class FortifyApplicationVersionApitTest extends TestCase {
 
     String FIELDS = "id";
 
