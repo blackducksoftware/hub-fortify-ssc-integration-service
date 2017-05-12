@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
-import org.springframework.context.annotation.Configuration;
-
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -27,7 +25,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
-@Configuration
 public class CSVUtils {
 
     public void writeToCSV(List<Vulnerability> vulnerabilities, String fileName, char delimiter)

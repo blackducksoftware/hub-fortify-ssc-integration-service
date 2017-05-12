@@ -20,16 +20,13 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
-
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.fortify.batch.util.CSVUtils;
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
+import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
 import com.blackducksoftware.integration.fortify.model.JobStatusResponse;
@@ -37,12 +34,9 @@ import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
 import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 
-@Component
 public class BlackDuckFortifyPushThread implements Runnable {
 
     private HubServices hubServices;
-
-    private Environment env;
 
     private FortifyFileTokenApi fortifyFileTokenApi;
 
@@ -89,15 +83,12 @@ public class BlackDuckFortifyPushThread implements Runnable {
         }
     };
 
-    @Autowired
-    public BlackDuckFortifyPushThread(BlackDuckFortifyMapper blackDuckFortifyMapper, HubServices hubServices, Environment env,
-            FortifyFileTokenApi fortifyFileTokenApi, FortifyUploadApi fortifyUploadApi, CSVUtils csvUtils) {
+    public BlackDuckFortifyPushThread(BlackDuckFortifyMapper blackDuckFortifyMapper) {
         this.blackDuckFortifyMapper = blackDuckFortifyMapper;
-        this.hubServices = hubServices;
-        this.env = env;
-        this.fortifyFileTokenApi = fortifyFileTokenApi;
-        this.fortifyUploadApi = fortifyUploadApi;
-        this.csvUtils = csvUtils;
+        hubServices = new HubServices();
+        fortifyFileTokenApi = new FortifyFileTokenApi();
+        fortifyUploadApi = new FortifyUploadApi();
+        csvUtils = new CSVUtils();
     }
 
     @Override
@@ -112,7 +103,7 @@ public class BlackDuckFortifyPushThread implements Runnable {
                 bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
                 List<Vulnerability> vulnerabilities = vulnerableComponentViews.stream().map(transformMapping).collect(Collectors.<Vulnerability> toList());
 
-                final String fileDir = env.getProperty("hub.fortify.report.dir");
+                final String fileDir = PropertyConstants.getProperty("hub.fortify.report.dir");
                 final String fileName = blackDuckFortifyMapper.getHubProject() + UNDERSCORE + blackDuckFortifyMapper.getHubProjectVersion() + UNDERSCORE
                         + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
 

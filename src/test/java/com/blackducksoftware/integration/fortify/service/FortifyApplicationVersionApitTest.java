@@ -13,26 +13,29 @@ package com.blackducksoftware.integration.fortify.service;
 
 import java.io.IOException;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.blackducksoftware.integration.fortify.Application;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { Application.class })
+import junit.framework.TestCase;
 
-public class FortifyApplicationVersionApitTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+public class FortifyApplicationVersionApitTest extends TestCase {
 
     String FIELDS = "id";
 
     String QUERY = "name:1.3+and+project.name:Logistics";
 
-    @Autowired
     private FortifyApplicationVersionApi fortifyApplicationVersionApi;
+
+    @Override
+    @Before
+    public void setUp() {
+        fortifyApplicationVersionApi = new FortifyApplicationVersionApi();
+    }
 
     @Test
     public void getApplicationVersionTest() throws IOException {

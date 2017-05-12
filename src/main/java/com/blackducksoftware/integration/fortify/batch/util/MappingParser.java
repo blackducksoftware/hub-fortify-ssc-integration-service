@@ -17,9 +17,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
@@ -27,7 +24,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
 
-@Component
 public class MappingParser {
 
     private final String FIELDS = "id";
@@ -38,8 +34,11 @@ public class MappingParser {
 
     private final String Q_connector = "+and+";
 
-    @Autowired
     private FortifyApplicationVersionApi fortifyApplicationVersionApi;
+
+    public MappingParser() {
+        fortifyApplicationVersionApi = new FortifyApplicationVersionApi();
+    }
 
     /**
      * @param filePath
