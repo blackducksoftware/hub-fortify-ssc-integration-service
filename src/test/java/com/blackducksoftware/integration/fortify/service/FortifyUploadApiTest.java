@@ -14,7 +14,6 @@ package com.blackducksoftware.integration.fortify.service;
 import java.io.File;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -28,29 +27,18 @@ import junit.framework.TestCase;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class FortifyUploadApiTest extends TestCase {
 
-    private FortifyFileTokenApi fortifyFileTokenApi;
-
-    private FortifyUploadApi fortifyUploadApi;
-
-    @Override
-    @Before
-    public void setUp() {
-        fortifyFileTokenApi = new FortifyFileTokenApi();
-        fortifyUploadApi = new FortifyUploadApi();
-    }
-
     @Test
     public void uploadCSVFile() throws Exception {
         FileToken fileToken = new FileToken();
         fileToken.setFileTokenType("UPLOAD");
-        FileTokenResponse fileTokenResponse = fortifyFileTokenApi.getFileToken(fileToken);
+        FileTokenResponse fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
         String token = fileTokenResponse.getData().getToken();
         System.out.println("File Token::" + token);
 
         // File file = new File("/Users/smanikantan/Downloads/security.csv");
         File file = new File("/Users/smanikantan/Documents/hub-fortify-integration/report/solrWar2_4.10.4_20170510160506866.csv");
         System.out.println("file::" + file);
-        JobStatusResponse uploadVulnerabilityResponseBody = fortifyUploadApi.uploadVulnerabilityByProjectVersion(token, 2l, file);
+        JobStatusResponse uploadVulnerabilityResponseBody = FortifyUploadApi.uploadVulnerabilityByProjectVersion(token, 2l, file);
         System.out.println("uploadVulnerabilityResponse::" + uploadVulnerabilityResponseBody);
         Assert.assertNotNull(uploadVulnerabilityResponseBody);
     }
