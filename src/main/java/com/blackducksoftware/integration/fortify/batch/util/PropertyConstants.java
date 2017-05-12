@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
 
-public class PropertyConstants {
+public final class PropertyConstants {
     private static final Properties properties = new Properties();
 
     private static final String configFileName = "src/main/resources/application.properties";

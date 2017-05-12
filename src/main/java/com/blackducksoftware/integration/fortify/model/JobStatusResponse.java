@@ -20,16 +20,16 @@ public class JobStatusResponse {
     @Element(name = "msg")
     private String message;
 
-    @Element(name = "id")
+    @Element(name = "id", required = false)
     private String id;
 
-    @Element(name = "invokingUserName")
+    @Element(name = "invokingUserName", required = false)
     private String invokingUserName;
 
-    @Element(name = "jobType")
+    @Element(name = "jobType", required = false)
     private int jobType;
 
-    @Element(name = "jobState")
+    @Element(name = "jobState", required = false)
     private int jobState;
 
     public String getCode() {

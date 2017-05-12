@@ -21,7 +21,7 @@ import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.log.LogLevel;
 import com.blackducksoftware.integration.log.PrintStreamIntLogger;
 
-public class RestConnectionHelper {
+public final class RestConnectionHelper {
 
     private static HubServerConfig getHubServerConfig() {
         HubServerConfigBuilder builder = new HubServerConfigBuilder();
@@ -48,18 +48,16 @@ public class RestConnectionHelper {
             restConnection = new CredentialsRestConnection(new PrintStreamIntLogger(System.out, logLevel),
                     serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(),
                     serverConfig.getTimeout());
-        } catch (EncryptionException e1) {
-            // TODO Auto-generated catch block
-            throw new RuntimeException(e1);
-        }
-        restConnection.proxyHost = serverConfig.getProxyInfo().getHost();
-        restConnection.proxyPort = serverConfig.getProxyInfo().getPort();
-        restConnection.proxyNoHosts = serverConfig.getProxyInfo().getIgnoredProxyHosts();
-        restConnection.proxyUsername = serverConfig.getProxyInfo().getUsername();
-        try {
+
+            restConnection.proxyHost = serverConfig.getProxyInfo().getHost();
+            restConnection.proxyPort = serverConfig.getProxyInfo().getPort();
+            restConnection.proxyNoHosts = serverConfig.getProxyInfo().getIgnoredProxyHosts();
+            restConnection.proxyUsername = serverConfig.getProxyInfo().getUsername();
+
             restConnection.proxyPassword = serverConfig.getProxyInfo().getDecryptedPassword();
-        } catch (IllegalArgumentException | EncryptionException e) {
-            // TODO Auto-generated catch block
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (EncryptionException e) {
             throw new RuntimeException(e);
         }
 

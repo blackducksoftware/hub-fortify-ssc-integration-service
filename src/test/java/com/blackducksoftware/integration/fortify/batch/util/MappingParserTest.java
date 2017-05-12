@@ -13,7 +13,6 @@ package com.blackducksoftware.integration.fortify.batch.util;
 
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -25,19 +24,11 @@ import junit.framework.TestCase;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class MappingParserTest extends TestCase {
 
-    private MappingParser parser;
-
-    @Override
-    @Before
-    public void setUp() {
-        parser = new MappingParser();
-    }
-
     @Test
     public void testMappingFileParser() throws Exception {
         List<BlackDuckFortifyMapper> mapping;
         try {
-            mapping = parser.createMapping(PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
+            mapping = MappingParser.createMapping(PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
             System.out.println(mapping);
         } catch (Exception e) {
             e.printStackTrace();
