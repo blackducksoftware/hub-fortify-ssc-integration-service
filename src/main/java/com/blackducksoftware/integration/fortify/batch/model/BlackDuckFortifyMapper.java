@@ -13,9 +13,6 @@ package com.blackducksoftware.integration.fortify.batch.model;
 
 import java.io.Serializable;
 
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
 public class BlackDuckFortifyMapper implements Serializable {
     private String hubProject;
 
