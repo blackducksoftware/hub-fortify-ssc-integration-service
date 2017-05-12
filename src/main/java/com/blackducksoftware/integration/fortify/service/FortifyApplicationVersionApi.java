@@ -13,81 +13,27 @@ package com.blackducksoftware.integration.fortify.service;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-
+import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 
-import okhttp3.Authenticator;
-import okhttp3.Credentials;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.OkHttpClient.Builder;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.Route;
-import okhttp3.logging.HttpLoggingInterceptor;
-import okhttp3.logging.HttpLoggingInterceptor.Level;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@Configuration
-public class FortifyApplicationVersionApi {
-    @Autowired
-    private Environment env;
+public class FortifyApplicationVersionApi extends FortifyService {
 
-    private OkHttpClient.Builder okBuilder;
+    private final OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"),
+            PropertyConstants.getProperty("fortify.password"));;
 
-    private Retrofit retrofit;
+    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getProperty("fortify.server.url"))
+            .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
 
-    private FortifyApplicationVersionApiService apiService;
-
-    private void init() {
-        okBuilder = getHeader(env.getProperty("fortify.username"), env.getProperty("fortify.password"));
-        retrofit = new Retrofit.Builder().baseUrl(env.getProperty("fortify.server.url")).addConverterFactory(GsonConverterFactory.create())
-                .client(okBuilder.build()).build();
-        apiService = retrofit.create(FortifyApplicationVersionApiService.class);
-    }
+    private final FortifyApplicationVersionApiService apiService = retrofit.create(FortifyApplicationVersionApiService.class);
 
     public FortifyApplicationResponse getApplicationByName(String fields, String filter) throws IOException {
-        if (okBuilder == null) {
-            init();
-        }
         Call<FortifyApplicationResponse> apiApplicationResponseCall = apiService.getApplicationByName(fields, filter);
         FortifyApplicationResponse applicationAPIResponse = apiApplicationResponseCall.execute().body();
         return applicationAPIResponse;
-    }
-
-    private Builder getHeader(String userName, String password) {
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(Level.BODY);
-        OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
-
-        okBuilder.authenticator(new Authenticator() {
-
-            @Override
-            public Request authenticate(Route route, Response response) throws IOException {
-                String credential = Credentials.basic(userName, password);
-                return response.request().newBuilder().header("Authorization", credential).build();
-            }
-        });
-
-        okBuilder.addInterceptor(new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                Request request;
-                try {
-                    request = chain.request().newBuilder()
-                            .addHeader("Cache-Control", "no-cache").build();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                return chain.proceed(request);
-            }
-        });
-        okBuilder.addInterceptor(logging);
-        return okBuilder;
     }
 }

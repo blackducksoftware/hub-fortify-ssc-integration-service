@@ -17,9 +17,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
@@ -27,7 +24,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
 
-@Component
 public class MappingParser {
 
     private final String FIELDS = "id";
@@ -38,8 +34,7 @@ public class MappingParser {
 
     private final String Q_connector = "+and+";
 
-    @Autowired
-    private FortifyApplicationVersionApi fortifyApplicationVersionApi;
+    private final FortifyApplicationVersionApi fortifyApplicationVersionApi = new FortifyApplicationVersionApi();
 
     /**
      * @param filePath
@@ -76,7 +71,7 @@ public class MappingParser {
             try {
                 String Q = Q_version + fortify_applicationVersion + Q_connector + Q_project + fortify_applicationName;
                 FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationByName(FIELDS, Q);
-                System.out.println("Generating response from the method: " + response.getData().get(0).getId());
+                System.out.println("Fortify Application Id::" + response.getData().get(0).getId());
                 if (response.getData() != null) {
                     element.setFortifyApplicationId(response.getData().get(0).getId());
                 } else {

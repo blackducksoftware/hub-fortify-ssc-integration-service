@@ -11,23 +11,26 @@
  */
 package com.blackducksoftware.integration.fortify.service;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.blackducksoftware.integration.fortify.Application;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
 
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { Application.class })
 public class FortifyFileTokenApiTest extends TestCase {
-    @Autowired
+
     private FortifyFileTokenApi fortifyFileTokenApi;
+
+    @Override
+    @Before
+    public void setUp() {
+        fortifyFileTokenApi = new FortifyFileTokenApi();
+    }
 
     @Test
     public void getFileToken() throws Exception {

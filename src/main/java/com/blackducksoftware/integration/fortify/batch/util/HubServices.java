@@ -15,9 +15,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.model.RiskProfile;
@@ -33,12 +30,9 @@ import com.blackducksoftware.integration.hub.request.HubRequest;
 import com.blackducksoftware.integration.hub.service.HubResponseService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 
-@Configuration
 public class HubServices {
-    private static HubServicesFactory hubServicesFactory;
 
-    @Autowired
-    private RestConnectionHelper restConnectionHelper;
+    private final static HubServicesFactory hubServicesFactory = RestConnectionHelper.createHubServicesFactory();
 
     public List<VulnerableComponentView> getVulnerabilityComponentViews(final ProjectVersionView projectVersionItem)
             throws IllegalArgumentException, IntegrationException {
@@ -50,27 +44,22 @@ public class HubServices {
     }
 
     public ProjectVersionView getProjectVersion(final String projectName, final String versionName) throws IllegalArgumentException, IntegrationException {
-        hubServicesFactory = restConnectionHelper.createHubServicesFactory();
         final ProjectView projectItem = getProjectByProjectName(projectName);
         return getProjectVersion(projectItem, versionName);
     }
 
     public List<ProjectView> getAllProjects() throws IntegrationException {
-        hubServicesFactory = restConnectionHelper.createHubServicesFactory();
         final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService(hubServicesFactory.getRestConnection().logger);
         return projectRequestService.getAllProjects();
     }
 
     public List<ProjectVersionView> getProjectVersionsByProject(final ProjectView project) throws IntegrationException {
-        hubServicesFactory = restConnectionHelper.createHubServicesFactory();
         final ProjectVersionRequestService projectVersionRequestService = hubServicesFactory
                 .createProjectVersionRequestService(hubServicesFactory.getRestConnection().logger);
         return projectVersionRequestService.getAllProjectVersions(project);
     }
 
     public ProjectView getProjectByProjectName(final String projectName) throws IntegrationException {
-        if (hubServicesFactory == null)
-            hubServicesFactory = restConnectionHelper.createHubServicesFactory();
         final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService(hubServicesFactory.getRestConnection().logger);
         return projectRequestService.getProjectByName(projectName);
     }
@@ -83,8 +72,6 @@ public class HubServices {
 
     private String getVulnerabililtyBomComponentUrl(final ProjectVersionView projectVersionItem)
             throws HubIntegrationException, IllegalArgumentException, EncryptionException {
-        if (hubServicesFactory == null)
-            hubServicesFactory = restConnectionHelper.createHubServicesFactory();
         final MetaService metaService = hubServicesFactory.createMetaService(hubServicesFactory.getRestConnection().logger);
         return metaService.getFirstLink(projectVersionItem, MetaService.VULNERABLE_COMPONENTS_LINK);
     }
@@ -97,8 +84,6 @@ public class HubServices {
 
     private String getProjectVersionRiskProfileUrl(final ProjectVersionView projectVersionItem)
             throws HubIntegrationException, IllegalArgumentException, EncryptionException {
-        if (hubServicesFactory == null)
-            hubServicesFactory = restConnectionHelper.createHubServicesFactory();
         final MetaService metaService = hubServicesFactory.createMetaService(hubServicesFactory.getRestConnection().logger);
         return metaService.getFirstLink(projectVersionItem, MetaService.RISK_PROFILE_LINK);
     }

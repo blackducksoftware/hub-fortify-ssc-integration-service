@@ -16,14 +16,12 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.fortify.Application;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
@@ -31,7 +29,6 @@ import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = { Application.class })
 public class CSVUtilsTest extends TestCase {
     private final String PROJECT_NAME = "solrWar2";
 
@@ -39,7 +36,6 @@ public class CSVUtilsTest extends TestCase {
 
     private Date bomUpdatedValueAt = null;
 
-    @Autowired
     private HubServices hubServices;
 
     private final Function<VulnerableComponentView, Vulnerability> transformMapping = new Function<VulnerableComponentView, Vulnerability>() {
@@ -74,6 +70,12 @@ public class CSVUtilsTest extends TestCase {
             return vulnerability;
         }
     };
+
+    @Override
+    @Before
+    public void setUp() {
+        hubServices = new HubServices();
+    }
 
     @Test
     public void testWriteToCSV() {
