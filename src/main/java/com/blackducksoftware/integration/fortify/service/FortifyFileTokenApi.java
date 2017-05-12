@@ -25,18 +25,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class FortifyFileTokenApi extends FortifyService {
 
-    private OkHttpClient.Builder okBuilder;
+    private final OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"),
+            PropertyConstants.getProperty("fortify.password"));;
 
-    private Retrofit retrofit;
+    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getProperty("fortify.server.url"))
+            .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
 
-    private FortifyFileTokenApiService apiService;
-
-    public FortifyFileTokenApi() {
-        okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"), PropertyConstants.getProperty("fortify.password"));
-        retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getProperty("fortify.server.url")).addConverterFactory(GsonConverterFactory.create())
-                .client(okBuilder.build()).build();
-        apiService = retrofit.create(FortifyFileTokenApiService.class);
-    }
+    private final FortifyFileTokenApiService apiService = retrofit.create(FortifyFileTokenApiService.class);
 
     public FileTokenResponse getFileToken(FileToken fileToken) throws IOException {
         Call<FileTokenResponse> fileTokenResponseCall = apiService.getFileToken(fileToken);

@@ -13,7 +13,6 @@ package com.blackducksoftware.integration.fortify.batch.util;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
@@ -34,42 +33,48 @@ public class RestConnectionHelper {
         return builder.build();
     }
 
-    private static CredentialsRestConnection getApplicationPropertyRestConnection()
-            throws IllegalArgumentException, EncryptionException, HubIntegrationException {
+    private static CredentialsRestConnection getApplicationPropertyRestConnection() {
         return getRestConnection(getHubServerConfig());
     }
 
-    private static CredentialsRestConnection getRestConnection(final HubServerConfig serverConfig)
-            throws IllegalArgumentException, EncryptionException, HubIntegrationException {
+    private static CredentialsRestConnection getRestConnection(final HubServerConfig serverConfig) {
         return getRestConnection(serverConfig, LogLevel.TRACE);
     }
 
-    private static CredentialsRestConnection getRestConnection(final HubServerConfig serverConfig, final LogLevel logLevel)
-            throws IllegalArgumentException, EncryptionException, HubIntegrationException {
+    private static CredentialsRestConnection getRestConnection(final HubServerConfig serverConfig, final LogLevel logLevel) {
 
-        final CredentialsRestConnection restConnection = new CredentialsRestConnection(new PrintStreamIntLogger(System.out, logLevel),
-                serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(),
-                serverConfig.getTimeout());
+        CredentialsRestConnection restConnection;
+        try {
+            restConnection = new CredentialsRestConnection(new PrintStreamIntLogger(System.out, logLevel),
+                    serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(),
+                    serverConfig.getTimeout());
+        } catch (EncryptionException e1) {
+            // TODO Auto-generated catch block
+            throw new RuntimeException(e1);
+        }
         restConnection.proxyHost = serverConfig.getProxyInfo().getHost();
         restConnection.proxyPort = serverConfig.getProxyInfo().getPort();
         restConnection.proxyNoHosts = serverConfig.getProxyInfo().getIgnoredProxyHosts();
         restConnection.proxyUsername = serverConfig.getProxyInfo().getUsername();
-        restConnection.proxyPassword = serverConfig.getProxyInfo().getDecryptedPassword();
+        try {
+            restConnection.proxyPassword = serverConfig.getProxyInfo().getDecryptedPassword();
+        } catch (IllegalArgumentException | EncryptionException e) {
+            // TODO Auto-generated catch block
+            throw new RuntimeException(e);
+        }
 
         return restConnection;
     }
 
-    public static HubServicesFactory createHubServicesFactory() throws IllegalArgumentException, EncryptionException, HubIntegrationException {
+    public static HubServicesFactory createHubServicesFactory() {
         return createHubServicesFactory(LogLevel.TRACE);
     }
 
-    private static HubServicesFactory createHubServicesFactory(final LogLevel logLevel)
-            throws IllegalArgumentException, EncryptionException, HubIntegrationException {
+    private static HubServicesFactory createHubServicesFactory(final LogLevel logLevel) {
         return createHubServicesFactory(new PrintStreamIntLogger(System.out, logLevel));
     }
 
-    private static HubServicesFactory createHubServicesFactory(final IntLogger logger)
-            throws IllegalArgumentException, EncryptionException, HubIntegrationException {
+    private static HubServicesFactory createHubServicesFactory(final IntLogger logger) {
         final RestConnection restConnection = getApplicationPropertyRestConnection();
         restConnection.logger = logger;
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
