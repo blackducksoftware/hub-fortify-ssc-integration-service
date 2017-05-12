@@ -23,23 +23,23 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class FortifyFileTokenApi extends FortifyService {
+public final class FortifyFileTokenApi extends FortifyService {
 
-    private final OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"),
+    private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"),
             PropertyConstants.getProperty("fortify.password"));;
 
-    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getProperty("fortify.server.url"))
+    private final static Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getProperty("fortify.server.url"))
             .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
 
-    private final FortifyFileTokenApiService apiService = retrofit.create(FortifyFileTokenApiService.class);
+    private final static FortifyFileTokenApiService apiService = retrofit.create(FortifyFileTokenApiService.class);
 
-    public FileTokenResponse getFileToken(FileToken fileToken) throws IOException {
+    public static FileTokenResponse getFileToken(FileToken fileToken) throws IOException {
         Call<FileTokenResponse> fileTokenResponseCall = apiService.getFileToken(fileToken);
         FileTokenResponse fileTokenResponse = fileTokenResponseCall.execute().body();
         return fileTokenResponse;
     }
 
-    public int deleteFileToken() throws IOException {
+    public static int deleteFileToken() throws IOException {
         Call<ResponseBody> deleteTokenResponseCall = apiService.deleteFileToken();
         int responseCode = deleteTokenResponseCall.execute().code();
         return responseCode;

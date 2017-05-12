@@ -33,15 +33,14 @@ import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 
 public class Initializer implements Tasklet, StepExecutionListener {
 
-    private final MappingParser parser = new MappingParser();
-
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         System.out.println("Started MappingParserTask");
 
         Arrays.stream(new File(PropertyConstants.getProperty("hub.fortify.report.dir")).listFiles()).forEach(File::delete);
         System.out.println("Found Mapping file:: " + PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
-        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = parser.createMapping(PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
+        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
+                .createMapping(PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
         System.out.println("blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
 
         ExecutorService exec = Executors.newFixedThreadPool(5);

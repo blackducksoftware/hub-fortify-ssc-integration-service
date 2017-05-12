@@ -24,23 +24,21 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
 
-public class MappingParser {
+public final class MappingParser {
 
-    private final String FIELDS = "id";
+    private final static String FIELDS = "id";
 
-    private final String Q_project = "project.name:";
+    private final static String Q_project = "project.name:";
 
-    private final String Q_version = "name:";
+    private final static String Q_version = "name:";
 
-    private final String Q_connector = "+and+";
-
-    private final FortifyApplicationVersionApi fortifyApplicationVersionApi = new FortifyApplicationVersionApi();
+    private final static String Q_connector = "+and+";
 
     /**
      * @param filePath
      * @return List<BlackDuckForfifyMapper>
      */
-    public List<BlackDuckFortifyMapper> createMapping(String filePath) {
+    public static List<BlackDuckFortifyMapper> createMapping(String filePath) {
         Gson gson;
         List<BlackDuckFortifyMapper> mappingObj = null;
         try {
@@ -63,14 +61,14 @@ public class MappingParser {
         return mappingObj;
     }
 
-    public List<BlackDuckFortifyMapper> addApplicationIdToResponse(List<BlackDuckFortifyMapper> mapping) {
+    public static List<BlackDuckFortifyMapper> addApplicationIdToResponse(List<BlackDuckFortifyMapper> mapping) {
         for (BlackDuckFortifyMapper element : mapping) {
             String fortify_applicationName = element.getFortifyApplication();
             String fortify_applicationVersion = element.getFortifyApplicationVersion();
 
             try {
                 String Q = Q_version + fortify_applicationVersion + Q_connector + Q_project + fortify_applicationName;
-                FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationByName(FIELDS, Q);
+                FortifyApplicationResponse response = FortifyApplicationVersionApi.getApplicationByName(FIELDS, Q);
                 System.out.println("Fortify Application Id::" + response.getData().get(0).getId());
                 if (response.getData() != null) {
                     element.setFortifyApplicationId(response.getData().get(0).getId());

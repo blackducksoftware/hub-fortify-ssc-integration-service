@@ -27,14 +27,16 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class FortifyUploadApi extends FortifyService {
+public final class FortifyUploadApi extends FortifyService {
 
-    private final OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"),
+    private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"),
             PropertyConstants.getProperty("fortify.password"));;
 
-    private final OkHttpClient okHttpClient = okBuilder.build();
+    private final static OkHttpClient okHttpClient = okBuilder.build();
 
-    public JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws IOException, IllegalArgumentException {
+    private final static String URL = PropertyConstants.getProperty("fortify.server.url") + "upload/resultFileUpload.html?mat=";
+
+    public static JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws Exception, IOException {
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         builder.addFormDataPart("entityId", String.valueOf(entityIdVal));
         builder.addFormDataPart("engineType", "BLACKDUCK");
@@ -42,15 +44,15 @@ public class FortifyUploadApi extends FortifyService {
 
         RequestBody requestBody = builder.build();
 
-        Request request = new Request.Builder().url(PropertyConstants.getProperty("fortify.server.url") + "upload/resultFileUpload.html?mat=" + fileToken)
-                .post(requestBody).build();
+        Request request = new Request.Builder().url(URL + fileToken).post(requestBody).build();
         Response response = okHttpClient.newCall(request).execute();
         Serializer serializer = new Persister();
         JobStatusResponse jobStatusResponse;
         try {
             jobStatusResponse = serializer.read(JobStatusResponse.class, response.body().string());
         } catch (Exception e) {
-            throw new IllegalArgumentException("Error while generating the upload response");
+            e.printStackTrace();
+            throw new Exception("Error while generating the upload response");
         }
 
         return jobStatusResponse;
