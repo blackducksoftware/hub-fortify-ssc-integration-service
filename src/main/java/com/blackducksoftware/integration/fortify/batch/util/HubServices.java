@@ -32,15 +32,7 @@ import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 
 public class HubServices {
 
-    private static HubServicesFactory hubServicesFactory;
-
-    public HubServices() {
-        try {
-            hubServicesFactory = RestConnectionHelper.createHubServicesFactory();
-        } catch (IllegalArgumentException | EncryptionException | HubIntegrationException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private final static HubServicesFactory hubServicesFactory = RestConnectionHelper.createHubServicesFactory();
 
     public List<VulnerableComponentView> getVulnerabilityComponentViews(final ProjectVersionView projectVersionItem)
             throws IllegalArgumentException, IntegrationException {

@@ -36,13 +36,13 @@ import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 
 public class BlackDuckFortifyPushThread implements Runnable {
 
-    private HubServices hubServices;
+    private final HubServices hubServices = new HubServices();
 
-    private FortifyFileTokenApi fortifyFileTokenApi;
+    private final FortifyFileTokenApi fortifyFileTokenApi = new FortifyFileTokenApi();
 
-    private FortifyUploadApi fortifyUploadApi;
+    private final FortifyUploadApi fortifyUploadApi = new FortifyUploadApi();
 
-    private CSVUtils csvUtils;
+    private final CSVUtils csvUtils = new CSVUtils();
 
     private BlackDuckFortifyMapper blackDuckFortifyMapper;
 
@@ -85,10 +85,6 @@ public class BlackDuckFortifyPushThread implements Runnable {
 
     public BlackDuckFortifyPushThread(BlackDuckFortifyMapper blackDuckFortifyMapper) {
         this.blackDuckFortifyMapper = blackDuckFortifyMapper;
-        hubServices = new HubServices();
-        fortifyFileTokenApi = new FortifyFileTokenApi();
-        fortifyUploadApi = new FortifyUploadApi();
-        csvUtils = new CSVUtils();
     }
 
     @Override

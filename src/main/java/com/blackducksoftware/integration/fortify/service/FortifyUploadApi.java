@@ -29,14 +29,10 @@ import okhttp3.Response;
 
 public class FortifyUploadApi extends FortifyService {
 
-    private OkHttpClient.Builder okBuilder;
+    private final OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"),
+            PropertyConstants.getProperty("fortify.password"));;
 
-    private OkHttpClient okHttpClient;
-
-    public FortifyUploadApi() {
-        okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"), PropertyConstants.getProperty("fortify.password"));
-        okHttpClient = okBuilder.build();
-    }
+    private final OkHttpClient okHttpClient = okBuilder.build();
 
     public JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws IOException, IllegalArgumentException {
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);

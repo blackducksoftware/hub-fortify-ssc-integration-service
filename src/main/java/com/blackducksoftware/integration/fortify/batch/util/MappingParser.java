@@ -34,11 +34,7 @@ public class MappingParser {
 
     private final String Q_connector = "+and+";
 
-    private FortifyApplicationVersionApi fortifyApplicationVersionApi;
-
-    public MappingParser() {
-        fortifyApplicationVersionApi = new FortifyApplicationVersionApi();
-    }
+    private final FortifyApplicationVersionApi fortifyApplicationVersionApi = new FortifyApplicationVersionApi();
 
     /**
      * @param filePath

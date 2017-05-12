@@ -23,18 +23,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class FortifyApplicationVersionApi extends FortifyService {
 
-    private OkHttpClient.Builder okBuilder;
+    private final OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"),
+            PropertyConstants.getProperty("fortify.password"));;
 
-    private Retrofit retrofit;
+    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getProperty("fortify.server.url"))
+            .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
 
-    private FortifyApplicationVersionApiService apiService;
-
-    public FortifyApplicationVersionApi() {
-        okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"), PropertyConstants.getProperty("fortify.password"));
-        retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getProperty("fortify.server.url")).addConverterFactory(GsonConverterFactory.create())
-                .client(okBuilder.build()).build();
-        apiService = retrofit.create(FortifyApplicationVersionApiService.class);
-    }
+    private final FortifyApplicationVersionApiService apiService = retrofit.create(FortifyApplicationVersionApiService.class);
 
     public FortifyApplicationResponse getApplicationByName(String fields, String filter) throws IOException {
         Call<FortifyApplicationResponse> apiApplicationResponseCall = apiService.getApplicationByName(fields, filter);
