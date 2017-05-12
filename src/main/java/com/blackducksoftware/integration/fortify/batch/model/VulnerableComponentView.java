@@ -11,12 +11,9 @@
  */
 package com.blackducksoftware.integration.fortify.batch.model;
 
-import org.springframework.context.annotation.Configuration;
-
 import com.blackducksoftware.integration.hub.model.HubView;
 import com.google.gson.annotations.SerializedName;
 
-@Configuration
 public class VulnerableComponentView extends HubView {
     private String componentName;
 

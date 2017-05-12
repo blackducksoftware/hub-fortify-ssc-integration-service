@@ -27,50 +27,35 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
-import com.blackducksoftware.integration.fortify.batch.util.CSVUtils;
-import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
-import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
-import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
+import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 
-@Configuration
+@Component
 public class Initializer implements Tasklet, StepExecutionListener {
 
-    @Autowired
     private MappingParser parser;
 
     @Autowired
-    private Environment env;
-
-    @Autowired
-    private HubServices hubServices;
-
-    @Autowired
-    private FortifyFileTokenApi fortifyFileTokenApi;
-
-    @Autowired
-    private FortifyUploadApi fortifyUploadApi;
-
-    @Autowired
-    private CSVUtils csvUtils;
+    public Initializer() {
+        parser = new MappingParser();
+    }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         System.out.println("Started MappingParserTask");
 
-        Arrays.stream(new File(env.getProperty("hub.fortify.report.dir")).listFiles()).forEach(File::delete);
-        System.out.println("Found Mapping file:: " + env.getProperty("hub.fortify.mapping.file.path"));
-        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = parser.createMapping(env.getProperty("hub.fortify.mapping.file.path"));
+        Arrays.stream(new File(PropertyConstants.getProperty("hub.fortify.report.dir")).listFiles()).forEach(File::delete);
+        System.out.println("Found Mapping file:: " + PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
+        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = parser.createMapping(PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
         System.out.println("blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
 
         ExecutorService exec = Executors.newFixedThreadPool(5);
         List<Future<?>> futures = new ArrayList<>(blackDuckFortifyMappers.size());
         for (BlackDuckFortifyMapper blackDuckFortifyMapper : blackDuckFortifyMappers) {
-            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapper, hubServices, env, fortifyFileTokenApi, fortifyUploadApi, csvUtils)));
+            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapper)));
         }
         for (Future<?> f : futures) {
             f.get(); // wait for a processor to complete
