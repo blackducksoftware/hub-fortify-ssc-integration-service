@@ -11,6 +11,15 @@
  */
 package com.blackducksoftware.integration.fortify.batch.job;
 
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import org.springframework.batch.core.Job;
@@ -26,21 +35,17 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.Model.BlackduckParser;
-import com.blackducksoftware.integration.fortify.batch.Model.FortifyParser;
-import com.blackducksoftware.integration.fortify.batch.processor.BlackduckFortifyProcessor;
-import com.blackducksoftware.integration.fortify.batch.reader.BlackduckReader;
-import com.blackducksoftware.integration.fortify.batch.writer.FortifyWriter;
+import com.blackducksoftware.integration.fortify.batch.step.Initializer;
 
 @Configuration
 @EnableBatchProcessing
-@SuppressWarnings("rawtypes")
-public class BlackduckFortifyJobConfig implements JobExecutionListener {
+public class BlackDuckFortifyJobConfig implements JobExecutionListener {
 
     @Autowired
     private BatchSchedulerConfig batchScheduler;
@@ -51,39 +56,28 @@ public class BlackduckFortifyJobConfig implements JobExecutionListener {
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
-    @Bean
-    public BlackduckReader getBlackduckScanReader() {
-        return new BlackduckReader();
-    }
+    @Autowired
+    private Environment env;
+
+    private String startJobTimeStamp;
 
     @Bean
-    public BlackduckFortifyProcessor getBlackduckFortifyProcessor() {
-        return new BlackduckFortifyProcessor();
-    }
-
-    @Bean
-    public FortifyWriter getFortifyPushWriter() {
-        return new FortifyWriter();
+    public Initializer getMappingParserTask() {
+        return new Initializer();
     }
 
     @Bean
     public TaskExecutor taskExecutor() {
         SimpleAsyncTaskExecutor asyncTaskExecutor = new SimpleAsyncTaskExecutor("spring_batch");
-        asyncTaskExecutor.setConcurrencyLimit(5);
+        asyncTaskExecutor.setConcurrencyLimit(2);
         return asyncTaskExecutor;
     }
 
     @Scheduled(cron = "${cron.expressions}")
     public void execute() throws Exception {
-
-        System.out.println("Job Started at :" + new Date());
-
         JobParameters param = new JobParametersBuilder().addString("JobID",
                 String.valueOf(System.currentTimeMillis())).toJobParameters();
-
-        JobExecution execution = batchScheduler.jobLauncher().run(pushBlackDuckScanToFortifyJob(), param);
-
-        System.out.println("Job finished with status :" + execution.getStatus());
+        batchScheduler.jobLauncher().run(pushBlackDuckScanToFortifyJob(), param);
     }
 
     @Bean
@@ -91,27 +85,34 @@ public class BlackduckFortifyJobConfig implements JobExecutionListener {
         return jobBuilderFactory.get("Push Blackduck Scan data to Fortify Job")
                 .incrementer(new RunIdIncrementer())
                 .listener(this)
-                .flow(pushBlackDuckScanToFortifyStep()).end().build();
+                .flow(createMappingParserStep())
+                .end().build();
     }
 
-    @SuppressWarnings("unchecked")
     @Bean
-    public Step pushBlackDuckScanToFortifyStep() {
-        return stepBuilderFactory.get("Extract Latest Scan from Blackduck -> Transform -> Push Data To Fortify")
-                .<BlackduckParser, FortifyParser> chunk(10000)
-                .reader(getBlackduckScanReader())
-                .processor(getBlackduckFortifyProcessor())
-                .writer(getFortifyPushWriter())
-                .taskExecutor(taskExecutor()).build();
+    public Step createMappingParserStep() {
+        return stepBuilderFactory.get("Parse the Mapping.json -> Transform to Mapping parser object")
+                .tasklet(getMappingParserTask()).build();
     }
 
     @Override
-    public void afterJob(JobExecution arg0) {
-        System.out.println("Inside after Job");
+    public void afterJob(JobExecution jobExecution) {
+        System.out.println("Completed Job Time::" + new Date());
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(env.getProperty("hub.fortify.batch.job.status.file.path")), "utf-8"))) {
+            writer.write(startJobTimeStamp);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void beforeJob(JobExecution arg0) {
-        System.out.println("Inside before Job");
+    public void beforeJob(JobExecution jobExecution) {
+        System.out.println("Started Job Time::" + new Date());
+        startJobTimeStamp = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss:SSS").format(LocalDateTime.now());
     }
 }
