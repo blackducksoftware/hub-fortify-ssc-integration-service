@@ -34,6 +34,9 @@ public abstract class FortifyService {
             @Override
             public Request authenticate(Route route, Response response) throws IOException {
                 String credential = Credentials.basic(userName, password);
+                if (credential.equals(response.request().header("Authorization"))) {
+                    return null;
+                }
                 return response.request().newBuilder().header("Authorization", credential).build();
             }
         });
