@@ -36,14 +36,6 @@ import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 
 public class BlackDuckFortifyPushThread implements Runnable {
 
-    private final HubServices hubServices = new HubServices();
-
-    private final FortifyFileTokenApi fortifyFileTokenApi = new FortifyFileTokenApi();
-
-    private final FortifyUploadApi fortifyUploadApi = new FortifyUploadApi();
-
-    private final CSVUtils csvUtils = new CSVUtils();
-
     private BlackDuckFortifyMapper blackDuckFortifyMapper;
 
     private Date bomUpdatedValueAt;
@@ -55,11 +47,13 @@ public class BlackDuckFortifyPushThread implements Runnable {
         @Override
         public Vulnerability apply(VulnerableComponentView vulnerableComponentView) {
             Vulnerability vulnerability = new Vulnerability();
+            vulnerability.setProjectName(String.valueOf(blackDuckFortifyMapper.getHubProject()));
+            vulnerability.setProjectVersion(String.valueOf(blackDuckFortifyMapper.getHubProjectVersion()));
             String[] componentVersionLinkArr = vulnerableComponentView.getComponentVersionLink().split("/");
             vulnerability.setProjectId(String.valueOf(componentVersionLinkArr[5]));
             vulnerability.setVersionId(String.valueOf(componentVersionLinkArr[7]));
             vulnerability.setChannelVersionId("");
-            vulnerability.setProjectName(String.valueOf(vulnerableComponentView.getComponentName()));
+            vulnerability.setComponentName(String.valueOf(vulnerableComponentView.getComponentName()));
             vulnerability.setVersion(String.valueOf(vulnerableComponentView.getComponentVersionName()));
             vulnerability.setChannelVersionOrigin(String.valueOf(vulnerableComponentView.getComponentVersionOriginName()));
             vulnerability.setChannelVersionOriginId(String.valueOf(vulnerableComponentView.getComponentVersionOriginId()));
@@ -72,12 +66,14 @@ public class BlackDuckFortifyPushThread implements Runnable {
             vulnerability.setExploitability(vulnerableComponentView.getVulnerabilityWithRemediation().getExploitabilitySubscore());
             vulnerability.setImpact(vulnerableComponentView.getVulnerabilityWithRemediation().getImpactSubscore());
             vulnerability.setVulnerabilitySource(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getSource()));
-            vulnerability.setSeverity(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getSeverity()));
             vulnerability.setRemediationStatus(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getRemediationStatus()));
+            vulnerability.setRemediationTargetDate(vulnerableComponentView.getVulnerabilityWithRemediation().getRemediationTargetAt());
+            vulnerability.setRemediationActualDate(vulnerableComponentView.getVulnerabilityWithRemediation().getRemediationActualAt());
             vulnerability.setRemediationComment(String.valueOf(""));
             vulnerability.setUrl("NVD".equalsIgnoreCase(vulnerableComponentView.getVulnerabilityWithRemediation().getSource())
                     ? "http://web.nvd.nist.gov/view/vuln/detail?vulnId=" + vulnerableComponentView.getVulnerabilityWithRemediation().getVulnerabilityName()
                     : "");
+            vulnerability.setSeverity(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getSeverity()));
             vulnerability.setScanDate(bomUpdatedValueAt);
             return vulnerability;
         }
@@ -94,25 +90,27 @@ public class BlackDuckFortifyPushThread implements Runnable {
             ProjectVersionView projectVersionItem = null;
             List<VulnerableComponentView> vulnerableComponentViews;
             try {
-                projectVersionItem = hubServices.getProjectVersion(blackDuckFortifyMapper.getHubProject(), blackDuckFortifyMapper.getHubProjectVersion());
-                vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItem);
-                bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
+                projectVersionItem = HubServices.getProjectVersion(blackDuckFortifyMapper.getHubProject(), blackDuckFortifyMapper.getHubProjectVersion());
+                vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItem);
+                bomUpdatedValueAt = HubServices.getBomLastUpdatedAt(projectVersionItem);
                 List<Vulnerability> vulnerabilities = vulnerableComponentViews.stream().map(transformMapping).collect(Collectors.<Vulnerability> toList());
 
                 final String fileDir = PropertyConstants.getProperty("hub.fortify.report.dir");
                 final String fileName = blackDuckFortifyMapper.getHubProject() + UNDERSCORE + blackDuckFortifyMapper.getHubProjectVersion() + UNDERSCORE
                         + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
 
-                csvUtils.writeToCSV(vulnerabilities, fileDir + fileName, ',');
+                CSVUtils.writeToCSV(vulnerabilities, fileDir + fileName, ',');
 
                 String token = getFileToken();
-                System.out.println("Token::" + token);
                 uploadCSV(token, fileDir + fileName, blackDuckFortifyMapper.getFortifyApplicationId());
             } catch (IllegalArgumentException e) {
+                e.printStackTrace();
                 throw new IllegalArgumentException(e.getMessage(), e);
             } catch (IntegrationException e) {
+                e.printStackTrace();
                 throw new RuntimeException(e.getMessage(), e);
-            } catch (IOException e) {
+            } catch (Exception e) {
+                e.printStackTrace();
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
@@ -121,19 +119,21 @@ public class BlackDuckFortifyPushThread implements Runnable {
     private String getFileToken() throws IOException {
         FileToken fileToken = new FileToken();
         fileToken.setFileTokenType("UPLOAD");
-        FileTokenResponse fileTokenResponse = fortifyFileTokenApi.getFileToken(fileToken);
+        FileTokenResponse fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
         return fileTokenResponse.getData().getToken();
     }
 
-    private void uploadCSV(String token, String fileName, int fortifyApplicationId) throws IOException {
+    private void uploadCSV(String token, String fileName, int fortifyApplicationId) throws Exception {
         File file = new File(fileName);
-        System.out.println("file::" + file);
-        JobStatusResponse uploadVulnerabilityResponseBody = fortifyUploadApi.uploadVulnerabilityByProjectVersion(token, fortifyApplicationId, file);
+        System.out.println("File::" + file.getName());
+        JobStatusResponse uploadVulnerabilityResponseBody = FortifyUploadApi.uploadVulnerabilityByProjectVersion(token, fortifyApplicationId, file);
         if ("-10001".equalsIgnoreCase(uploadVulnerabilityResponseBody.getCode())
                 && "Background submission succeeded.".equalsIgnoreCase(uploadVulnerabilityResponseBody.getMessage())) {
-            if (file.exists()) {
-                file.delete();
-            }
+            /*
+             * if (file.exists()) {
+             * file.delete();
+             * }
+             */
         }
         System.out.println("uploadVulnerabilityResponseBody::" + uploadVulnerabilityResponseBody.toString());
     }

@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -36,55 +35,51 @@ public class CSVUtilsTest extends TestCase {
 
     private Date bomUpdatedValueAt = null;
 
-    private HubServices hubServices;
-
     private final Function<VulnerableComponentView, Vulnerability> transformMapping = new Function<VulnerableComponentView, Vulnerability>() {
 
         @Override
         public Vulnerability apply(VulnerableComponentView vulnerableComponentView) {
             Vulnerability vulnerability = new Vulnerability();
+            vulnerability.setProjectName(String.valueOf(PROJECT_NAME));
+            vulnerability.setProjectVersion(String.valueOf(VERSION_NAME));
             String[] componentVersionLinkArr = vulnerableComponentView.getComponentVersionLink().split("/");
             vulnerability.setProjectId(String.valueOf(componentVersionLinkArr[5]));
             vulnerability.setVersionId(String.valueOf(componentVersionLinkArr[7]));
             vulnerability.setChannelVersionId("");
-            vulnerability.setProjectName(String.valueOf(vulnerableComponentView.getComponentName()));
+            vulnerability.setComponentName(String.valueOf(vulnerableComponentView.getComponentName()));
             vulnerability.setVersion(String.valueOf(vulnerableComponentView.getComponentVersionName()));
             vulnerability.setChannelVersionOrigin(String.valueOf(vulnerableComponentView.getComponentVersionOriginName()));
             vulnerability.setChannelVersionOriginId(String.valueOf(vulnerableComponentView.getComponentVersionOriginId()));
             vulnerability.setChannelVersionOriginName(String.valueOf(vulnerableComponentView.getComponentVersionName()));
             vulnerability.setVulnerabilityId(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getVulnerabilityName()));
-            vulnerability.setDescription(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getDescription()));
+            vulnerability.setDescription(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getDescription().replaceAll("\\r\\n", "")));
             vulnerability.setPublishedOn(vulnerableComponentView.getVulnerabilityWithRemediation().getVulnerabilityPublishedDate());
             vulnerability.setUpdatedOn(vulnerableComponentView.getVulnerabilityWithRemediation().getVulnerabilityUpdatedDate());
             vulnerability.setBaseScore(vulnerableComponentView.getVulnerabilityWithRemediation().getBaseScore());
             vulnerability.setExploitability(vulnerableComponentView.getVulnerabilityWithRemediation().getExploitabilitySubscore());
             vulnerability.setImpact(vulnerableComponentView.getVulnerabilityWithRemediation().getImpactSubscore());
             vulnerability.setVulnerabilitySource(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getSource()));
-            vulnerability.setSeverity(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getSeverity()));
             vulnerability.setRemediationStatus(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getRemediationStatus()));
+            vulnerability.setRemediationTargetDate(vulnerableComponentView.getVulnerabilityWithRemediation().getRemediationTargetAt());
+            vulnerability.setRemediationActualDate(vulnerableComponentView.getVulnerabilityWithRemediation().getRemediationActualAt());
             vulnerability.setRemediationComment(String.valueOf(""));
             vulnerability.setUrl("NVD".equalsIgnoreCase(vulnerableComponentView.getVulnerabilityWithRemediation().getSource())
                     ? "http://web.nvd.nist.gov/view/vuln/detail?vulnId=" + vulnerableComponentView.getVulnerabilityWithRemediation().getVulnerabilityName()
                     : "");
+            vulnerability.setSeverity(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getSeverity()));
             vulnerability.setScanDate(bomUpdatedValueAt);
             return vulnerability;
         }
     };
-
-    @Override
-    @Before
-    public void setUp() {
-        hubServices = new HubServices();
-    }
 
     @Test
     public void testWriteToCSV() {
         ProjectVersionView projectVersionItem = null;
         List<VulnerableComponentView> vulnerableComponentViews;
         try {
-            projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
-            vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItem);
-            bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
+            projectVersionItem = HubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
+            vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItem);
+            bomUpdatedValueAt = HubServices.getBomLastUpdatedAt(projectVersionItem);
         } catch (IllegalArgumentException e1) {
             e1.printStackTrace();
             throw new RuntimeException(e1);
@@ -98,9 +93,8 @@ public class CSVUtilsTest extends TestCase {
         List<Vulnerability> vulnerabilities = vulnerableComponentViews.stream().map(transformMapping).collect(Collectors.<Vulnerability> toList());
 
         try {
-            CSVUtils csvUtils = new CSVUtils();
             // csvUtils.writeToCSV(vulnerabilities, PROJECT_NAME + "_" + VERSION_NAME + new Date(), ',');
-            csvUtils.writeToCSV(vulnerabilities, "security.csv", ',');
+            CSVUtils.writeToCSV(vulnerabilities, "security.csv", ',');
         } catch (Exception e) {
             e.printStackTrace();
         }

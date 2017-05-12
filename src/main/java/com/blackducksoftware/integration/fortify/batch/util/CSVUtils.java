@@ -25,9 +25,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
-public class CSVUtils {
+public final class CSVUtils {
 
-    public void writeToCSV(List<Vulnerability> vulnerabilities, String fileName, char delimiter)
+    public static void writeToCSV(List<Vulnerability> vulnerabilities, String fileName, char delimiter)
             throws JsonGenerationException, JsonMappingException, IOException {
         // create mapper and schema
         CsvMapper mapper = new CsvMapper();

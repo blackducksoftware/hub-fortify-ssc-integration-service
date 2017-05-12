@@ -24,7 +24,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
 
 public abstract class FortifyService {
-    public Builder getHeader(String userName, String password) {
+    public static Builder getHeader(String userName, String password) {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(Level.BASIC);
         OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
