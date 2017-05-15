@@ -11,7 +11,6 @@
  */
 package com.blackducksoftware.integration.fortify.service;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -24,25 +23,17 @@ import junit.framework.TestCase;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class FortifyFileTokenApiTest extends TestCase {
 
-    private FortifyFileTokenApi fortifyFileTokenApi;
-
-    @Override
-    @Before
-    public void setUp() {
-        fortifyFileTokenApi = new FortifyFileTokenApi();
-    }
-
     @Test
     public void getFileToken() throws Exception {
         FileToken fileToken = new FileToken();
         fileToken.setFileTokenType("UPLOAD");
-        FileTokenResponse fileTokenResponse = fortifyFileTokenApi.getFileToken(fileToken);
+        FileTokenResponse fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
         System.out.println("fileTokenResponse::" + fileTokenResponse.getData().getToken());
     }
 
     @Test
     public void deleteFileToken() throws Exception {
-        int responseCode = fortifyFileTokenApi.deleteFileToken();
+        int responseCode = FortifyFileTokenApi.deleteFileToken();
         System.out.println("Response code::" + responseCode);
     }
 }
