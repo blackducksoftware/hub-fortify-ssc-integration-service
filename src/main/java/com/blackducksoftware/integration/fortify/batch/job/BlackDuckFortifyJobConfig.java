@@ -11,15 +11,6 @@
  */
 package com.blackducksoftware.integration.fortify.batch.job;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import org.springframework.batch.core.Job;
@@ -35,7 +26,6 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -55,11 +45,6 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
-
-    @Autowired
-    private Environment env;
-
-    private String startJobTimeStamp;
 
     @Bean
     public Initializer getMappingParserTask() {
@@ -98,21 +83,10 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     @Override
     public void afterJob(JobExecution jobExecution) {
         System.out.println("Completed Job Time::" + new Date());
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(env.getProperty("hub.fortify.batch.job.status.file.path")), "utf-8"))) {
-            writer.write(startJobTimeStamp);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
         System.out.println("Started Job Time::" + new Date());
-        startJobTimeStamp = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss:SSS").format(LocalDateTime.now());
     }
 }

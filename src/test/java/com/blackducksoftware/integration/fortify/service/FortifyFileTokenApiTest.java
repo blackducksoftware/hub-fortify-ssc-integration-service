@@ -12,6 +12,7 @@
 package com.blackducksoftware.integration.fortify.service;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -30,10 +31,9 @@ import okhttp3.OkHttpClient;
 @PrepareForTest({ FortifyService.class, OkHttpClient.class, OkHttpClient.Builder.class, FortifyFileTokenApi.class })
 public class FortifyFileTokenApiTest extends TestCase {
 
-    @Test
-    public void getFileToken() throws Exception {
-        FileToken fileToken = new FileToken();
-        fileToken.setFileTokenType("UPLOAD");
+    @Override
+    @Before
+    public void setUp() {
 
         PowerMockito.mockStatic(OkHttpClient.Builder.class);
         OkHttpClient.Builder builder = Mockito.mock(OkHttpClient.Builder.class);
@@ -45,12 +45,19 @@ public class FortifyFileTokenApiTest extends TestCase {
         OkHttpClient okHttpClient = Mockito.mock(OkHttpClient.class);
         Mockito.when(builder.build()).thenReturn(okHttpClient);
 
+        PowerMockito.mockStatic(FortifyFileTokenApi.class);
+    }
+
+    @Test
+    public void getFileToken() throws Exception {
+        FileToken fileToken = new FileToken();
+        fileToken.setFileTokenType("UPLOAD");
+
         FileTokenResponse mockFileTokenResponse = new FileTokenResponse();
         Data data = mockFileTokenResponse.new Data();
         data.setToken("ABCDEFG");
         mockFileTokenResponse.setData(data);
 
-        PowerMockito.mockStatic(FortifyFileTokenApi.class);
         Mockito.when(FortifyFileTokenApi.getFileToken(Mockito.any())).thenReturn(mockFileTokenResponse);
 
         FileTokenResponse fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
@@ -60,22 +67,12 @@ public class FortifyFileTokenApiTest extends TestCase {
 
     @Test
     public void deleteFileToken() throws Exception {
-        PowerMockito.mockStatic(OkHttpClient.Builder.class);
-        OkHttpClient.Builder builder = Mockito.mock(OkHttpClient.Builder.class);
-
-        PowerMockito.mockStatic(FortifyService.class);
-        Mockito.when(FortifyService.getHeader(Mockito.anyString(), Mockito.anyString())).thenReturn(builder);
-
-        PowerMockito.mockStatic(OkHttpClient.class);
-        OkHttpClient okHttpClient = Mockito.mock(OkHttpClient.class);
-        Mockito.when(builder.build()).thenReturn(okHttpClient);
 
         FileTokenResponse mockFileTokenResponse = new FileTokenResponse();
         Data data = mockFileTokenResponse.new Data();
         data.setToken("ABCDEFG");
         mockFileTokenResponse.setData(data);
 
-        PowerMockito.mockStatic(FortifyFileTokenApi.class);
         Mockito.when(FortifyFileTokenApi.deleteFileToken()).thenReturn(200);
 
         int responseCode = FortifyFileTokenApi.deleteFileToken();
