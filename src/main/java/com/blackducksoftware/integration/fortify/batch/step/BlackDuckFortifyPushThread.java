@@ -11,9 +11,12 @@
  */
 package com.blackducksoftware.integration.fortify.batch.step;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
@@ -91,18 +94,25 @@ public class BlackDuckFortifyPushThread implements Runnable {
             List<VulnerableComponentView> vulnerableComponentViews;
             try {
                 projectVersionItem = HubServices.getProjectVersion(blackDuckFortifyMapper.getHubProject(), blackDuckFortifyMapper.getHubProjectVersion());
-                vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItem);
                 bomUpdatedValueAt = HubServices.getBomLastUpdatedAt(projectVersionItem);
-                List<Vulnerability> vulnerabilities = vulnerableComponentViews.stream().map(transformMapping).collect(Collectors.<Vulnerability> toList());
+                final Date getLastSuccessfulJobRunTime = getLastSuccessfulJobRunTime(PropertyConstants.getProperty("hub.fortify.batch.job.status.file.path"));
+                System.out.println("getLastSuccessfulJobRunTime::" + getLastSuccessfulJobRunTime + ", compare dates::"
+                        + bomUpdatedValueAt.after(getLastSuccessfulJobRunTime));
+                if ((getLastSuccessfulJobRunTime != null && bomUpdatedValueAt.after(getLastSuccessfulJobRunTime))
+                        || (getLastSuccessfulJobRunTime == null && bomUpdatedValueAt.after(new Date()))) {
+                    vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItem);
+                    List<Vulnerability> vulnerabilities = vulnerableComponentViews.stream().map(transformMapping).collect(Collectors.<Vulnerability> toList());
 
-                final String fileDir = PropertyConstants.getProperty("hub.fortify.report.dir");
-                final String fileName = blackDuckFortifyMapper.getHubProject() + UNDERSCORE + blackDuckFortifyMapper.getHubProjectVersion() + UNDERSCORE
-                        + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
+                    final String fileDir = PropertyConstants.getProperty("hub.fortify.report.dir");
+                    final String fileName = blackDuckFortifyMapper.getHubProject() + UNDERSCORE + blackDuckFortifyMapper.getHubProjectVersion() + UNDERSCORE
+                            + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
 
-                CSVUtils.writeToCSV(vulnerabilities, fileDir + fileName, ',');
+                    CSVUtils.writeToCSV(vulnerabilities, fileDir + fileName, ',');
 
-                String token = getFileToken();
-                uploadCSV(token, fileDir + fileName, blackDuckFortifyMapper.getFortifyApplicationId());
+                    String token = getFileToken();
+                    uploadCSV(token, fileDir + fileName, blackDuckFortifyMapper.getFortifyApplicationId());
+                    FortifyFileTokenApi.deleteFileToken();
+                }
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
                 throw new IllegalArgumentException(e.getMessage(), e);
@@ -114,6 +124,34 @@ public class BlackDuckFortifyPushThread implements Runnable {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
+    }
+
+    private Date getLastSuccessfulJobRunTime(String fileName) {
+        BufferedReader br = null;
+        FileReader fr = null;
+        try {
+            fr = new FileReader(fileName);
+            br = new BufferedReader(fr);
+            String sCurrentLine;
+            br = new BufferedReader(new FileReader(fileName));
+            while ((sCurrentLine = br.readLine()) != null) {
+                final LocalDateTime localDateTime = LocalDateTime.parse(sCurrentLine, DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS"));
+                return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null)
+                    br.close();
+
+                if (fr != null)
+                    fr.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return null;
     }
 
     private String getFileToken() throws IOException {
@@ -129,11 +167,9 @@ public class BlackDuckFortifyPushThread implements Runnable {
         JobStatusResponse uploadVulnerabilityResponseBody = FortifyUploadApi.uploadVulnerabilityByProjectVersion(token, fortifyApplicationId, file);
         if ("-10001".equalsIgnoreCase(uploadVulnerabilityResponseBody.getCode())
                 && "Background submission succeeded.".equalsIgnoreCase(uploadVulnerabilityResponseBody.getMessage())) {
-            /*
-             * if (file.exists()) {
-             * file.delete();
-             * }
-             */
+            if (file.exists()) {
+                file.delete();
+            }
         }
         System.out.println("uploadVulnerabilityResponseBody::" + uploadVulnerabilityResponseBody.toString());
     }
