@@ -13,6 +13,7 @@ package com.blackducksoftware.integration.fortify.batch.job;
 
 import java.util.Date;
 
+import org.apache.log4j.Logger;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
@@ -36,6 +37,7 @@ import com.blackducksoftware.integration.fortify.batch.step.Initializer;
 @Configuration
 @EnableBatchProcessing
 public class BlackDuckFortifyJobConfig implements JobExecutionListener {
+    private static Logger logger = Logger.getLogger(BlackDuckFortifyJobConfig.class);
 
     @Autowired
     private BatchSchedulerConfig batchScheduler;
@@ -67,6 +69,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
 
     @Bean
     public Job pushBlackDuckScanToFortifyJob() {
+        logger.info("Push Blackduck Scan data to Fortify Job");
         return jobBuilderFactory.get("Push Blackduck Scan data to Fortify Job")
                 .incrementer(new RunIdIncrementer())
                 .listener(this)
@@ -76,17 +79,18 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
 
     @Bean
     public Step createMappingParserStep() {
+        logger.info("Parse the Mapping.json -> Transform to Mapping parser object");
         return stepBuilderFactory.get("Parse the Mapping.json -> Transform to Mapping parser object")
                 .tasklet(getMappingParserTask()).build();
     }
 
     @Override
     public void afterJob(JobExecution jobExecution) {
-        System.out.println("Completed Job Time::" + new Date());
+        logger.info("Job completed at::" + new Date());
     }
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
-        System.out.println("Started Job Time::" + new Date());
+        logger.info("Job started at::" + new Date());
     }
 }
