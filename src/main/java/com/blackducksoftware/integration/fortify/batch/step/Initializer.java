@@ -11,7 +11,16 @@
  */
 package com.blackducksoftware.integration.fortify.batch.step;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +42,10 @@ import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 
 public class Initializer implements Tasklet, StepExecutionListener {
 
+    private String startJobTimeStamp;
+
+    private boolean jobStatus = false;
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         System.out.println("Started MappingParserTask");
@@ -52,16 +65,30 @@ public class Initializer implements Tasklet, StepExecutionListener {
             f.get(); // wait for a processor to complete
         }
 
+        jobStatus = true;
+        System.out.println("After all threads processing");
         return RepeatStatus.FINISHED;
     }
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-
+        startJobTimeStamp = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(LocalDateTime.now());
     }
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
+        if (jobStatus) {
+            try (Writer writer = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(PropertyConstants.getProperty("hub.fortify.batch.job.status.file.path")), "utf-8"))) {
+                writer.write(startJobTimeStamp);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return ExitStatus.COMPLETED;
     }
 }
