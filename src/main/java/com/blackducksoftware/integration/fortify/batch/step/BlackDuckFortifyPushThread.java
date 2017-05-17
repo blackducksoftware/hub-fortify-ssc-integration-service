@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Black Duck Software Inc.
+ * f * Copyright (C) 2017 Black Duck Software Inc.
  * http://www.blackducksoftware.com/
  * All rights reserved.
  *
@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
+
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
@@ -44,6 +46,8 @@ public class BlackDuckFortifyPushThread implements Runnable {
     private Date bomUpdatedValueAt;
 
     private final String UNDERSCORE = "_";
+
+    private static Logger logger = Logger.getLogger(BlackDuckFortifyPushThread.class);
 
     private final Function<VulnerableComponentView, Vulnerability> transformMapping = new Function<VulnerableComponentView, Vulnerability>() {
 
@@ -89,15 +93,18 @@ public class BlackDuckFortifyPushThread implements Runnable {
     @Override
     public void run() {
         if (blackDuckFortifyMapper != null) {
-            System.out.println("blackDuckFortifyMapper::" + blackDuckFortifyMapper.toString());
+            logger.info("Mapping was successfully created");
+            logger.info("blackDuckFortifyMapper::" + blackDuckFortifyMapper.toString());
+
             ProjectVersionView projectVersionItem = null;
             List<VulnerableComponentView> vulnerableComponentViews;
             try {
                 projectVersionItem = HubServices.getProjectVersion(blackDuckFortifyMapper.getHubProject(), blackDuckFortifyMapper.getHubProjectVersion());
                 bomUpdatedValueAt = HubServices.getBomLastUpdatedAt(projectVersionItem);
                 final Date getLastSuccessfulJobRunTime = getLastSuccessfulJobRunTime(PropertyConstants.getProperty("hub.fortify.batch.job.status.file.path"));
-                System.out.println("getLastSuccessfulJobRunTime::" + getLastSuccessfulJobRunTime + ", compare dates::"
-                        + bomUpdatedValueAt.after(getLastSuccessfulJobRunTime));
+                logger.info("Last successfull job excecution:" + getLastSuccessfulJobRunTime);
+                logger.info("Compare Dates: " + bomUpdatedValueAt.after(getLastSuccessfulJobRunTime));
+
                 if ((getLastSuccessfulJobRunTime != null && bomUpdatedValueAt.after(getLastSuccessfulJobRunTime))
                         || (getLastSuccessfulJobRunTime == null && bomUpdatedValueAt.after(new Date()))) {
                     vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItem);
@@ -163,6 +170,7 @@ public class BlackDuckFortifyPushThread implements Runnable {
 
     private void uploadCSV(String token, String fileName, int fortifyApplicationId) throws Exception {
         File file = new File(fileName);
+        logger.info("Uploading " + file.getName() + " to fortify");
         System.out.println("File::" + file.getName());
         JobStatusResponse uploadVulnerabilityResponseBody = FortifyUploadApi.uploadVulnerabilityByProjectVersion(token, fortifyApplicationId, file);
         if ("-10001".equalsIgnoreCase(uploadVulnerabilityResponseBody.getCode())
@@ -171,6 +179,6 @@ public class BlackDuckFortifyPushThread implements Runnable {
                 file.delete();
             }
         }
-        System.out.println("uploadVulnerabilityResponseBody::" + uploadVulnerabilityResponseBody.toString());
+        logger.info("File uploaded successfully");
     }
 }
