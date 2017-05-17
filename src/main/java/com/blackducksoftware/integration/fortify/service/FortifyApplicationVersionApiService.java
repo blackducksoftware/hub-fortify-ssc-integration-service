@@ -14,15 +14,38 @@
  */
 package com.blackducksoftware.integration.fortify.service;
 
-import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
+import java.util.List;
 
+import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
+import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
+import com.blackducksoftware.integration.fortify.model.CreateFortifyApplicationResponse;
+import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
+import com.blackducksoftware.integration.fortify.model.UpdateFortifyApplicationAttributesRequest;
+
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface FortifyApplicationVersionApiService {
     @Headers({ "Accept: application/json", "Content-Type:application/json" })
     @GET("api/v1/projectVersions")
     Call<FortifyApplicationResponse> getApplicationByName(@Query("fields") String fields, @Query("q") String filter);
+
+    @Headers({ "Accept: application/json", "Content-Type:application/json" })
+    @POST("api/v1/projectVersions")
+    Call<CreateFortifyApplicationResponse> createApplicationVersion(@Body CreateApplicationRequest request);
+
+    @Headers({ "Accept: application/json", "Content-Type:application/json" })
+    @PUT("api/v1/projectVersions/{parentId}/attributes")
+    Call<ResponseBody> updateApplicationAttributes(@Path("parentId") int parentId, @Body List<UpdateFortifyApplicationAttributesRequest> request);
+
+    @Headers({ "Accept: application/json", "Content-Type:application/json" })
+    @PUT("api/v1/projectVersions/{id}")
+    Call<ResponseBody> commitApplicationVersion(@Path("id") int id, @Body CommitFortifyApplicationRequest request);
 }
