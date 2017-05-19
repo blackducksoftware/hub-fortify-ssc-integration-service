@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
@@ -46,15 +47,16 @@ public class Initializer implements Tasklet, StepExecutionListener {
 
     private boolean jobStatus = false;
 
+    private static Logger logger = Logger.getLogger(Initializer.class);
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        System.out.println("Started MappingParserTask");
-
+        logger.info("Started MappingParserTask");
         Arrays.stream(new File(PropertyConstants.getProperty("hub.fortify.report.dir")).listFiles()).forEach(File::delete);
-        System.out.println("Found Mapping file:: " + PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
+        logger.info("Found Mapping file:: " + PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
         final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
                 .createMapping(PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
-        System.out.println("blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
+        logger.info("Created mapping object blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
 
         ExecutorService exec = Executors.newFixedThreadPool(5);
         List<Future<?>> futures = new ArrayList<>(blackDuckFortifyMappers.size());
@@ -66,7 +68,8 @@ public class Initializer implements Tasklet, StepExecutionListener {
         }
 
         jobStatus = true;
-        System.out.println("After all threads processing");
+
+        logger.info("All threads completed processing");
         return RepeatStatus.FINISHED;
     }
 

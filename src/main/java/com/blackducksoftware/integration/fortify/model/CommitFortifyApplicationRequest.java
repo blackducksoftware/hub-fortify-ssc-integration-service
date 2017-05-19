@@ -11,21 +11,14 @@
  */
 package com.blackducksoftware.integration.fortify.model;
 
-import java.util.List;
+public class CommitFortifyApplicationRequest {
+    boolean committed;
 
-public class FortifyApplicationResponse {
-    private List<Data> data;
-
-    public void setData(List<Data> data) {
-        this.data = data;
+    public boolean isCommitted() {
+        return committed;
     }
 
-    public List<Data> getData() {
-        return data;
-    }
-
-    @Override
-    public String toString() {
-        return "FortifyApplicationResponse [responseList=" + data + "]";
+    public void setCommitted(boolean committed) {
+        this.committed = committed;
     }
 }

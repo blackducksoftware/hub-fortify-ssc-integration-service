@@ -11,21 +11,19 @@
  */
 package com.blackducksoftware.integration.fortify.model;
 
-import java.util.List;
+public class CreateFortifyApplicationResponse {
+    private Data data;
 
-public class FortifyApplicationResponse {
-    private List<Data> data;
-
-    public void setData(List<Data> data) {
-        this.data = data;
+    public Data getData() {
+        return data;
     }
 
-    public List<Data> getData() {
-        return data;
+    public void setData(Data data) {
+        this.data = data;
     }
 
     @Override
     public String toString() {
-        return "FortifyApplicationResponse [responseList=" + data + "]";
+        return "CreateFortifyApplicationResponse [responseList=" + data + "]";
     }
 }
