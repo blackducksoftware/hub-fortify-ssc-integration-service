@@ -173,6 +173,7 @@ public class BlackDuckFortifyPushThread implements Runnable {
         logger.info("Uploading " + file.getName() + " to fortify");
         System.out.println("File::" + file.getName());
         JobStatusResponse uploadVulnerabilityResponseBody = FortifyUploadApi.uploadVulnerabilityByProjectVersion(token, fortifyApplicationId, file);
+        logger.info("uploadVulnerabilityResponseBody::" + uploadVulnerabilityResponseBody);
         if ("-10001".equalsIgnoreCase(uploadVulnerabilityResponseBody.getCode())
                 && "Background submission succeeded.".equalsIgnoreCase(uploadVulnerabilityResponseBody.getMessage())) {
             if (file.exists()) {

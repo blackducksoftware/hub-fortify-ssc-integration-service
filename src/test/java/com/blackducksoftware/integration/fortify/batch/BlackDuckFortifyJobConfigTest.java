@@ -2,6 +2,7 @@ package com.blackducksoftware.integration.fortify.batch;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -14,6 +15,7 @@ import junit.framework.TestCase;
 @SpringBootTest(classes = { Application.class })
 public class BlackDuckFortifyJobConfigTest extends TestCase {
 
+    @Autowired
     private BlackDuckFortifyJobConfig blackduckFortifyJobConfig;
 
     @Test
