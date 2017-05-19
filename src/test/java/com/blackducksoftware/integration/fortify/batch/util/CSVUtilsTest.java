@@ -16,11 +16,13 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
@@ -29,9 +31,9 @@ import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class CSVUtilsTest extends TestCase {
-    private final String PROJECT_NAME = "solrWar2";
+    private String PROJECT_NAME;
 
-    private final String VERSION_NAME = "4.10.4";
+    private String VERSION_NAME;
 
     private Date bomUpdatedValueAt = null;
 
@@ -71,6 +73,15 @@ public class CSVUtilsTest extends TestCase {
             return vulnerability;
         }
     };
+
+    @Override
+    @Before
+    public void setUp() {
+        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
+                .createMapping(PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
+        PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProject();
+        VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion();
+    }
 
     @Test
     public void testWriteToCSV() {
