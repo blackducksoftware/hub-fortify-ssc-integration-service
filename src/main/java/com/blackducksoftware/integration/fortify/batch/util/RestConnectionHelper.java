@@ -25,10 +25,10 @@ public final class RestConnectionHelper {
 
     private static HubServerConfig getHubServerConfig() {
         HubServerConfigBuilder builder = new HubServerConfigBuilder();
-        builder.setHubUrl(PropertyConstants.getProperty("hub.server.url"));
-        builder.setUsername(PropertyConstants.getProperty("hub.username"));
-        builder.setPassword(PropertyConstants.getProperty("hub.password"));
-        builder.setTimeout(PropertyConstants.getProperty("hub.timeout"));
+        builder.setHubUrl(PropertyConstants.getHubServerUrl());
+        builder.setUsername(PropertyConstants.getHubUserName());
+        builder.setPassword(PropertyConstants.getHubPassword());
+        builder.setTimeout(PropertyConstants.getHubTimeout());
 
         return builder.build();
     }
@@ -65,7 +65,7 @@ public final class RestConnectionHelper {
     }
 
     public static HubServicesFactory createHubServicesFactory() {
-        return createHubServicesFactory(LogLevel.TRACE);
+        return createHubServicesFactory(LogLevel.DEBUG);
     }
 
     private static HubServicesFactory createHubServicesFactory(final LogLevel logLevel) {

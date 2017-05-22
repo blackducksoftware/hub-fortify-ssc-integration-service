@@ -1,11 +1,11 @@
-/target/
+/build/
+/bin/
 
-*.prefs
+.gradle/*
+.settings/*
 
-.project
+sample.csv
 
-.classpath
+src/main/resources/batch_job_status.txt
 
-*.component
-
-*.settings
+src/main/resources/hub-fortify.log

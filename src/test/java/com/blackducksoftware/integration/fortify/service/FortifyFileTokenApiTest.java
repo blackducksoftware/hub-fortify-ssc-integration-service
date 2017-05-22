@@ -19,7 +19,12 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
 import com.blackducksoftware.integration.fortify.model.FileTokenResponse.Data;
@@ -28,6 +33,8 @@ import junit.framework.TestCase;
 import okhttp3.OkHttpClient;
 
 @RunWith(PowerMockRunner.class)
+@SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = TestApplication.class)
+@PowerMockRunnerDelegate(SpringRunner.class)
 @PrepareForTest({ FortifyService.class, OkHttpClient.class, OkHttpClient.Builder.class, FortifyFileTokenApi.class })
 public class FortifyFileTokenApiTest extends TestCase {
 

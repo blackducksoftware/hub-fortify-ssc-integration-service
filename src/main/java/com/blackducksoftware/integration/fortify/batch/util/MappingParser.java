@@ -43,7 +43,7 @@ public final class MappingParser {
 
     private final static String Q_connector = "+and+";
 
-    private static Logger logger = Logger.getLogger(MappingParser.class);
+    private final static Logger logger = Logger.getLogger(MappingParser.class);
 
     /**
      * @param filePath

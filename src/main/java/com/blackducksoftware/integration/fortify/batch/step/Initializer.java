@@ -47,16 +47,16 @@ public class Initializer implements Tasklet, StepExecutionListener {
 
     private boolean jobStatus = false;
 
-    private static Logger logger = Logger.getLogger(Initializer.class);
+    private final static Logger logger = Logger.getLogger(Initializer.class);
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         logger.info("Started MappingParserTask");
-        Arrays.stream(new File(PropertyConstants.getProperty("hub.fortify.report.dir")).listFiles()).forEach(File::delete);
-        logger.info("Found Mapping file:: " + PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
+        Arrays.stream(new File(PropertyConstants.getReportDir()).listFiles()).forEach(File::delete);
+        logger.info("Found Mapping file:: " + PropertyConstants.getMappingJsonPath());
         final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
-                .createMapping(PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
-        logger.info("Created mapping object blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
+                .createMapping(PropertyConstants.getMappingJsonPath());
+        logger.info("blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
 
         ExecutorService exec = Executors.newFixedThreadPool(5);
         List<Future<?>> futures = new ArrayList<>(blackDuckFortifyMappers.size());
@@ -68,8 +68,7 @@ public class Initializer implements Tasklet, StepExecutionListener {
         }
 
         jobStatus = true;
-
-        logger.info("All threads completed processing");
+        logger.info("After all threads processing");
         return RepeatStatus.FINISHED;
     }
 
@@ -82,7 +81,7 @@ public class Initializer implements Tasklet, StepExecutionListener {
     public ExitStatus afterStep(StepExecution stepExecution) {
         if (jobStatus) {
             try (Writer writer = new BufferedWriter(
-                    new OutputStreamWriter(new FileOutputStream(PropertyConstants.getProperty("hub.fortify.batch.job.status.file.path")), "utf-8"))) {
+                    new OutputStreamWriter(new FileOutputStream(PropertyConstants.getBatchJobStatusFilePath()), "utf-8"))) {
                 writer.write(startJobTimeStamp);
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);

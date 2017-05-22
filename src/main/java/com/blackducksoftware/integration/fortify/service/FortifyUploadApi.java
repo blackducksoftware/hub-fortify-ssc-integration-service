@@ -29,12 +29,12 @@ import okhttp3.Response;
 
 public final class FortifyUploadApi extends FortifyService {
 
-    private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"),
-            PropertyConstants.getProperty("fortify.password"));;
+    private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
+            PropertyConstants.getFortifyPassword());
 
     private final static OkHttpClient okHttpClient = okBuilder.build();
 
-    private final static String URL = PropertyConstants.getProperty("fortify.server.url") + "upload/resultFileUpload.html?mat=";
+    private final static String URL = PropertyConstants.getFortifyServerUrl() + "upload/resultFileUpload.html?mat=";
 
     public static JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws Exception, IOException {
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
