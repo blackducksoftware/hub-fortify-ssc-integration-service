@@ -1,14 +1,8 @@
 [
     {
-      "hubProject": "solrWar2",
-      "hubProjectVersion": "4.10.4",
-      "fortifyApplication": "RWI_USING_API",
+      "hubProject": "Hub-Fortify-Integration-Test1",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Hub-Fortify-Test1",
       "fortifyApplicationVersion": "1.0"
-    },
-    {
-      "hubProject": "solrWar2",
-      "hubProjectVersion": "4.10.4",
-      "fortifyApplication": "Logistics",
-      "fortifyApplicationVersion": "1.3"
     }
 ]

@@ -37,7 +37,7 @@ import com.blackducksoftware.integration.fortify.batch.step.Initializer;
 @Configuration
 @EnableBatchProcessing
 public class BlackDuckFortifyJobConfig implements JobExecutionListener {
-    private static Logger logger = Logger.getLogger(BlackDuckFortifyJobConfig.class);
+    private final static Logger logger = Logger.getLogger(BlackDuckFortifyJobConfig.class);
 
     @Autowired
     private BatchSchedulerConfig batchScheduler;

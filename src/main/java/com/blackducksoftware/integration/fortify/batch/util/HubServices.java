@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.model.RiskProfile;
@@ -32,7 +34,9 @@ import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 
 public final class HubServices {
 
-    private static HubServicesFactory hubServicesFactory = RestConnectionHelper.createHubServicesFactory();;
+    private final static Logger logger = Logger.getLogger(HubServices.class);
+
+    private static HubServicesFactory hubServicesFactory = RestConnectionHelper.createHubServicesFactory();
 
     public static List<VulnerableComponentView> getVulnerabilityComponentViews(final ProjectVersionView projectVersionItem)
             throws IllegalArgumentException, IntegrationException {
@@ -45,6 +49,7 @@ public final class HubServices {
 
     public static ProjectVersionView getProjectVersion(final String projectName, final String versionName)
             throws IllegalArgumentException, IntegrationException {
+        logger.info("Getting Hub project and project version info for::" + projectName + ", " + versionName);
         final ProjectView projectItem = getProjectByProjectName(projectName);
         return getProjectVersion(projectItem, versionName);
     }
@@ -61,11 +66,13 @@ public final class HubServices {
     }
 
     public static ProjectView getProjectByProjectName(final String projectName) throws IntegrationException {
+        logger.info("Getting Hub project info for::" + projectName);
         final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService(hubServicesFactory.getRestConnection().logger);
         return projectRequestService.getProjectByName(projectName);
     }
 
     private static ProjectVersionView getProjectVersion(final ProjectView projectItem, final String versionName) throws IntegrationException {
+        logger.info("Getting Hub project version info for::" + versionName);
         final ProjectVersionRequestService projectVersionRequestService = hubServicesFactory
                 .createProjectVersionRequestService(hubServicesFactory.getRestConnection().logger);
         return projectVersionRequestService.getProjectVersion(projectItem, versionName);
@@ -78,6 +85,7 @@ public final class HubServices {
     }
 
     private static List<VulnerableComponentView> getVulnerabililtyComponentViews(final String vulnerabililtyBomComponentUrl) throws IntegrationException {
+        logger.info("Getting Hub Vulnerability info");
         final HubResponseService hubResponseService = hubServicesFactory.createHubResponseService();
         HubPagedRequest hubPagedRequest = hubResponseService.getHubRequestFactory().createPagedRequest(500, vulnerabililtyBomComponentUrl);
         return hubResponseService.getAllItems(hubPagedRequest, VulnerableComponentView.class);
@@ -97,9 +105,11 @@ public final class HubServices {
 
     public static Date getBomLastUpdatedAt(final ProjectVersionView projectVersionItem)
             throws IllegalArgumentException, IntegrationException {
+        logger.info("Getting Hub last BOM updated at");
         if (projectVersionItem != null) {
             final String projectVersionRiskProfileUrl = getProjectVersionRiskProfileUrl(projectVersionItem);
             RiskProfile riskProfile = getBomLastUpdatedAt(projectVersionRiskProfileUrl);
+
             return riskProfile.getBomLastUpdatedAt();
         }
         return null;

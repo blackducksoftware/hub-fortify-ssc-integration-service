@@ -18,9 +18,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.Application;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
@@ -29,6 +31,7 @@ import com.blackducksoftware.integration.hub.model.view.ProjectView;
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = Application.class)
 public class HubServicesTest extends TestCase {
     private String PROJECT_NAME;
 
@@ -38,7 +41,7 @@ public class HubServicesTest extends TestCase {
     @Before
     public void setUp() {
         final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
-                .createMapping(PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
+                .createMapping(PropertyConstants.getMappingJsonPath());
         PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProject();
         VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion();
     }

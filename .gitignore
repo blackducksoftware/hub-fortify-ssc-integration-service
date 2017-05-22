@@ -1,11 +1,5 @@
-/target/
+/build/
+/bin/
 
-*.prefs
-
-.project
-
-.classpath
-
-*.component
-
-*.settings
+.gradle/*
+.settings/*

@@ -9,19 +9,22 @@
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
  */
-package com.blackducksoftware.integration.fortify;
+package com.blackducksoftware.integration.fortify.batch;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
-@SpringBootApplication
-@EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class })
-public class Application {
+import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 
+@Configuration
+@ComponentScan(basePackageClasses = PropertyConstants.class)
+@EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
+public class TestApplication {
     public static void main(String args[]) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(TestApplication.class);
     }
-
 }
