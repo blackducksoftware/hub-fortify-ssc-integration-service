@@ -129,22 +129,23 @@ public class BlackDuckFortifyPushThread implements Runnable {
                     // Get the Vulnerability information
                     vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItem);
                     List<Vulnerability> vulnerabilities = vulnerableComponentViews.stream().map(transformMapping).collect(Collectors.<Vulnerability> toList());
+                    if (vulnerabilities.size() > 0) {
+                        final String fileDir = PropertyConstants.getReportDir();
+                        final String fileName = blackDuckFortifyMapper.getHubProject() + UNDERSCORE + blackDuckFortifyMapper.getHubProjectVersion() + UNDERSCORE
+                                + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
 
-                    final String fileDir = PropertyConstants.getReportDir();
-                    final String fileName = blackDuckFortifyMapper.getHubProject() + UNDERSCORE + blackDuckFortifyMapper.getHubProjectVersion() + UNDERSCORE
-                            + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
+                        // Write the vulnerabilities to CSV
+                        CSVUtils.writeToCSV(vulnerabilities, fileDir + fileName, ',');
 
-                    // Write the vulnerabilities to CSV
-                    CSVUtils.writeToCSV(vulnerabilities, fileDir + fileName, ',');
+                        // Get the file token for upload
+                        String token = getFileToken();
 
-                    // Get the file token for upload
-                    String token = getFileToken();
+                        // Upload the vulnerabilities CSV to Fortify
+                        uploadCSV(token, fileDir + fileName, blackDuckFortifyMapper.getFortifyApplicationId());
 
-                    // Upload the vulnerabilities CSV to Fortify
-                    uploadCSV(token, fileDir + fileName, blackDuckFortifyMapper.getFortifyApplicationId());
-
-                    // Delete the file token that is created for upload
-                    FortifyFileTokenApi.deleteFileToken();
+                        // Delete the file token that is created for upload
+                        FortifyFileTokenApi.deleteFileToken();
+                    }
                 }
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
@@ -195,7 +196,7 @@ public class BlackDuckFortifyPushThread implements Runnable {
 
     /**
      * Get the new file token from Fortify to upload the vulnerabilities
-     * 
+     *
      * @return
      * @throws IOException
      */
