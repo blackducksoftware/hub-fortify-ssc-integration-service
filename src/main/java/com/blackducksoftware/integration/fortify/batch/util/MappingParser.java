@@ -9,6 +9,9 @@
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
  *
+ * This class creates a mapping between the Fortify Application and Hub projects.
+ *
+ *
  * @author : hsathe
  *
  */
@@ -46,8 +49,11 @@ public final class MappingParser {
     private final static Logger logger = Logger.getLogger(MappingParser.class);
 
     /**
+     * Creates a list a mappingObject read from the mapping.json file
+     *
      * @param filePath
-     * @return List<BlackDuckForfifyMapper>
+     *            - Filepath to mapping.json
+     * @return List<BlackDuckForfifyMapper> Mapped objects with Fortify ID
      */
     public static List<BlackDuckFortifyMapper> createMapping(String filePath) {
         Gson gson;
@@ -72,7 +78,14 @@ public final class MappingParser {
         return mappingObj;
     }
 
-    private static List<BlackDuckFortifyMapper> addApplicationIdToResponse(List<BlackDuckFortifyMapper> mapping) {
+    /**
+     * Finds Application Id for Fortify Application
+     *
+     * @param mapping
+     *            - List<BlackDuckFortifyMapper> without Application ID
+     * @return List<BlackDuckFortifyMapper> mapping list with Application ID
+     */
+    public static List<BlackDuckFortifyMapper> addApplicationIdToResponse(List<BlackDuckFortifyMapper> mapping) {
         for (BlackDuckFortifyMapper element : mapping) {
             String fortifyApplicationName = element.getFortifyApplication();
             String fortifyApplicationVersion = element.getFortifyApplicationVersion();
@@ -80,26 +93,46 @@ public final class MappingParser {
             try {
                 String Q = Q_version + fortifyApplicationVersion + Q_connector + Q_project + fortifyApplicationName;
                 logger.info("Querying fortify " + Q);
-                FortifyApplicationResponse response = FortifyApplicationVersionApi.getApplicationByName(FIELDS, Q);
+                FortifyApplicationResponse response = FortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, Q);
                 if (response.getData().size() != 0) {
                     logger.info("Fortify Application Found :" + response.getData().get(0).getId());
                     element.setFortifyApplicationId(response.getData().get(0).getId());
                 } else {
                     logger.info("Unable to find the Application on fortify, creating a new application");
-                    int applicationId = createApplicationVersion(fortifyApplicationName, fortifyApplicationVersion);
+                    String queryParams = Q_project + fortifyApplicationName;
+                    String fieldParams = "id,project";
+                    logger.info("Querying fortify " + queryParams);
+                    FortifyApplicationResponse applicationResponse = FortifyApplicationVersionApi.getApplicationVersionByName(fieldParams, queryParams);
+                    int applicationId;
+                    CreateApplicationRequest createRequest;
+                    if (applicationResponse.getData().size() != 0) {
+                        // Create only version
+                        int parentApplicationId = applicationResponse.getData().get(0).getProject().getId();
+                        createRequest = createVersionRequest(parentApplicationId, fortifyApplicationVersion);
+                    } else {
+                        // Create both new Application and Version
+                        createRequest = createApplicationVersionRequest(fortifyApplicationName, fortifyApplicationVersion);
+                    }
+                    applicationId = createApplicationVersion(createRequest);
                     element.setFortifyApplicationId(applicationId);
                 }
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 throw new RuntimeException(e);
             }
         }
-
         return mapping;
     }
 
-    private static int createApplicationVersion(String fortifyApplicationName, String fortifyApplicationVersion) {
-        CreateApplicationRequest createRequest = buildRequestForFortifyApplication(fortifyApplicationName, fortifyApplicationVersion);
+    /**
+     * Creates a new Application Version, updates the attributes and commits the application to mark it complete on the
+     * UI
+     *
+     * @param createRequest
+     * @return int - Application ID
+     */
+    private static int createApplicationVersion(CreateApplicationRequest createRequest) {
+        // CreateApplicationRequest createRequest = buildRequestForFortifyApplication(fortifyApplicationName,
+        // fortifyApplicationVersion);
         int applicationId = 0;
         int SUCCESS = 201;
         try {
@@ -130,7 +163,37 @@ public final class MappingParser {
         return applicationId;
     }
 
-    private static CreateApplicationRequest buildRequestForFortifyApplication(String fortifyProjectName, String fortifyProjectVersion) {
+    /**
+     * Builds a request for creating new Fortify Version
+     *
+     * @param applicationId
+     * @param fortifyApplicationVersion
+     * @return Request object for
+     */
+    private static CreateApplicationRequest createVersionRequest(int applicationId, String fortifyApplicationVersion) {
+        CreateApplicationRequest createRequest = new CreateApplicationRequest();
+        String TEMPLATE = "Prioritized-HighRisk-Project-Template";
+        createRequest.setActive(true);
+        createRequest.setName(fortifyApplicationVersion);
+        createRequest.setCommitted(false);
+        createRequest.setIssueTemplateId(TEMPLATE);
+        createRequest.setDescription("Built using API");
+
+        Project proj = createRequest.new Project();
+        proj.setId(String.valueOf(applicationId));
+        createRequest.setProject(proj);
+
+        return createRequest;
+    }
+
+    /**
+     * Builds a request for creating a new Fortify Application Version
+     * 
+     * @param fortifyProjectName
+     * @param fortifyProjectVersion
+     * @return
+     */
+    private static CreateApplicationRequest createApplicationVersionRequest(String fortifyProjectName, String fortifyProjectVersion) {
         CreateApplicationRequest request = new CreateApplicationRequest();
         String TEMPLATE = "Prioritized-HighRisk-Project-Template";
         request.setActive(true);
@@ -140,10 +203,11 @@ public final class MappingParser {
         request.setDescription("Built using API");
 
         Project project = request.new Project();
+
         project.setName(fortifyProjectName);
         project.setDescription("Built using API");
         project.setIssueTemplateId(TEMPLATE);
-
+        project.setId("");
         request.setProject(project);
 
         return request;

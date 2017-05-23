@@ -10,6 +10,8 @@
  * with Black Duck Software.
  *
  *
+ * API Service for FORTIFY REST API
+ *
  * @author: hsathe
  */
 package com.blackducksoftware.integration.fortify.service;
@@ -35,7 +37,7 @@ import retrofit2.http.Query;
 public interface FortifyApplicationVersionApiService {
     @Headers({ "Accept: application/json", "Content-Type:application/json" })
     @GET("api/v1/projectVersions")
-    Call<FortifyApplicationResponse> getApplicationByName(@Query("fields") String fields, @Query("q") String filter);
+    Call<FortifyApplicationResponse> getApplicationVersionByName(@Query("fields") String fields, @Query("q") String filter);
 
     @Headers({ "Accept: application/json", "Content-Type:application/json" })
     @POST("api/v1/projectVersions")

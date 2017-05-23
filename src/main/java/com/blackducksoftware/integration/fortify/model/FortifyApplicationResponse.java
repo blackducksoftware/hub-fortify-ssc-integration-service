@@ -8,6 +8,11 @@
  * disclose such Confidential Information and shall use it only in
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
+ *
+ * Holder for Gson conversion from Fortify API json response to Java objects
+ * 
+ * @author hsathe
+ *
  */
 package com.blackducksoftware.integration.fortify.model;
 
