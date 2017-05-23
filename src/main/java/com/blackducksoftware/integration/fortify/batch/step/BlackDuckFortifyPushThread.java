@@ -33,12 +33,24 @@ import com.blackducksoftware.integration.fortify.batch.util.CSVUtils;
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.FileToken;
-import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
 import com.blackducksoftware.integration.fortify.model.JobStatusResponse;
 import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
 import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 
+/**
+ * This class will be used as Thread and it will perform the following tasks in parallel for each Hub-Fortify mapper
+ * 1) Get the Hub project version information
+ * 2) Get the Last BOM updated date and Last successful runtime of the job
+ * 3) Compare the dates, if the last BOM updated date is lesser than last successful runtime of the job, do nothing
+ * else perform the following the task
+ * i) Get the Vulnerabilities
+ * ii) Write it to CSV
+ * iii) Upload the CSV to Fortify
+ *
+ * @author smanikantan
+ *
+ */
 public class BlackDuckFortifyPushThread implements Runnable {
 
     private BlackDuckFortifyMapper blackDuckFortifyMapper;
@@ -73,6 +85,8 @@ public class BlackDuckFortifyPushThread implements Runnable {
             vulnerability.setExploitability(vulnerableComponentView.getVulnerabilityWithRemediation().getExploitabilitySubscore());
             vulnerability.setImpact(vulnerableComponentView.getVulnerabilityWithRemediation().getImpactSubscore());
             vulnerability.setVulnerabilitySource(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getSource()));
+            vulnerability.setHubVulnerabilityUrl(PropertyConstants.getHubServerUrl() + "/ui/vulnerabilities/id:"
+                    + String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getVulnerabilityName()) + "/view:overview");
             vulnerability.setRemediationStatus(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getRemediationStatus()));
             vulnerability.setRemediationTargetDate(vulnerableComponentView.getVulnerabilityWithRemediation().getRemediationTargetAt());
             vulnerability.setRemediationActualDate(vulnerableComponentView.getVulnerabilityWithRemediation().getRemediationActualAt());
@@ -99,14 +113,20 @@ public class BlackDuckFortifyPushThread implements Runnable {
             ProjectVersionView projectVersionItem = null;
             List<VulnerableComponentView> vulnerableComponentViews;
             try {
+                // Get the project version
                 projectVersionItem = HubServices.getProjectVersion(blackDuckFortifyMapper.getHubProject(), blackDuckFortifyMapper.getHubProjectVersion());
+
+                // Get the Last BOM updated date
                 bomUpdatedValueAt = HubServices.getBomLastUpdatedAt(projectVersionItem);
+
+                // Get the last successful runtime of the job
                 final Date getLastSuccessfulJobRunTime = getLastSuccessfulJobRunTime(PropertyConstants.getBatchJobStatusFilePath());
                 logger.info("Last successful job excecution:" + getLastSuccessfulJobRunTime + ", Compare Dates: "
                         + bomUpdatedValueAt.after(getLastSuccessfulJobRunTime));
 
                 if ((getLastSuccessfulJobRunTime != null && bomUpdatedValueAt.after(getLastSuccessfulJobRunTime))
                         || (getLastSuccessfulJobRunTime == null && bomUpdatedValueAt.after(new Date()))) {
+                    // Get the Vulnerability information
                     vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItem);
                     List<Vulnerability> vulnerabilities = vulnerableComponentViews.stream().map(transformMapping).collect(Collectors.<Vulnerability> toList());
 
@@ -114,10 +134,16 @@ public class BlackDuckFortifyPushThread implements Runnable {
                     final String fileName = blackDuckFortifyMapper.getHubProject() + UNDERSCORE + blackDuckFortifyMapper.getHubProjectVersion() + UNDERSCORE
                             + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
 
+                    // Write the vulnerabilities to CSV
                     CSVUtils.writeToCSV(vulnerabilities, fileDir + fileName, ',');
 
+                    // Get the file token for upload
                     String token = getFileToken();
+
+                    // Upload the vulnerabilities CSV to Fortify
                     uploadCSV(token, fileDir + fileName, blackDuckFortifyMapper.getFortifyApplicationId());
+
+                    // Delete the file token that is created for upload
                     FortifyFileTokenApi.deleteFileToken();
                 }
             } catch (IllegalArgumentException e) {
@@ -133,6 +159,12 @@ public class BlackDuckFortifyPushThread implements Runnable {
         }
     }
 
+    /**
+     * Get the last successful job run time of the job by reading the batch_job_status.txt file
+     *
+     * @param fileName
+     * @return
+     */
     private Date getLastSuccessfulJobRunTime(String fileName) {
         BufferedReader br = null;
         FileReader fr = null;
@@ -161,13 +193,26 @@ public class BlackDuckFortifyPushThread implements Runnable {
         return null;
     }
 
+    /**
+     * Get the new file token from Fortify to upload the vulnerabilities
+     * 
+     * @return
+     * @throws IOException
+     */
     private String getFileToken() throws IOException {
         FileToken fileToken = new FileToken();
         fileToken.setFileTokenType("UPLOAD");
-        FileTokenResponse fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
-        return fileTokenResponse.getData().getToken();
+        return FortifyFileTokenApi.getFileToken(fileToken);
     }
 
+    /**
+     * Upload the CSV to Fortify
+     *
+     * @param token
+     * @param fileName
+     * @param fortifyApplicationId
+     * @throws Exception
+     */
     private void uploadCSV(String token, String fileName, int fortifyApplicationId) throws Exception {
         File file = new File(fileName);
         logger.info("Uploading " + file.getName() + " to fortify");

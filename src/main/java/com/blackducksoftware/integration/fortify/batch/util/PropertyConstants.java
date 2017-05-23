@@ -14,6 +14,12 @@ package com.blackducksoftware.integration.fortify.batch.util;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * This class is to read the application properties key-value pairs
+ * 
+ * @author smanikantan
+ *
+ */
 @Configuration
 public class PropertyConstants {
 
@@ -87,6 +93,13 @@ public class PropertyConstants {
         PropertyConstants.mappingJsonPath = mappingJsonPath;
     }
 
+    private static int maximumThreadSize;
+
+    @Value("${maximum.thread.size}")
+    public void setMaximumThreadSize(int maximumThreadSize) {
+        PropertyConstants.maximumThreadSize = maximumThreadSize;
+    }
+
     public static String getHubUserName() {
         return hubUserName;
     }
@@ -125,5 +138,9 @@ public class PropertyConstants {
 
     public static String getMappingJsonPath() {
         return mappingJsonPath;
+    }
+
+    public static int getMaximumThreadSize() {
+        return maximumThreadSize;
     }
 }

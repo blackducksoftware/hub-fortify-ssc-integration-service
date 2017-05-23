@@ -15,6 +15,12 @@ import java.util.Date;
 
 import com.blackducksoftware.integration.hub.model.HubView;
 
+/**
+ * This class is to store the Last BOM Updated value for the given project version
+ * 
+ * @author smanikantan
+ *
+ */
 public class RiskProfile extends HubView {
     private Date bomLastUpdatedAt;
 

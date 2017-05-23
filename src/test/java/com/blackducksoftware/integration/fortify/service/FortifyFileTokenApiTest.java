@@ -60,15 +60,12 @@ public class FortifyFileTokenApiTest extends TestCase {
         FileToken fileToken = new FileToken();
         fileToken.setFileTokenType("UPLOAD");
 
-        FileTokenResponse mockFileTokenResponse = new FileTokenResponse();
-        Data data = mockFileTokenResponse.new Data();
-        data.setToken("ABCDEFG");
-        mockFileTokenResponse.setData(data);
+        String token = "ABCDEFG";
 
-        Mockito.when(FortifyFileTokenApi.getFileToken(Mockito.any())).thenReturn(mockFileTokenResponse);
+        Mockito.when(FortifyFileTokenApi.getFileToken(Mockito.any())).thenReturn(token);
 
-        FileTokenResponse fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
-        System.out.println("fileTokenResponse::" + fileTokenResponse.getData().getToken());
+        String fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
+        System.out.println("fileTokenResponse::" + fileTokenResponse);
         Assert.assertNotNull(fileTokenResponse);
     }
 

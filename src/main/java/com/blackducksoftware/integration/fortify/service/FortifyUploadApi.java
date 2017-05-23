@@ -27,6 +27,12 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+/**
+ * This class will act as a REST client to access the Fortify Upload Api
+ *
+ * @author smanikantan
+ *
+ */
 public final class FortifyUploadApi extends FortifyService {
 
     private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
@@ -36,6 +42,16 @@ public final class FortifyUploadApi extends FortifyService {
 
     private final static String URL = PropertyConstants.getFortifyServerUrl() + "upload/resultFileUpload.html?mat=";
 
+    /**
+     * Upload the vulnerabilities to Fortify
+     * 
+     * @param fileToken
+     * @param entityIdVal
+     * @param file
+     * @return
+     * @throws Exception
+     * @throws IOException
+     */
     public static JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws Exception, IOException {
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         builder.addFormDataPart("entityId", String.valueOf(entityIdVal));

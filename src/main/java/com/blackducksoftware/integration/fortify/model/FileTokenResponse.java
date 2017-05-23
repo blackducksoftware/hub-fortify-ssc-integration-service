@@ -11,6 +11,12 @@
  */
 package com.blackducksoftware.integration.fortify.model;
 
+/**
+ * This class is used to store the Fortify File Token response data
+ * 
+ * @author smanikantan
+ *
+ */
 public class FileTokenResponse {
     private Data data;
 

@@ -34,6 +34,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.step.Initializer;
 
+/**
+ * Schedule the batch job
+ *
+ * @author smanikantan
+ *
+ */
 @Configuration
 @EnableBatchProcessing
 public class BlackDuckFortifyJobConfig implements JobExecutionListener {
@@ -48,18 +54,33 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
+    /**
+     * Create new Initializer task
+     *
+     * @return Initializer
+     */
     @Bean
     public Initializer getMappingParserTask() {
         return new Initializer();
     }
 
+    /**
+     * Create the task executor which will be used for multi-threading
+     *
+     * @return TaskExecutor
+     */
     @Bean
     public TaskExecutor taskExecutor() {
         SimpleAsyncTaskExecutor asyncTaskExecutor = new SimpleAsyncTaskExecutor("spring_batch");
-        asyncTaskExecutor.setConcurrencyLimit(2);
+        asyncTaskExecutor.setConcurrencyLimit(1);
         return asyncTaskExecutor;
     }
 
+    /**
+     * Schedule the job and add it to the job launcher
+     *
+     * @throws Exception
+     */
     @Scheduled(cron = "${cron.expressions}")
     public void execute() throws Exception {
         JobParameters param = new JobParametersBuilder().addString("JobID",
@@ -67,6 +88,11 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
         batchScheduler.jobLauncher().run(pushBlackDuckScanToFortifyJob(), param);
     }
 
+    /**
+     * Create the job to push the vulnerability data from BlackDuck to Fortify Job
+     *
+     * @return Job
+     */
     @Bean
     public Job pushBlackDuckScanToFortifyJob() {
         logger.info("Push Blackduck Scan data to Fortify Job");
@@ -77,6 +103,11 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
                 .end().build();
     }
 
+    /**
+     * Add the Mapping parser task to the job
+     *
+     * @return Step
+     */
     @Bean
     public Step createMappingParserStep() {
         logger.info("Parse the Mapping.json -> Transform to Mapping parser object");
@@ -84,11 +115,17 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
                 .tasklet(getMappingParserTask()).build();
     }
 
+    /**
+     * This function will execute after each job is completed
+     */
     @Override
     public void afterJob(JobExecution jobExecution) {
         logger.info("Job completed at::" + new Date());
     }
 
+    /**
+     * This function will execute before each job is started
+     */
     @Override
     public void beforeJob(JobExecution jobExecution) {
         logger.info("Job started at::" + new Date());

@@ -9,3 +9,5 @@ sample.csv
 src/main/resources/batch_job_status.txt
 
 src/main/resources/hub-fortify.log
+
+.classpath
