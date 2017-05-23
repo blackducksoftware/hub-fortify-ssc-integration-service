@@ -11,6 +11,12 @@
  */
 package com.blackducksoftware.integration.fortify.model;
 
+/**
+ * This class is used to store the Fortify File Token request data
+ *
+ * @author smanikantan
+ *
+ */
 public class FileToken {
     private String fileTokenType;
 

@@ -21,20 +21,43 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 
+/**
+ * Batch Job Configuration
+ *
+ * @author smanikantan
+ *
+ */
 @Configuration
 @EnableScheduling
 public class BatchSchedulerConfig {
 
+    /**
+     * Create batch job Transaction Manager
+     *
+     * @return PlatformTransactionManager
+     */
     @Bean
     public PlatformTransactionManager transactionManager() {
         return new ResourcelessTransactionManager();
     }
 
+    /**
+     * Create batch job repository
+     *
+     * @return JobRepository
+     * @throws Exception
+     */
     @Bean
     public JobRepository jobRepository() throws Exception {
         return new MapJobRepositoryFactoryBean(transactionManager()).getObject();
     }
 
+    /**
+     * Create batch job launcher
+     * 
+     * @return
+     * @throws Exception
+     */
     @Bean
     public JobLauncher jobLauncher() throws Exception {
         SimpleJobLauncher jobLauncher = new SimpleJobLauncher();

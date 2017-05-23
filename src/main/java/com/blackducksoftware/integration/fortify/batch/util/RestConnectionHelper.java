@@ -21,8 +21,19 @@ import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.log.LogLevel;
 import com.blackducksoftware.integration.log.PrintStreamIntLogger;
 
+/**
+ * This class is used to get the Hub REST connection
+ *
+ * @author smanikantan
+ *
+ */
 public final class RestConnectionHelper {
 
+    /**
+     * Build the Hub Server information for connection
+     *
+     * @return
+     */
     private static HubServerConfig getHubServerConfig() {
         HubServerConfigBuilder builder = new HubServerConfigBuilder();
         builder.setHubUrl(PropertyConstants.getHubServerUrl());
@@ -33,14 +44,32 @@ public final class RestConnectionHelper {
         return builder.build();
     }
 
+    /**
+     * Get the Hub connection details from application.properties
+     *
+     * @return
+     */
     private static CredentialsRestConnection getApplicationPropertyRestConnection() {
         return getRestConnection(getHubServerConfig());
     }
 
+    /**
+     * Get the Hub REST connection
+     *
+     * @param serverConfig
+     * @return
+     */
     private static CredentialsRestConnection getRestConnection(final HubServerConfig serverConfig) {
         return getRestConnection(serverConfig, LogLevel.TRACE);
     }
 
+    /**
+     * Get the Hub REST connection
+     *
+     * @param serverConfig
+     * @param logLevel
+     * @return
+     */
     private static CredentialsRestConnection getRestConnection(final HubServerConfig serverConfig, final LogLevel logLevel) {
 
         CredentialsRestConnection restConnection;
@@ -64,14 +93,31 @@ public final class RestConnectionHelper {
         return restConnection;
     }
 
+    /**
+     * Create the Hub Services factory
+     *
+     * @return
+     */
     public static HubServicesFactory createHubServicesFactory() {
         return createHubServicesFactory(LogLevel.DEBUG);
     }
 
+    /**
+     * Create the Hub Services factory based on loglevel
+     *
+     * @param logLevel
+     * @return
+     */
     private static HubServicesFactory createHubServicesFactory(final LogLevel logLevel) {
         return createHubServicesFactory(new PrintStreamIntLogger(System.out, logLevel));
     }
 
+    /**
+     * Create the Hub Services factory based on logger
+     * 
+     * @param logger
+     * @return
+     */
     private static HubServicesFactory createHubServicesFactory(final IntLogger logger) {
         final RestConnection restConnection = getApplicationPropertyRestConnection();
         restConnection.logger = logger;

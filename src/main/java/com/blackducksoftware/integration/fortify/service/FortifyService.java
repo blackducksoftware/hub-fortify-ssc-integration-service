@@ -23,6 +23,12 @@ import okhttp3.Route;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
 
+/**
+ * This class will be used as a base class to create the header for Fortify Api
+ *
+ * @author smanikantan
+ *
+ */
 public abstract class FortifyService {
     public static Builder getHeader(String userName, String password) {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
