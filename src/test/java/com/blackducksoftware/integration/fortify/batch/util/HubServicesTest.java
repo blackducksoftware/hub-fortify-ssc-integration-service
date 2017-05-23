@@ -15,11 +15,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.Application;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.model.view.ProjectView;
@@ -27,10 +31,20 @@ import com.blackducksoftware.integration.hub.model.view.ProjectView;
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = Application.class)
 public class HubServicesTest extends TestCase {
-    private final String PROJECT_NAME = "solrWar2";
+    private String PROJECT_NAME;
 
-    private final String VERSION_NAME = "4.10.4";
+    private String VERSION_NAME;
+
+    @Override
+    @Before
+    public void setUp() {
+        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
+                .createMapping(PropertyConstants.getMappingJsonPath());
+        PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProject();
+        VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion();
+    }
 
     @Test
     public void getAllProjects() {
@@ -85,7 +99,7 @@ public class HubServicesTest extends TestCase {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IntegrationException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
             System.out.println("Error message::" + e.getMessage());
             assertTrue(e.getMessage().contains("This Project does not exist"));
         }
@@ -101,7 +115,7 @@ public class HubServicesTest extends TestCase {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IntegrationException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
             System.out.println("Error message::" + e.getMessage());
             assertTrue(e.getMessage().contains("Could not find the version"));
         }

@@ -13,6 +13,12 @@ package com.blackducksoftware.integration.fortify.model;
 
 import org.simpleframework.xml.Element;
 
+/**
+ * This class is used to store the Fortify upload response data
+ * 
+ * @author smanikantan
+ *
+ */
 public class JobStatusResponse {
     @Element(name = "code")
     private String code;

@@ -14,6 +14,12 @@ package com.blackducksoftware.integration.fortify.batch.model;
 import com.blackducksoftware.integration.hub.model.HubView;
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * This class will store the Vulnerability BOM component API response
+ * 
+ * @author smanikantan
+ *
+ */
 public class VulnerableComponentView extends HubView {
     private String componentName;
 

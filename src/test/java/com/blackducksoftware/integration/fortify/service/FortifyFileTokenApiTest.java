@@ -19,7 +19,12 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
 import com.blackducksoftware.integration.fortify.model.FileTokenResponse.Data;
@@ -28,6 +33,8 @@ import junit.framework.TestCase;
 import okhttp3.OkHttpClient;
 
 @RunWith(PowerMockRunner.class)
+@SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = TestApplication.class)
+@PowerMockRunnerDelegate(SpringRunner.class)
 @PrepareForTest({ FortifyService.class, OkHttpClient.class, OkHttpClient.Builder.class, FortifyFileTokenApi.class })
 public class FortifyFileTokenApiTest extends TestCase {
 
@@ -53,15 +60,12 @@ public class FortifyFileTokenApiTest extends TestCase {
         FileToken fileToken = new FileToken();
         fileToken.setFileTokenType("UPLOAD");
 
-        FileTokenResponse mockFileTokenResponse = new FileTokenResponse();
-        Data data = mockFileTokenResponse.new Data();
-        data.setToken("ABCDEFG");
-        mockFileTokenResponse.setData(data);
+        String token = "ABCDEFG";
 
-        Mockito.when(FortifyFileTokenApi.getFileToken(Mockito.any())).thenReturn(mockFileTokenResponse);
+        Mockito.when(FortifyFileTokenApi.getFileToken(Mockito.any())).thenReturn(token);
 
-        FileTokenResponse fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
-        System.out.println("fileTokenResponse::" + fileTokenResponse.getData().getToken());
+        String fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
+        System.out.println("fileTokenResponse::" + fileTokenResponse);
         Assert.assertNotNull(fileTokenResponse);
     }
 

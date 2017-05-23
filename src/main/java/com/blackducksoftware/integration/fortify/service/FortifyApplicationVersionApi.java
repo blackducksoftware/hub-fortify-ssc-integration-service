@@ -34,10 +34,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class FortifyApplicationVersionApi extends FortifyService {
 
-    private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getProperty("fortify.username"),
-            PropertyConstants.getProperty("fortify.password"));;
+    private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
+            PropertyConstants.getFortifyPassword());
 
-    private final static Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getProperty("fortify.server.url"))
+    private final static Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getFortifyServerUrl())
             .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
 
     private final static FortifyApplicationVersionApiService apiService = retrofit.create(FortifyApplicationVersionApiService.class);

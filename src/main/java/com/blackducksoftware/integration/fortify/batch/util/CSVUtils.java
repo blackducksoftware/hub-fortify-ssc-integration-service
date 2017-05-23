@@ -25,8 +25,24 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
+/**
+ * This class will be used to render the content in CSV
+ *
+ * @author smanikantan
+ *
+ */
 public final class CSVUtils {
 
+    /**
+     * It will be used to render the list of vulnerabilities in CSV
+     * 
+     * @param vulnerabilities
+     * @param fileName
+     * @param delimiter
+     * @throws JsonGenerationException
+     * @throws JsonMappingException
+     * @throws IOException
+     */
     public static void writeToCSV(List<Vulnerability> vulnerabilities, String fileName, char delimiter)
             throws JsonGenerationException, JsonMappingException, IOException {
         // create mapper and schema

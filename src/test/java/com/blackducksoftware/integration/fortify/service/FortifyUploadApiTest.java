@@ -20,16 +20,21 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.model.FileToken;
-import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
-import com.blackducksoftware.integration.fortify.model.FileTokenResponse.Data;
 import com.blackducksoftware.integration.fortify.model.JobStatusResponse;
 
 import junit.framework.TestCase;
 import okhttp3.OkHttpClient;
 
 @RunWith(PowerMockRunner.class)
+@SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = TestApplication.class)
+@PowerMockRunnerDelegate(SpringRunner.class)
 @PrepareForTest({ FortifyService.class, OkHttpClient.class, OkHttpClient.Builder.class, FortifyFileTokenApi.class, FortifyUploadApi.class })
 public class FortifyUploadApiTest extends TestCase {
 
@@ -48,17 +53,13 @@ public class FortifyUploadApiTest extends TestCase {
         OkHttpClient okHttpClient = Mockito.mock(OkHttpClient.class);
         Mockito.when(builder.build()).thenReturn(okHttpClient);
 
-        FileTokenResponse mockFileTokenResponse = new FileTokenResponse();
-        Data data = mockFileTokenResponse.new Data();
-        data.setToken("ABCDEFG");
-        mockFileTokenResponse.setData(data);
+        String token = "ABCDEFG";
 
         PowerMockito.mockStatic(FortifyFileTokenApi.class);
-        Mockito.when(FortifyFileTokenApi.getFileToken(Mockito.any())).thenReturn(mockFileTokenResponse);
+        Mockito.when(FortifyFileTokenApi.getFileToken(Mockito.any())).thenReturn(token);
 
-        FileTokenResponse fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
-        String token = fileTokenResponse.getData().getToken();
-        System.out.println("File Token::" + token);
+        String fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
+        System.out.println("File Token::" + fileTokenResponse);
         Assert.assertNotNull(token);
 
         // File file = new File("/Users/smanikantan/Downloads/security.csv");

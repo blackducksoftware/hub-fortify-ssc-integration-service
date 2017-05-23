@@ -41,24 +41,35 @@ import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMap
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 
+/**
+ * This class will be the first step of the batch job and it will be used to parse the Mapping.json and based on the
+ * number of Hub-Fortify mapping, it will create the threads for parallel processing
+ *
+ * @author smanikantan
+ *
+ */
 public class Initializer implements Tasklet, StepExecutionListener {
 
     private String startJobTimeStamp;
 
     private boolean jobStatus = false;
 
-    private static Logger logger = Logger.getLogger(Initializer.class);
+    private final static Logger logger = Logger.getLogger(Initializer.class);
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         logger.info("Started MappingParserTask");
-        Arrays.stream(new File(PropertyConstants.getProperty("hub.fortify.report.dir")).listFiles()).forEach(File::delete);
-        logger.info("Found Mapping file:: " + PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
-        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
-                .createMapping(PropertyConstants.getProperty("hub.fortify.mapping.file.path"));
-        logger.info("Created mapping object blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
+        // Delete the files that are error out in previous run
+        Arrays.stream(new File(PropertyConstants.getReportDir()).listFiles()).forEach(File::delete);
+        logger.debug("Found Mapping file:: " + PropertyConstants.getMappingJsonPath());
 
-        ExecutorService exec = Executors.newFixedThreadPool(5);
+        // Create the mapping between Hub and Fortify
+        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
+                .createMapping(PropertyConstants.getMappingJsonPath());
+        logger.info("blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
+
+        // Create the threads for parallel processing
+        ExecutorService exec = Executors.newFixedThreadPool(PropertyConstants.getMaximumThreadSize());
         List<Future<?>> futures = new ArrayList<>(blackDuckFortifyMappers.size());
         for (BlackDuckFortifyMapper blackDuckFortifyMapper : blackDuckFortifyMappers) {
             futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapper)));
@@ -68,21 +79,27 @@ public class Initializer implements Tasklet, StepExecutionListener {
         }
 
         jobStatus = true;
-
-        logger.info("All threads completed processing");
+        logger.info("After all threads processing");
         return RepeatStatus.FINISHED;
     }
 
+    /**
+     * This method will be executed before this step is started and it will store the start job run time
+     */
     @Override
     public void beforeStep(StepExecution stepExecution) {
         startJobTimeStamp = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(LocalDateTime.now());
     }
 
+    /**
+     * This method will be executed after this step is completed and it will write the start job run time in
+     * batch_job_status.txt
+     */
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
         if (jobStatus) {
             try (Writer writer = new BufferedWriter(
-                    new OutputStreamWriter(new FileOutputStream(PropertyConstants.getProperty("hub.fortify.batch.job.status.file.path")), "utf-8"))) {
+                    new OutputStreamWriter(new FileOutputStream(PropertyConstants.getBatchJobStatusFilePath()), "utf-8"))) {
                 writer.write(startJobTimeStamp);
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);

@@ -8,15 +8,10 @@
  * disclose such Confidential Information and shall use it only in
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
- *
- * MappingParser Tests using Mockito
- *
- * @author hsathe
- *
  */
-package com.blackducksoftware.integration.fortify.batch.util;
+package com.blackducksoftware.integration.fortify.service;
 
-import java.util.List;
+import java.io.IOException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,23 +19,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
-import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TestApplication.class)
-public class MappingParserTest extends TestCase {
+public class FortifyApplicationVersionApitTest extends TestCase {
+
+    String FIELDS = "id";
+
+    String QUERY = "name:1.3+and+project.name:Logistics";
 
     @Test
-    public void testMappingFileParser() throws Exception {
-        List<BlackDuckFortifyMapper> mapping;
-        try {
-            mapping = MappingParser.createMapping(PropertyConstants.getMappingJsonPath());
-            System.out.println(mapping);
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Logger info to be added
-        }
+    public void getApplicationVersionTest() throws IOException {
+        FortifyApplicationResponse response = FortifyApplicationVersionApi.getApplicationByName(FIELDS, QUERY);
+        System.out.println("ID: " + response.getData().get(0).getId());
+        System.out.println(response.toString());
     }
 }

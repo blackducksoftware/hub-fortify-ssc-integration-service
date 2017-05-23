@@ -11,48 +11,136 @@
  */
 package com.blackducksoftware.integration.fortify.batch.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Properties;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-public final class PropertyConstants {
-    private static final Properties properties = new Properties();
+/**
+ * This class is to read the application properties key-value pairs
+ * 
+ * @author smanikantan
+ *
+ */
+@Configuration
+public class PropertyConstants {
 
-    private static final String configFileName = "src/main/resources/application.properties";
+    private static String hubUserName;
 
-    private static final HashMap<Object, Object> hmProps = new HashMap<>();
-    static {
-        InputStream isApplicationProperties = null;
-        try {
-            isApplicationProperties = new java.io.FileInputStream(configFileName);
-            properties.load(isApplicationProperties);
-            hmProps.putAll(properties);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (isApplicationProperties != null) {
-                    isApplicationProperties.close();
-                }
-            } catch (IOException e) {
-
-            }
-        }
+    @Value("${hub.username}")
+    public void setHubUserName(String hubUserName) {
+        PropertyConstants.hubUserName = hubUserName;
     }
 
-    /**
-     * Gets the property.
-     *
-     * @param key
-     *            the key
-     * @return the property
-     */
-    public static String getProperty(String key) {
-        if (hmProps.containsKey(key)) {
-            return (String) hmProps.get(key);
-        } else {
-            return null;
-        }
+    private static String hubPassword;
+
+    @Value("${hub.password}")
+    public void setHubPassword(String hubPassword) {
+        PropertyConstants.hubPassword = hubPassword;
+    }
+
+    private static String hubTimeout;
+
+    @Value("${hub.timeout}")
+    public void setHubTimeout(String hubTimeout) {
+        PropertyConstants.hubTimeout = hubTimeout;
+    }
+
+    private static String hubServerUrl;
+
+    @Value("${hub.server.url}")
+    public void setHubServerUrl(String hubServerUrl) {
+        PropertyConstants.hubServerUrl = hubServerUrl;
+    }
+
+    private static String fortifyUserName;
+
+    @Value("${fortify.username}")
+    public void setFortifyUserName(String fortifyUserName) {
+        PropertyConstants.fortifyUserName = fortifyUserName;
+    }
+
+    private static String fortifyPassword;
+
+    @Value("${fortify.password}")
+    public void setFortifyPassword(String fortifyPassword) {
+        PropertyConstants.fortifyPassword = fortifyPassword;
+    }
+
+    private static String fortifyServerUrl;
+
+    @Value("${fortify.server.url}")
+    public void setFortifyServerUrl(String fortifyServerUrl) {
+        PropertyConstants.fortifyServerUrl = fortifyServerUrl;
+    }
+
+    private static String batchJobStatusFilePath;
+
+    @Value("${hub.fortify.batch.job.status.file.path}")
+    public void setBatchJobStatusFilePath(String batchJobStatusFilePath) {
+        PropertyConstants.batchJobStatusFilePath = batchJobStatusFilePath;
+    }
+
+    private static String reportDir;
+
+    @Value("${hub.fortify.report.dir}")
+    public void setReportDir(String reportDir) {
+        PropertyConstants.reportDir = reportDir;
+    }
+
+    private static String mappingJsonPath;
+
+    @Value("${hub.fortify.mapping.file.path}")
+    public void setMappingJsonPath(String mappingJsonPath) {
+        PropertyConstants.mappingJsonPath = mappingJsonPath;
+    }
+
+    private static int maximumThreadSize;
+
+    @Value("${maximum.thread.size}")
+    public void setMaximumThreadSize(int maximumThreadSize) {
+        PropertyConstants.maximumThreadSize = maximumThreadSize;
+    }
+
+    public static String getHubUserName() {
+        return hubUserName;
+    }
+
+    public static String getHubPassword() {
+        return hubPassword;
+    }
+
+    public static String getHubTimeout() {
+        return hubTimeout;
+    }
+
+    public static String getHubServerUrl() {
+        return hubServerUrl;
+    }
+
+    public static String getFortifyUserName() {
+        return fortifyUserName;
+    }
+
+    public static String getFortifyPassword() {
+        return fortifyPassword;
+    }
+
+    public static String getFortifyServerUrl() {
+        return fortifyServerUrl;
+    }
+
+    public static String getBatchJobStatusFilePath() {
+        return batchJobStatusFilePath;
+    }
+
+    public static String getReportDir() {
+        return reportDir;
+    }
+
+    public static String getMappingJsonPath() {
+        return mappingJsonPath;
+    }
+
+    public static int getMaximumThreadSize() {
+        return maximumThreadSize;
     }
 }
