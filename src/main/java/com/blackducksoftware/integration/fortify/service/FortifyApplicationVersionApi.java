@@ -8,6 +8,11 @@
  * disclose such Confidential Information and shall use it only in
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
+ *
+ *
+ * API service for Fortify REST API
+ * 
+ * @author hsathe
  */
 package com.blackducksoftware.integration.fortify.service;
 
@@ -37,8 +42,8 @@ public final class FortifyApplicationVersionApi extends FortifyService {
 
     private final static FortifyApplicationVersionApiService apiService = retrofit.create(FortifyApplicationVersionApiService.class);
 
-    public static FortifyApplicationResponse getApplicationByName(String fields, String filter) throws IOException {
-        Call<FortifyApplicationResponse> apiApplicationResponseCall = apiService.getApplicationByName(fields, filter);
+    public static FortifyApplicationResponse getApplicationVersionByName(String fields, String filter) throws IOException {
+        Call<FortifyApplicationResponse> apiApplicationResponseCall = apiService.getApplicationVersionByName(fields, filter);
         FortifyApplicationResponse applicationAPIResponse = apiApplicationResponseCall.execute().body();
         return applicationAPIResponse;
     }
@@ -59,6 +64,5 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         Call<ResponseBody> apiApplicationResponseCall = apiService.commitApplicationVersion(id, request);
         int response = apiApplicationResponseCall.execute().code();
         return response;
-
     }
 }

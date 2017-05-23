@@ -8,6 +8,10 @@
  * disclose such Confidential Information and shall use it only in
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
+ *
+ * Fortify API Tests
+ *
+ * @author hsathe
  */
 package com.blackducksoftware.integration.fortify.service;
 
@@ -52,8 +56,8 @@ public class FortifyApplicationVersionApiTest extends TestCase {
     public void getApplicationVersionTest() throws IOException {
         FortifyApplicationResponse mockResponse = new FortifyApplicationResponse();
 
-        Mockito.when(FortifyApplicationVersionApi.getApplicationByName(Mockito.anyString(), Mockito.anyString())).thenReturn(mockResponse);
-        FortifyApplicationResponse response = FortifyApplicationVersionApi.getApplicationByName(FIELDS, QUERY);
+        Mockito.when(FortifyApplicationVersionApi.getApplicationVersionByName(Mockito.anyString(), Mockito.anyString())).thenReturn(mockResponse);
+        FortifyApplicationResponse response = FortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, QUERY);
         assertNotNull(response);
     }
 
