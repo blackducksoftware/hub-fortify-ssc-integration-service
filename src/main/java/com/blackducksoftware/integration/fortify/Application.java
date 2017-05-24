@@ -18,7 +18,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 /**
  * Spring Boot Application
- * 
+ *
  * @author smanikantan
  *
  */
@@ -29,5 +29,4 @@ public class Application {
     public static void main(String args[]) {
         SpringApplication.run(Application.class, args);
     }
-
 }
