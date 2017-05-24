@@ -121,11 +121,13 @@ public class BlackDuckFortifyPushThread implements Runnable {
 
                 // Get the last successful runtime of the job
                 final Date getLastSuccessfulJobRunTime = getLastSuccessfulJobRunTime(PropertyConstants.getBatchJobStatusFilePath());
-                logger.info("Last successful job excecution:" + getLastSuccessfulJobRunTime + ", Compare Dates: "
-                        + bomUpdatedValueAt.after(getLastSuccessfulJobRunTime));
+                logger.info("Last successful job excecution:" + getLastSuccessfulJobRunTime);
+
+                logger.info("Compare Dates: " + ((getLastSuccessfulJobRunTime != null && bomUpdatedValueAt.after(getLastSuccessfulJobRunTime))
+                        || (getLastSuccessfulJobRunTime == null)));
 
                 if ((getLastSuccessfulJobRunTime != null && bomUpdatedValueAt.after(getLastSuccessfulJobRunTime))
-                        || (getLastSuccessfulJobRunTime == null && bomUpdatedValueAt.after(new Date()))) {
+                        || (getLastSuccessfulJobRunTime == null)) {
                     // Get the Vulnerability information
                     vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItem);
                     List<Vulnerability> vulnerabilities = vulnerableComponentViews.stream().map(transformMapping).collect(Collectors.<Vulnerability> toList());
