@@ -8,6 +8,11 @@
  * disclose such Confidential Information and shall use it only in
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
+ *
+ * MappingParser Tests using Mockito
+ *
+ * @author hsathe
+ *
  */
 package com.blackducksoftware.integration.fortify.batch.util;
 
