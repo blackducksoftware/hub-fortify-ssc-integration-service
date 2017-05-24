@@ -24,6 +24,16 @@ version = '0.1.0-SNAPSHOT'
 
 mainClassName = 'com.blackducksoftware.integration.fortify.Application'
 
+applicationDefaultJvmArgs = ['JVM_ARGS_TRICK']
+
+startScripts {
+    doLast {
+    	def slashString = /'"JVM_ARGS_TRICK"'/
+    	unixScript.text = unixScript.text.replace(slashString, '"-Dspring.config.location=../config/"')
+        windowsScript.text = windowsScript.text.replace("%CMD_LINE_ARGS%", "--spring.config.location=../config/")
+    }
+}
+
 ext {
 	springVersion = '4.3.5.RELEASE'
 	retrofit2Version = '2.1.0'
