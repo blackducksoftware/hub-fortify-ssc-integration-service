@@ -1,0 +1,20 @@
+[
+    {
+      "hubProject": "Hub-Fortify-Integration-Test1",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Logistics",
+      "fortifyApplicationVersion": "1.3"
+    },
+    {
+      "hubProject": "Hub-Fortify-Integration-Test1",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Hub-Fortify-Test1",
+      "fortifyApplicationVersion": "2.0"
+    },
+    {
+      "hubProject": "Hub-Fortify-Integration-Test1",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Hub-Fortify-Test3",
+      "fortifyApplicationVersion": "1.0"
+    }
+]

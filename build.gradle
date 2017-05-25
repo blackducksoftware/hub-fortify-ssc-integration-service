@@ -1,0 +1,110 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.3.RELEASE'
+	}
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+
+targetCompatibility = 1.8
+
+group 'com.blackducksoftware.integration.fortify'
+version = '0.1.0-SNAPSHOT'
+
+mainClassName = 'com.blackducksoftware.integration.fortify.Application'
+
+applicationDefaultJvmArgs = ['JVM_ARGS_TRICK']
+
+startScripts {
+    doLast {
+    	def slashString = /'"JVM_ARGS_TRICK"'/
+    	unixScript.text = unixScript.text.replace(slashString, '"-Dspring.config.location=../config/"')
+        windowsScript.text = windowsScript.text.replace("%CMD_LINE_ARGS%", "--spring.config.location=../config/")
+    }
+}
+
+ext {
+	springVersion = '4.3.5.RELEASE'
+	retrofit2Version = '2.1.0'
+	okhttp3Version = '3.3.1'
+	powerMockitoVersion = '1.6.6'
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+dependencies {
+	compile("org.springframework.boot:spring-boot-starter")
+	compile("org.springframework.boot:spring-boot-starter-batch")
+	compile("org.springframework:spring-beans")
+	compile("org.springframework:spring-context")
+	compile("org.springframework:spring-context-support")
+	compile("org.springframework:spring-core")
+	compile("org.springframework:spring-expression")
+	compile("com.blackducksoftware.integration:hub-common:[1,)")
+	compile("javax.servlet:javax.servlet-api")
+	compile("com.squareup.retrofit2:retrofit:2.1.0")
+	compile("com.fasterxml.jackson.core:jackson-annotations:2.8.8")
+	// compile("com.squareup.retrofit2:converter-jackson:2.1.0")
+	compile("com.squareup.retrofit2:converter-gson:2.1.0")
+	compile("com.google.code.gson:gson")
+	compile("com.squareup.okhttp3:okhttp:3.3.1")
+	compile("com.squareup.okhttp3:logging-interceptor:3.3.1")
+	compile("com.squareup.okhttp3:okhttp-urlconnection:3.3.1")
+	compile("com.squareup.retrofit2:converter-simplexml:2.1.0")
+	compile("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
+	testCompile("org.powermock:powermock-api-mockito:1.6.6")
+	testCompile("org.powermock:powermock-module-junit4:1.6.6")
+	testCompile("junit:junit:4.+")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.1'
+}
+
+jar {
+	manifest {
+        attributes( 'Main-Class': 'com.blackducksoftware.integration.fortify.Application',
+        'Class-Path': configurations.compile.collect { it.getName() }.join(' '))
+    }
+    
+    sourceSets {
+        main {
+            resources {
+                exclude 'mapping.json'
+                exclude 'batch_job_status.txt'
+            }
+        }
+    }
+}
+
+distributions {
+    main {
+        contents {
+            from('src/main/resources/application_prod.properties') {
+            	into 'config/'
+            	rename {'application.properties'}
+            }
+            from('src/main/resources/mapping.json') {into 'config/'}
+            from('src/main/resources/batch_job_status.txt') {into 'config/'}
+            from('src/main/resources/hub-fortify.log') {into 'log/'}
+            from('sample.csv') { into 'report/'}
+        }
+    }
+}
+
+
