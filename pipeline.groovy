@@ -9,7 +9,7 @@ def javaEnv(){
 node('slave'){
   try{
     stage('Pull from GitHub'){
-      checkout scm: [$class: 'GitSCM', branches: [[name: "origin/master"]], userRemoteConfigs: [[credentialsId: "$env.SERV_BUILDER_GIT_CREDENTIALS", url: 'ssh://git@github.com/blackducksoftware/hub-fortify-integration.git']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'hub-fortify-integration']]]
+      checkout scm: [$class: 'GitSCM', branches: [[name: "origin/master"]], userRemoteConfigs: [[credentialsId: "$env.BLACKDUCK_SERV_BUILDER_GITHUB_CREDENTIALS", url: 'ssh://git@github.com/blackducksoftware/hub-fortify-integration.git']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'hub-fortify-integration']]]
     }
     stage('Compile'){
       sh 'cd hub-fortify-integration; ./gradlew clean assemble --refresh-dependencies'
