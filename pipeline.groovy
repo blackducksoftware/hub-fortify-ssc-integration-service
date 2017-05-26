@@ -1,5 +1,5 @@
 def javaEnv(){
-  tools javaHome = 'jdk8'
+  def javaHome = tool 'jdk8'
   [
     "PATH=${javaHome}/bin:${env.PATH}",
     "JAVA_HOME=${javaHome}"
