@@ -12,11 +12,15 @@ node('slave'){
       checkout scm: [$class: 'GitSCM', branches: [[name: "origin/master"]], userRemoteConfigs: [[credentialsId: "$env.BLACKDUCK_SERV_BUILDER_GITHUB_CREDENTIALS", url: 'ssh://git@github.com/blackducksoftware/hub-fortify-integration.git']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'hub-fortify-integration']]]
     }
     stage('Compile'){
-      sh 'cd hub-fortify-integration; ./gradlew clean assemble --refresh-dependencies'
+      withEnv(javaEnv()){
+        sh 'cd hub-fortify-integration; ./gradlew clean assemble --refresh-dependencies'
+      }
     }
     stage('Test'){
       try{
-        sh 'cd hub-fortify-integration; ./gradlew test --refresh-dependencies'
+        withEnv(javaEnv()){
+          sh 'cd hub-fortify-integration; ./gradlew test --refresh-dependencies'
+        }
       } finally {
         stash name: 'test-results', includes: '**/build/test-results/test/*.xml'
       }
