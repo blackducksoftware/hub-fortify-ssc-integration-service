@@ -22,7 +22,7 @@ node('slave'){
       }
     }
   } finally {
-    rm -rf `find hub-fortify-integration/build -name *.xml'
+    sh 'find hub-fortify-integration/build/test-results/test -type f -name "*.xml" -exec rm -f {} \;'
     unstash 'test-results'
     junit 'hub-fortify-integration/build/test-results/test/*.xml'
   }
