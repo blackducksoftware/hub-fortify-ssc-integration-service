@@ -44,7 +44,7 @@ public final class FortifyUploadApi extends FortifyService {
 
     /**
      * Upload the vulnerabilities to Fortify
-     * 
+     *
      * @param fileToken
      * @param entityIdVal
      * @param file
@@ -52,7 +52,7 @@ public final class FortifyUploadApi extends FortifyService {
      * @throws Exception
      * @throws IOException
      */
-    public static JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws Exception, IOException {
+    public static JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws IOException {
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         builder.addFormDataPart("entityId", String.valueOf(entityIdVal));
         builder.addFormDataPart("engineType", "BLACKDUCK");
@@ -68,7 +68,7 @@ public final class FortifyUploadApi extends FortifyService {
             jobStatusResponse = serializer.read(JobStatusResponse.class, response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Error while generating the upload response");
+            throw new RuntimeException("Error while reading the upload response", e);
         }
 
         return jobStatusResponse;

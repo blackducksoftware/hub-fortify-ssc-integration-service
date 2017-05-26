@@ -107,17 +107,29 @@ public class BlackDuckFortifyPushThread implements Runnable {
     @Override
     public void run() {
         if (blackDuckFortifyMapper != null) {
-            logger.info("Mapping was successfully created");
             logger.info("blackDuckFortifyMapper::" + blackDuckFortifyMapper.toString());
 
             ProjectVersionView projectVersionItem = null;
             List<VulnerableComponentView> vulnerableComponentViews;
             try {
                 // Get the project version
-                projectVersionItem = HubServices.getProjectVersion(blackDuckFortifyMapper.getHubProject(), blackDuckFortifyMapper.getHubProjectVersion());
+                try {
+                    projectVersionItem = HubServices.getProjectVersion(blackDuckFortifyMapper.getHubProject(), blackDuckFortifyMapper.getHubProjectVersion());
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException("Error while getting the Hub project version info", e);
+                } catch (IntegrationException e) {
+                    throw new RuntimeException("Error while getting the Hub project version info", e);
+                }
 
                 // Get the Last BOM updated date
-                bomUpdatedValueAt = HubServices.getBomLastUpdatedAt(projectVersionItem);
+                try {
+                    bomUpdatedValueAt = HubServices.getBomLastUpdatedAt(projectVersionItem);
+                    logger.info("bomUpdatedValueAt::" + bomUpdatedValueAt);
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException("Error while getting the Hub BOM Last updated date", e);
+                } catch (IntegrationException e) {
+                    throw new RuntimeException("Error while getting the Hub BOM Last updated date", e);
+                }
 
                 // Get the last successful runtime of the job
                 final Date getLastSuccessfulJobRunTime = getLastSuccessfulJobRunTime(PropertyConstants.getBatchJobStatusFilePath());
@@ -129,7 +141,15 @@ public class BlackDuckFortifyPushThread implements Runnable {
                 if ((getLastSuccessfulJobRunTime != null && bomUpdatedValueAt.after(getLastSuccessfulJobRunTime))
                         || (getLastSuccessfulJobRunTime == null)) {
                     // Get the Vulnerability information
-                    vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItem);
+                    try {
+                        vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItem);
+                    } catch (IllegalArgumentException e) {
+                        throw new RuntimeException("Error while getting the Hub Vulnerabilities", e);
+                    } catch (IntegrationException e) {
+                        throw new RuntimeException("Error while getting the Hub Vulnerabilities", e);
+                    }
+
+                    // Convert the Hub Vulnerability component view to CSV Vulnerability object
                     List<Vulnerability> vulnerabilities = vulnerableComponentViews.stream().map(transformMapping).collect(Collectors.<Vulnerability> toList());
                     if (vulnerabilities.size() > 0) {
                         final String fileDir = PropertyConstants.getReportDir();
@@ -149,14 +169,7 @@ public class BlackDuckFortifyPushThread implements Runnable {
                         FortifyFileTokenApi.deleteFileToken();
                     }
                 }
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-                throw new IllegalArgumentException(e.getMessage(), e);
-            } catch (IntegrationException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage(), e);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
@@ -167,8 +180,9 @@ public class BlackDuckFortifyPushThread implements Runnable {
      *
      * @param fileName
      * @return
+     * @throws IOException
      */
-    private Date getLastSuccessfulJobRunTime(String fileName) {
+    private Date getLastSuccessfulJobRunTime(String fileName) throws IOException {
         BufferedReader br = null;
         FileReader fr = null;
         try {
@@ -181,7 +195,9 @@ public class BlackDuckFortifyPushThread implements Runnable {
                 return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IOException("Unable to find the batch_job_status.txt file", e);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Error while parsing the date. Please make sure date time format is yyyy/MM/dd HH:mm:ss.SSS", e);
         } finally {
             try {
                 if (br != null)
@@ -214,9 +230,9 @@ public class BlackDuckFortifyPushThread implements Runnable {
      * @param token
      * @param fileName
      * @param fortifyApplicationId
-     * @throws Exception
+     * @throws IOException
      */
-    private void uploadCSV(String token, String fileName, int fortifyApplicationId) throws Exception {
+    private void uploadCSV(String token, String fileName, int fortifyApplicationId) throws IOException {
         File file = new File(fileName);
         logger.info("Uploading " + file.getName() + " to fortify");
         JobStatusResponse uploadVulnerabilityResponseBody = FortifyUploadApi.uploadVulnerabilityByProjectVersion(token, fortifyApplicationId, file);

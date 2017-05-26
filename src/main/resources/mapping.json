@@ -2,14 +2,14 @@
     {
       "hubProject": "Hub-Fortify-Integration-Test1",
       "hubProjectVersion": "1.0",
-      "fortifyApplication": "Logistics",
-      "fortifyApplicationVersion": "1.3"
+      "fortifyApplication": "Hub-Fortify-Test1",
+      "fortifyApplicationVersion": "1.0"
     },
     {
       "hubProject": "Hub-Fortify-Integration-Test2",
       "hubProjectVersion": "1.0",
-      "fortifyApplication": "Hub-Fortify-Test1",
-      "fortifyApplicationVersion": "2.0"
+      "fortifyApplication": "Hub-Fortify-Test2",
+      "fortifyApplicationVersion": "1.0"
     },
     {
       "hubProject": "Hub-Fortify-Integration-Test3",
