@@ -41,6 +41,12 @@ public final class RestConnectionHelper {
         builder.setPassword(PropertyConstants.getHubPassword());
         builder.setTimeout(PropertyConstants.getHubTimeout());
 
+        builder.setProxyHost(PropertyConstants.getHubProxyHost());
+        builder.setProxyPort(PropertyConstants.getHubProxyPort());
+        builder.setProxyUsername(PropertyConstants.getHubProxyUser());
+        builder.setProxyPassword(PropertyConstants.getHubPassword());
+        builder.setIgnoredProxyHosts(PropertyConstants.getHubProxyNoHost());
+
         return builder.build();
     }
 
@@ -82,8 +88,8 @@ public final class RestConnectionHelper {
             restConnection.proxyPort = serverConfig.getProxyInfo().getPort();
             restConnection.proxyNoHosts = serverConfig.getProxyInfo().getIgnoredProxyHosts();
             restConnection.proxyUsername = serverConfig.getProxyInfo().getUsername();
-
             restConnection.proxyPassword = serverConfig.getProxyInfo().getDecryptedPassword();
+
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);
         } catch (EncryptionException e) {
@@ -114,7 +120,7 @@ public final class RestConnectionHelper {
 
     /**
      * Create the Hub Services factory based on logger
-     * 
+     *
      * @param logger
      * @return
      */
