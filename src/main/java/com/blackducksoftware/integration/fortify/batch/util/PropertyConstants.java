@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * This class is to read the application properties key-value pairs
- * 
+ *
  * @author smanikantan
  *
  */
@@ -49,6 +49,41 @@ public class PropertyConstants {
     @Value("${hub.server.url}")
     public void setHubServerUrl(String hubServerUrl) {
         PropertyConstants.hubServerUrl = hubServerUrl;
+    }
+
+    private static String hubProxyHost;
+
+    @Value("${hub.proxy.host}")
+    public void setHubProxyHost(String hubProxyHost) {
+        PropertyConstants.hubProxyHost = hubProxyHost;
+    }
+
+    private static String hubProxyPort;
+
+    @Value("${hub.proxy.port}")
+    public void setHubProxyPort(String hubProxyPort) {
+        PropertyConstants.hubProxyPort = hubProxyPort;
+    }
+
+    private static String hubProxyUser;
+
+    @Value("${hub.proxy.user}")
+    public void setHubProxyUser(String hubProxyUser) {
+        PropertyConstants.hubProxyUser = hubProxyUser;
+    }
+
+    private static String hubProxyPassword;
+
+    @Value("${hub.proxy.password}")
+    public void setHubProxyPassword(String hubProxyPassword) {
+        PropertyConstants.hubProxyPassword = hubProxyPassword;
+    }
+
+    private static String hubProxyNoHost;
+
+    @Value("${hub.proxy.nohost}")
+    public void setHubProxyNoHost(String hubProxyNoHost) {
+        PropertyConstants.hubProxyNoHost = hubProxyNoHost;
     }
 
     private static String fortifyUserName;
@@ -114,6 +149,26 @@ public class PropertyConstants {
 
     public static String getHubServerUrl() {
         return hubServerUrl;
+    }
+
+    public static String getHubProxyHost() {
+        return hubProxyHost;
+    }
+
+    public static String getHubProxyPort() {
+        return hubProxyPort;
+    }
+
+    public static String getHubProxyUser() {
+        return hubProxyUser;
+    }
+
+    public static String getHubProxyPassword() {
+        return hubProxyPassword;
+    }
+
+    public static String getHubProxyNoHost() {
+        return hubProxyNoHost;
     }
 
     public static String getFortifyUserName() {

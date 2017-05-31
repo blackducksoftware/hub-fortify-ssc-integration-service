@@ -11,6 +11,8 @@
  */
 package com.blackducksoftware.integration.fortify.batch.util;
 
+import org.apache.log4j.Logger;
+
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
@@ -29,6 +31,8 @@ import com.blackducksoftware.integration.log.PrintStreamIntLogger;
  */
 public final class RestConnectionHelper {
 
+    private final static Logger logger = Logger.getLogger(RestConnectionHelper.class);
+
     /**
      * Build the Hub Server information for connection
      *
@@ -40,6 +44,15 @@ public final class RestConnectionHelper {
         builder.setUsername(PropertyConstants.getHubUserName());
         builder.setPassword(PropertyConstants.getHubPassword());
         builder.setTimeout(PropertyConstants.getHubTimeout());
+
+        if (PropertyConstants.getHubProxyHost() != null && !"".equalsIgnoreCase(PropertyConstants.getHubProxyHost())) {
+            logger.info("Inside Proxy settings::" + PropertyConstants.getHubProxyHost() + "::");
+            builder.setProxyHost(PropertyConstants.getHubProxyHost());
+            builder.setProxyPort(PropertyConstants.getHubProxyPort());
+            builder.setProxyUsername(PropertyConstants.getHubProxyUser());
+            builder.setProxyPassword(PropertyConstants.getHubPassword());
+            builder.setIgnoredProxyHosts(PropertyConstants.getHubProxyNoHost());
+        }
 
         return builder.build();
     }
@@ -82,11 +95,13 @@ public final class RestConnectionHelper {
             restConnection.proxyPort = serverConfig.getProxyInfo().getPort();
             restConnection.proxyNoHosts = serverConfig.getProxyInfo().getIgnoredProxyHosts();
             restConnection.proxyUsername = serverConfig.getProxyInfo().getUsername();
-
             restConnection.proxyPassword = serverConfig.getProxyInfo().getDecryptedPassword();
+
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (EncryptionException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
 
@@ -114,7 +129,7 @@ public final class RestConnectionHelper {
 
     /**
      * Create the Hub Services factory based on logger
-     * 
+     *
      * @param logger
      * @return
      */
