@@ -4,5 +4,17 @@
       "hubProjectVersion": "1.0",
       "fortifyApplication": "Hub-Fortify-Test1",
       "fortifyApplicationVersion": "1.0"
+    },
+    {
+      "hubProject": "Hub-Fortify-Integration-Test2",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Hub-Fortify-Test2",
+      "fortifyApplicationVersion": "1.0"
+    },
+    {
+      "hubProject": "Hub-Fortify-Integration-Test3",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Hub-Fortify-Test3",
+      "fortifyApplicationVersion": "1.0"
     }
 ]

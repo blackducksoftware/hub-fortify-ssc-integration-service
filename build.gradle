@@ -24,12 +24,10 @@ version = '0.1.0-SNAPSHOT'
 
 mainClassName = 'com.blackducksoftware.integration.fortify.Application'
 
-applicationDefaultJvmArgs = ['JVM_ARGS_TRICK']
+applicationDefaultJvmArgs = ["-Dspring.config.location=../config/"]
 
 startScripts {
     doLast {
-    	def slashString = /'"JVM_ARGS_TRICK"'/
-    	unixScript.text = unixScript.text.replace(slashString, '"-Dspring.config.location=../config/"')
         windowsScript.text = windowsScript.text.replace("%CMD_LINE_ARGS%", "--spring.config.location=../config/")
     }
 }
