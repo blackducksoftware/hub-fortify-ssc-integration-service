@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2017 Black Duck Software, Inc.
+/*
+ * Copyright (C) 2017 Black Duck Software Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 
 /**
  * MappingParser Tests using Mockito
- * 
+ *
  * @author hsathe
  *
  */

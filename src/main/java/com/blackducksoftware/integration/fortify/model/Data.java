@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2017 Black Duck Software, Inc.
+/*
+ * Copyright (C) 2017 Black Duck Software Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -24,7 +24,7 @@ package com.blackducksoftware.integration.fortify.model;
 
 /**
  * Holder for Gson conversions from Fortify REST API json response to objects.
- * 
+ *
  * @author hsathe
  *
  */

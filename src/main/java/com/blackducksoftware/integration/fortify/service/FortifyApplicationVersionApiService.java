@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2017 Black Duck Software, Inc.
+/*
+ * Copyright (C) 2017 Black Duck Software Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -42,7 +42,7 @@ import retrofit2.http.Query;
 
 /**
  * API Service for FORTIFY REST API
- * 
+ *
  * @author hsathe
  *
  */
