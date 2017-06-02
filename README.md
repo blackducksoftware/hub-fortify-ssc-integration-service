@@ -5,3 +5,7 @@ Hub Fortify SSC service runs in the background as a service, and maps your Hub p
 # Hub Fortify Integration Documentation
 
 Available on BlackDuck Confluence: https://blackducksoftware.atlassian.net/wiki/display/INTDOCS/Hub+Fortify+SSC+Plugin
+
+# Build
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
