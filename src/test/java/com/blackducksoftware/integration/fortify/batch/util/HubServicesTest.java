@@ -57,7 +57,7 @@ public class HubServicesTest extends TestCase {
         VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion();
     }
 
-    @Test
+    /* @Test
     public void getAllProjects() {
         System.out.println("Executing getAllProjects");
         List<ProjectView> projects = null;
@@ -69,7 +69,7 @@ public class HubServicesTest extends TestCase {
             e.printStackTrace();
         }
         assertNotNull(projects);
-    }
+    }*/
 
     @Test
     public void getProjectVersionsByProject() {
