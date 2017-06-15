@@ -29,13 +29,31 @@ import java.util.Map;
 
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 
+/**
+ * This class will be used to have the common methods related to BlackDuck
+ *
+ * @author smanikantan
+ *
+ */
 public final class BlackDuckUtil {
 
+    /**
+     * It will be used to remove the duplicate vulnerabilities in the list
+     *
+     * @param vulnerabilities
+     * @return
+     */
     public static List<Vulnerability> removeDuplicates(List<Vulnerability> vulnerabilities) {
         Map<String, Vulnerability> uniqueKeys = new HashMap<>();
+        // Iterate the vulnerabilities to remove the duplicates
         vulnerabilities.forEach(vulnerability -> {
+            // The unique vulnerability will be the combination of Component name and version, Channel version and
+            // Vulnerability Id
             String uniqueKey = vulnerability.getComponentName() + "~" + vulnerability.getVersion() + "~" + vulnerability.getChannelVersionOriginId() + "~"
                     + vulnerability.getVulnerabilityId();
+
+            // If the vulnerability is present in multiple project, then assign the project name and version name to
+            // Multiple projects and Multiple versions respectively
             if (uniqueKeys.get(uniqueKey) != null) {
                 vulnerability.setProjectName("Multiple projects");
                 vulnerability.setProjectVersion("Multiple versions");
