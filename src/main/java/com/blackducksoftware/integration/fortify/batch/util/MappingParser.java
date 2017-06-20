@@ -26,11 +26,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
+import com.blackducksoftware.integration.fortify.batch.model.HubProjectVersion;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest.Project;
@@ -66,7 +71,7 @@ public final class MappingParser {
      *            - Filepath to mapping.json
      * @return List<BlackDuckForfifyMapper> Mapped objects with Fortify ID
      */
-    public static List<BlackDuckFortifyMapper> createMapping(String filePath) {
+    public static List<BlackDuckFortifyMapperGroup> createMapping(String filePath) {
         Gson gson;
         List<BlackDuckFortifyMapper> mappingObj = null;
         try {
@@ -86,7 +91,44 @@ public final class MappingParser {
             fe.printStackTrace();
         }
 
-        return mappingObj;
+        return buildGroupedMappings(mappingObj);
+    }
+
+    /**
+     * This method, groups multiple Hub projects mapped to the same Fortify application.
+     * 
+     * @param blackDuckFortifyMappers
+     * @return
+     */
+    public static List<BlackDuckFortifyMapperGroup> buildGroupedMappings(List<BlackDuckFortifyMapper> blackDuckFortifyMappers) {
+
+        Map<Integer, BlackDuckFortifyMapperGroup> mappings = new HashMap<>();
+
+        blackDuckFortifyMappers.forEach(blackDuckFortifyMapper -> {
+            int applicationId = blackDuckFortifyMapper.getFortifyApplicationId();
+            List<HubProjectVersion> hubProjectVersions = new ArrayList<>();
+
+            BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup = new BlackDuckFortifyMapperGroup();
+
+            HubProjectVersion hubProjectVersion = new HubProjectVersion();
+            hubProjectVersion.setHubProject(blackDuckFortifyMapper.getHubProject());
+            hubProjectVersion.setHubProjectVersion(blackDuckFortifyMapper.getHubProjectVersion());
+
+            if (mappings.containsKey(applicationId)) {
+                blackDuckFortifyMapperGroup = mappings.get(applicationId);
+                hubProjectVersions = blackDuckFortifyMapperGroup.getHubProjectVersion();
+            } else {
+                blackDuckFortifyMapperGroup.setFortifyApplicationId(applicationId);
+                blackDuckFortifyMapperGroup.setFortifyApplication(blackDuckFortifyMapper.getFortifyApplication());
+                blackDuckFortifyMapperGroup.setFortifyApplicationVersion(blackDuckFortifyMapper.getFortifyApplicationVersion());
+            }
+
+            hubProjectVersions.add(hubProjectVersion);
+            blackDuckFortifyMapperGroup.setHubProjectVersion(hubProjectVersions);
+            mappings.put(applicationId, blackDuckFortifyMapperGroup);
+        });
+
+        return new ArrayList<>(mappings.values());
     }
 
     /**

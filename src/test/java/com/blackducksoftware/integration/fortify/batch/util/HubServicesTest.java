@@ -34,7 +34,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
-import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.model.view.ProjectView;
@@ -51,13 +51,13 @@ public class HubServicesTest extends TestCase {
     @Override
     @Before
     public void setUp() {
-        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
+        final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = MappingParser
                 .createMapping(PropertyConstants.getMappingJsonPath());
-        PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProject();
-        VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion();
+        PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProject();
+        VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProjectVersion();
     }
 
-    /* @Test
+    @Test
     public void getAllProjects() {
         System.out.println("Executing getAllProjects");
         List<ProjectView> projects = null;
@@ -69,7 +69,7 @@ public class HubServicesTest extends TestCase {
             e.printStackTrace();
         }
         assertNotNull(projects);
-    }*/
+    }
 
     @Test
     public void getProjectVersionsByProject() {
