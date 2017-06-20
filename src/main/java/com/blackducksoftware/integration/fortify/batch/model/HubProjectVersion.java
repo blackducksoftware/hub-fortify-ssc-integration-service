@@ -22,24 +22,16 @@
  */
 package com.blackducksoftware.integration.fortify.batch.model;
 
-import java.io.Serializable;
-
 /**
- * This class is to store the mapping details after parsing the mapping.json file
+ * This class is used to store the Hub Project Versions for grouped mappings.
  *
  * @author hsathe
  *
  */
-public class BlackDuckFortifyMapper implements Serializable {
+public class HubProjectVersion {
     private String hubProject;
 
     private String hubProjectVersion;
-
-    private String fortifyApplication;
-
-    private String fortifyApplicationVersion;
-
-    private int fortifyApplicationId;
 
     public String getHubProject() {
         return hubProject;
@@ -57,34 +49,9 @@ public class BlackDuckFortifyMapper implements Serializable {
         this.hubProjectVersion = hubProjectVersion;
     }
 
-    public String getFortifyApplication() {
-        return fortifyApplication;
-    }
-
-    public void setFortifyApplication(String fortifyApplication) {
-        this.fortifyApplication = fortifyApplication;
-    }
-
-    public String getFortifyApplicationVersion() {
-        return fortifyApplicationVersion;
-    }
-
-    public void setFortifyApplicationVersion(String fortifyApplicationVersion) {
-        this.fortifyApplicationVersion = fortifyApplicationVersion;
-    }
-
-    public int getFortifyApplicationId() {
-        return fortifyApplicationId;
-    }
-
-    public void setFortifyApplicationId(int fortifyApplicationId) {
-        this.fortifyApplicationId = fortifyApplicationId;
-    }
-
     @Override
     public String toString() {
-        return "BlackDuckFortifyMapper [hubProject=" + hubProject + ", hubProjectVersion=" + hubProjectVersion + ", fortifyApplication=" + fortifyApplication
-                + ", fortifyApplicationVersion=" + fortifyApplicationVersion + ", fortifyApplicationId=" + fortifyApplicationId + "]";
+        return "HubProjectVersion [hubProject=" + hubProject + ", hubProjectVersion=" + hubProjectVersion + "]";
     }
 
 }

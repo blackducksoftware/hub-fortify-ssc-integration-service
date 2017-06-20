@@ -54,7 +54,7 @@ public final class BlackDuckUtil {
 
             // If the vulnerability is present in multiple project, then assign the project name and version name to
             // Multiple projects and Multiple versions respectively
-            if (uniqueKeys.get(uniqueKey) != null) {
+            if (uniqueKeys.containsKey(uniqueKey)) {
                 vulnerability.setProjectName("Multiple projects");
                 vulnerability.setProjectVersion("Multiple versions");
             }

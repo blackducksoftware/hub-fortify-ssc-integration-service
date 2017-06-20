@@ -23,39 +23,22 @@
 package com.blackducksoftware.integration.fortify.batch.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
- * This class is to store the mapping details after parsing the mapping.json file
+ * This class is used to store the grouped mappings to handle many-to-one hub mappings with fortify application.
  *
  * @author hsathe
  *
  */
-public class BlackDuckFortifyMapper implements Serializable {
-    private String hubProject;
-
-    private String hubProjectVersion;
-
+public class BlackDuckFortifyMapperGroup implements Serializable {
     private String fortifyApplication;
 
     private String fortifyApplicationVersion;
 
+    private List<HubProjectVersion> hubProjectVersion;
+
     private int fortifyApplicationId;
-
-    public String getHubProject() {
-        return hubProject;
-    }
-
-    public void setHubProject(String hubProject) {
-        this.hubProject = hubProject;
-    }
-
-    public String getHubProjectVersion() {
-        return hubProjectVersion;
-    }
-
-    public void setHubProjectVersion(String hubProjectVersion) {
-        this.hubProjectVersion = hubProjectVersion;
-    }
 
     public String getFortifyApplication() {
         return fortifyApplication;
@@ -81,10 +64,18 @@ public class BlackDuckFortifyMapper implements Serializable {
         this.fortifyApplicationId = fortifyApplicationId;
     }
 
+    public List<HubProjectVersion> getHubProjectVersion() {
+        return hubProjectVersion;
+    }
+
+    public void setHubProjectVersion(List<HubProjectVersion> hubProjectVersion) {
+        this.hubProjectVersion = hubProjectVersion;
+    }
+
     @Override
     public String toString() {
-        return "BlackDuckFortifyMapper [hubProject=" + hubProject + ", hubProjectVersion=" + hubProjectVersion + ", fortifyApplication=" + fortifyApplication
-                + ", fortifyApplicationVersion=" + fortifyApplicationVersion + ", fortifyApplicationId=" + fortifyApplicationId + "]";
+        return "BlackDuckFortifyMapperGroup [fortifyApplication=" + fortifyApplication + ", fortifyApplicationVersion=" + fortifyApplicationVersion
+                + ", hubProjectVersion=" + hubProjectVersion + ", fortifyApplicationId=" + fortifyApplicationId + "]";
     }
 
 }
