@@ -22,6 +22,7 @@
  */
 package com.blackducksoftware.integration.fortify.batch.util;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,6 +39,7 @@ import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMap
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.model.view.ProjectView;
+import com.google.gson.JsonIOException;
 
 import junit.framework.TestCase;
 
@@ -50,7 +52,7 @@ public class HubServicesTest extends TestCase {
 
     @Override
     @Before
-    public void setUp() {
+    public void setUp() throws JsonIOException, IOException {
         final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = MappingParser
                 .createMapping(PropertyConstants.getMappingJsonPath());
         PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProject();

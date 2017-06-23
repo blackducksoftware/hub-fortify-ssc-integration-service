@@ -70,8 +70,9 @@ public final class MappingParser {
      * @param filePath
      *            - Filepath to mapping.json
      * @return List<BlackDuckForfifyMapper> Mapped objects with Fortify ID
+     * @throws IOException
      */
-    public static List<BlackDuckFortifyMapperGroup> createMapping(String filePath) {
+    public static List<BlackDuckFortifyMapperGroup> createMapping(String filePath) throws JsonIOException, IOException {
         Gson gson;
         List<BlackDuckFortifyMapper> mappingObj = null;
         try {
@@ -84,11 +85,11 @@ public final class MappingParser {
             mappingObj = addApplicationIdToResponse(mapping);
 
         } catch (JsonIOException jio) {
-            // To Do: Log information
-            jio.printStackTrace();
+            logger.error("Exception occured while creating Mappings", jio);
+            throw new JsonIOException("Exception occured while creating Mappings", jio);
         } catch (FileNotFoundException fe) {
-            // To Do: Log information
-            fe.printStackTrace();
+            logger.error("File Not Found for creating Mappings", fe);
+            throw new FileNotFoundException("Error finding the mapping.json file :: " + filePath);
         }
 
         return buildGroupedMappings(mappingObj);
@@ -96,7 +97,7 @@ public final class MappingParser {
 
     /**
      * This method, groups multiple Hub projects mapped to the same Fortify application.
-     * 
+     *
      * @param blackDuckFortifyMappers
      * @return
      */
@@ -137,8 +138,9 @@ public final class MappingParser {
      * @param mapping
      *            - List<BlackDuckFortifyMapper> without Application ID
      * @return List<BlackDuckFortifyMapper> mapping list with Application ID
+     * @throws IOException
      */
-    public static List<BlackDuckFortifyMapper> addApplicationIdToResponse(List<BlackDuckFortifyMapper> mapping) {
+    public static List<BlackDuckFortifyMapper> addApplicationIdToResponse(List<BlackDuckFortifyMapper> mapping) throws IOException {
         for (BlackDuckFortifyMapper element : mapping) {
             String fortifyApplicationName = element.getFortifyApplication();
             String fortifyApplicationVersion = element.getFortifyApplicationVersion();
@@ -170,7 +172,8 @@ public final class MappingParser {
                     element.setFortifyApplicationId(applicationId);
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                logger.error(e.getMessage(), e);
+                throw new IOException(e);
             }
         }
         return mapping;
@@ -182,8 +185,9 @@ public final class MappingParser {
      *
      * @param createRequest
      * @return int - Application ID
+     * @throws IOException
      */
-    private static int createApplicationVersion(CreateApplicationRequest createRequest) {
+    private static int createApplicationVersion(CreateApplicationRequest createRequest) throws IOException {
         // CreateApplicationRequest createRequest = buildRequestForFortifyApplication(fortifyApplicationName,
         // fortifyApplicationVersion);
         int applicationId = 0;
@@ -209,9 +213,8 @@ public final class MappingParser {
                 logger.info("New Fortify application is now committed");
             }
         } catch (IOException e) {
-            logger.info("Unable to create a new fortify application");
-            logger.info(e);
-            throw new RuntimeException(e);
+            logger.error("Unable to create a new fortify application", e);
+            throw new IOException(e);
         }
         return applicationId;
     }

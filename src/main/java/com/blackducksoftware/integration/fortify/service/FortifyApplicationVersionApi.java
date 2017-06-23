@@ -62,19 +62,36 @@ public final class FortifyApplicationVersionApi extends FortifyService {
 
     public static int createApplicationVersion(CreateApplicationRequest request) throws IOException {
         Call<CreateFortifyApplicationResponse> apiApplicationResponseCall = apiService.createApplicationVersion(request);
-        CreateFortifyApplicationResponse applicationAPIResponse = apiApplicationResponseCall.execute().body();
+        CreateFortifyApplicationResponse applicationAPIResponse;
+        try {
+            applicationAPIResponse = apiApplicationResponseCall.execute().body();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            throw new IOException("Unable to createApplicationVersion ", e);
+        }
         return applicationAPIResponse.getData().getId();
     }
 
     public static int updateApplicationAttributes(int parentId, List<UpdateFortifyApplicationAttributesRequest> request) throws IOException {
         Call<ResponseBody> apiApplicationResponseCall = apiService.updateApplicationAttributes(parentId, request);
-        int response = apiApplicationResponseCall.execute().code();
+        int response;
+        try {
+            response = apiApplicationResponseCall.execute().code();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            throw new IOException("Unable to commitApplicationVersion ", e);
+        }
         return response;
     }
 
     public static int commitApplicationVersion(int id, CommitFortifyApplicationRequest request) throws IOException {
         Call<ResponseBody> apiApplicationResponseCall = apiService.commitApplicationVersion(id, request);
-        int response = apiApplicationResponseCall.execute().code();
+        int response;
+        try {
+            response = apiApplicationResponseCall.execute().code();
+        } catch (IOException e) {
+            throw new IOException("Unable to commitApplicationVersion ", e);
+        }
         return response;
     }
 }
