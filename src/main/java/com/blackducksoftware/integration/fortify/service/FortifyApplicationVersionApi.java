@@ -25,6 +25,9 @@ package com.blackducksoftware.integration.fortify.service;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
@@ -46,6 +49,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public final class FortifyApplicationVersionApi extends FortifyService {
 
+    private final static Logger logger = Logger.getLogger(MappingParser.class);
+
     private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
             PropertyConstants.getFortifyPassword());
 
@@ -62,19 +67,37 @@ public final class FortifyApplicationVersionApi extends FortifyService {
 
     public static int createApplicationVersion(CreateApplicationRequest request) throws IOException {
         Call<CreateFortifyApplicationResponse> apiApplicationResponseCall = apiService.createApplicationVersion(request);
-        CreateFortifyApplicationResponse applicationAPIResponse = apiApplicationResponseCall.execute().body();
+        CreateFortifyApplicationResponse applicationAPIResponse;
+        try {
+            applicationAPIResponse = apiApplicationResponseCall.execute().body();
+        } catch (IOException e) {
+            logger.error("Unable to createApplicationVersion ", e);
+            throw new IOException("Unable to createApplicationVersion ", e);
+        }
         return applicationAPIResponse.getData().getId();
     }
 
     public static int updateApplicationAttributes(int parentId, List<UpdateFortifyApplicationAttributesRequest> request) throws IOException {
         Call<ResponseBody> apiApplicationResponseCall = apiService.updateApplicationAttributes(parentId, request);
-        int response = apiApplicationResponseCall.execute().code();
+        int response;
+        try {
+            response = apiApplicationResponseCall.execute().code();
+        } catch (IOException e) {
+            logger.error("Unable to updateApplicationVersion ", e);
+            throw new IOException("Unable to updateApplicationVersion ", e);
+        }
         return response;
     }
 
     public static int commitApplicationVersion(int id, CommitFortifyApplicationRequest request) throws IOException {
         Call<ResponseBody> apiApplicationResponseCall = apiService.commitApplicationVersion(id, request);
-        int response = apiApplicationResponseCall.execute().code();
+        int response;
+        try {
+            response = apiApplicationResponseCall.execute().code();
+        } catch (IOException e) {
+            logger.error("Unable to commitApplicationVersion ", e);
+            throw new IOException("Unable to commitApplicationVersion ", e);
+        }
         return response;
     }
 }
