@@ -114,10 +114,13 @@ public class Initializer implements Tasklet, StepExecutionListener {
                     new OutputStreamWriter(new FileOutputStream(PropertyConstants.getBatchJobStatusFilePath()), "utf-8"))) {
                 writer.write(startJobTimeStamp);
             } catch (UnsupportedEncodingException e) {
+                logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             } catch (FileNotFoundException e) {
+                logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             } catch (IOException e) {
+                logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             }
         }
