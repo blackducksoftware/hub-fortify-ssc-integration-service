@@ -25,6 +25,9 @@ package com.blackducksoftware.integration.fortify.service;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
@@ -46,6 +49,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public final class FortifyApplicationVersionApi extends FortifyService {
 
+    private final static Logger logger = Logger.getLogger(MappingParser.class);
+
     private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
             PropertyConstants.getFortifyPassword());
 
@@ -66,7 +71,7 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         try {
             applicationAPIResponse = apiApplicationResponseCall.execute().body();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            logger.error("Unable to createApplicationVersion ", e);
             throw new IOException("Unable to createApplicationVersion ", e);
         }
         return applicationAPIResponse.getData().getId();
@@ -78,8 +83,8 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         try {
             response = apiApplicationResponseCall.execute().code();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            throw new IOException("Unable to commitApplicationVersion ", e);
+            logger.error("Unable to updateApplicationVersion ", e);
+            throw new IOException("Unable to updateApplicationVersion ", e);
         }
         return response;
     }
@@ -90,6 +95,7 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         try {
             response = apiApplicationResponseCall.execute().code();
         } catch (IOException e) {
+            logger.error("Unable to commitApplicationVersion ", e);
             throw new IOException("Unable to commitApplicationVersion ", e);
         }
         return response;
