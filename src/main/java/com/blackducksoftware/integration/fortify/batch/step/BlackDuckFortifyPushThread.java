@@ -29,17 +29,18 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
+import com.blackducksoftware.integration.fortify.batch.model.HubProjectVersion;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
+import com.blackducksoftware.integration.fortify.batch.util.BlackDuckUtil;
 import com.blackducksoftware.integration.fortify.batch.util.CSVUtils;
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
@@ -64,21 +65,21 @@ import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
  */
 public class BlackDuckFortifyPushThread implements Runnable {
 
-    private BlackDuckFortifyMapper blackDuckFortifyMapper;
+    private BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup;
 
-    private Date bomUpdatedValueAt;
+    private Date maxBomUpdatedDate;
 
     private final String UNDERSCORE = "_";
 
     private final static Logger logger = Logger.getLogger(BlackDuckFortifyPushThread.class);
 
-    private final Function<VulnerableComponentView, Vulnerability> transformMapping = new Function<VulnerableComponentView, Vulnerability>() {
-
-        @Override
-        public Vulnerability apply(VulnerableComponentView vulnerableComponentView) {
+    private List<Vulnerability> transformMapping(List<VulnerableComponentView> vulnerabilityComponentViews, String hubProjectName,
+            String hubProjectVersion) {
+        List<Vulnerability> vulnerabilities = new ArrayList<>();
+        vulnerabilityComponentViews.forEach(vulnerableComponentView -> {
             Vulnerability vulnerability = new Vulnerability();
-            vulnerability.setProjectName(String.valueOf(blackDuckFortifyMapper.getHubProject()));
-            vulnerability.setProjectVersion(String.valueOf(blackDuckFortifyMapper.getHubProjectVersion()));
+            vulnerability.setProjectName(String.valueOf(hubProjectName));
+            vulnerability.setProjectVersion(String.valueOf(hubProjectVersion));
             String[] componentVersionLinkArr = vulnerableComponentView.getComponentVersionLink().split("/");
             vulnerability.setProjectId(String.valueOf(componentVersionLinkArr[5]));
             vulnerability.setVersionId(String.valueOf(componentVersionLinkArr[7]));
@@ -106,54 +107,73 @@ public class BlackDuckFortifyPushThread implements Runnable {
                     ? "http://web.nvd.nist.gov/view/vuln/detail?vulnId=" + vulnerableComponentView.getVulnerabilityWithRemediation().getVulnerabilityName()
                     : "");
             vulnerability.setSeverity(String.valueOf(vulnerableComponentView.getVulnerabilityWithRemediation().getSeverity()));
-            vulnerability.setScanDate(bomUpdatedValueAt);
-            return vulnerability;
-        }
-    };
+            vulnerability.setScanDate(maxBomUpdatedDate);
+            vulnerabilities.add(vulnerability);
+        });
+        return vulnerabilities;
+    }
 
-    public BlackDuckFortifyPushThread(BlackDuckFortifyMapper blackDuckFortifyMapper) {
-        this.blackDuckFortifyMapper = blackDuckFortifyMapper;
+    public BlackDuckFortifyPushThread(BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup) {
+        this.blackDuckFortifyMapperGroup = blackDuckFortifyMapperGroup;
     }
 
     @Override
     public void run() {
-        if (blackDuckFortifyMapper != null) {
-            logger.info("blackDuckFortifyMapper::" + blackDuckFortifyMapper.toString());
+        if (blackDuckFortifyMapperGroup != null) {
+            logger.info("blackDuckFortifyMapper::" + blackDuckFortifyMapperGroup.toString());
 
             ProjectVersionView projectVersionItem = null;
             List<VulnerableComponentView> vulnerableComponentViews;
+            List<HubProjectVersion> hubProjectVersions = blackDuckFortifyMapperGroup.getHubProjectVersion();
+            List<ProjectVersionView> projectVersionItems = new ArrayList<>();
+            List<Vulnerability> mergedVulnerabilities = new ArrayList<>();
+
+            // Get the last successful runtime of the job
+            Date getLastSuccessfulJobRunTime;
             try {
+                getLastSuccessfulJobRunTime = getLastSuccessfulJobRunTime(PropertyConstants.getBatchJobStatusFilePath());
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                throw new RuntimeException(e1);
+            }
+            logger.info("Last successful job excecution:" + getLastSuccessfulJobRunTime);
+
+            for (HubProjectVersion hubProjectVersion : hubProjectVersions) {
+                String projectName = hubProjectVersion.getHubProject();
+                String projectVersion = hubProjectVersion.getHubProjectVersion();
+
                 // Get the project version
                 try {
-                    projectVersionItem = HubServices.getProjectVersion(blackDuckFortifyMapper.getHubProject(), blackDuckFortifyMapper.getHubProjectVersion());
+                    projectVersionItem = HubServices.getProjectVersion(projectName, projectVersion);
+                    projectVersionItems.add(projectVersionItem);
+                    Date bomUpdatedValueAt = HubServices.getBomLastUpdatedAt(projectVersionItem);
+
+                    if (maxBomUpdatedDate == null || bomUpdatedValueAt.after(maxBomUpdatedDate)) {
+                        maxBomUpdatedDate = bomUpdatedValueAt;
+                    }
+                    logger.info("maxBomUpdatedDate::" + maxBomUpdatedDate);
                 } catch (IllegalArgumentException e) {
                     throw new RuntimeException("Error while getting the Hub project version info", e);
                 } catch (IntegrationException e) {
                     throw new RuntimeException("Error while getting the Hub project version info", e);
                 }
+            }
+            logger.info("Compare Dates: " + ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime))
+                    || (getLastSuccessfulJobRunTime == null)));
 
-                // Get the Last BOM updated date
-                try {
-                    bomUpdatedValueAt = HubServices.getBomLastUpdatedAt(projectVersionItem);
-                    logger.info("bomUpdatedValueAt::" + bomUpdatedValueAt);
-                } catch (IllegalArgumentException e) {
-                    throw new RuntimeException("Error while getting the Hub BOM Last updated date", e);
-                } catch (IntegrationException e) {
-                    throw new RuntimeException("Error while getting the Hub BOM Last updated date", e);
-                }
+            logger.info("getLastSuccessfulJobRunTime::" + getLastSuccessfulJobRunTime);
+            logger.info("maxBomUpdatedDate:: " + maxBomUpdatedDate);
 
-                // Get the last successful runtime of the job
-                final Date getLastSuccessfulJobRunTime = getLastSuccessfulJobRunTime(PropertyConstants.getBatchJobStatusFilePath());
-                logger.info("Last successful job excecution:" + getLastSuccessfulJobRunTime);
+            if ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime))
+                    || (getLastSuccessfulJobRunTime == null)) {
+                int index = 0;
 
-                logger.info("Compare Dates: " + ((getLastSuccessfulJobRunTime != null && bomUpdatedValueAt.after(getLastSuccessfulJobRunTime))
-                        || (getLastSuccessfulJobRunTime == null)));
+                for (HubProjectVersion hubProjectVersion : hubProjectVersions) {
 
-                if ((getLastSuccessfulJobRunTime != null && bomUpdatedValueAt.after(getLastSuccessfulJobRunTime))
-                        || (getLastSuccessfulJobRunTime == null)) {
                     // Get the Vulnerability information
                     try {
-                        vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItem);
+                        vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItems.get(index));
+                        index++;
                     } catch (IllegalArgumentException e) {
                         throw new RuntimeException("Error while getting the Hub Vulnerabilities", e);
                     } catch (IntegrationException e) {
@@ -161,29 +181,44 @@ public class BlackDuckFortifyPushThread implements Runnable {
                     }
 
                     // Convert the Hub Vulnerability component view to CSV Vulnerability object
-                    List<Vulnerability> vulnerabilities = vulnerableComponentViews.stream().map(transformMapping).collect(Collectors.<Vulnerability> toList());
-                    if (vulnerabilities.size() > 0) {
-                        final String fileDir = PropertyConstants.getReportDir();
-                        final String fileName = blackDuckFortifyMapper.getHubProject() + UNDERSCORE + blackDuckFortifyMapper.getHubProjectVersion() + UNDERSCORE
-                                + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
+                    List<Vulnerability> vulnerabilities = transformMapping(vulnerableComponentViews, hubProjectVersion.getHubProject(),
+                            hubProjectVersion.getHubProjectVersion());
+                    mergedVulnerabilities.addAll(vulnerabilities);
+                }
 
-                        // Write the vulnerabilities to CSV
-                        CSVUtils.writeToCSV(vulnerabilities, fileDir + fileName, ',');
+                if (mergedVulnerabilities.size() > 0) {
+
+                    if (hubProjectVersions.size() > 1) {
+                        // Removing Duplicates within multiple Hub Project Versions.
+                        mergedVulnerabilities = BlackDuckUtil.removeDuplicates(mergedVulnerabilities);
+                    }
+
+                    final String fileDir = PropertyConstants.getReportDir();
+                    final String fileName = hubProjectVersions.get(0).getHubProject() + UNDERSCORE + hubProjectVersions.get(0).getHubProjectVersion()
+                            + UNDERSCORE
+                            + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
+
+                    // Write the vulnerabilities to CSV
+                    try {
+                        CSVUtils.writeToCSV(mergedVulnerabilities, fileDir + fileName, ',');
 
                         // Get the file token for upload
                         String token = getFileToken();
 
                         // Upload the vulnerabilities CSV to Fortify
-                        uploadCSV(token, fileDir + fileName, blackDuckFortifyMapper.getFortifyApplicationId());
+                        uploadCSV(token, fileDir + fileName, blackDuckFortifyMapperGroup.getFortifyApplicationId());
 
                         // Delete the file token that is created for upload
                         FortifyFileTokenApi.deleteFileToken();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        throw new RuntimeException(e);
                     }
+
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage(), e);
             }
         }
+
     }
 
     /**

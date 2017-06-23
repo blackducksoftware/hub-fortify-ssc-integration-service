@@ -35,7 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
-import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
@@ -92,10 +92,11 @@ public class CSVUtilsTest extends TestCase {
     @Before
     public void setUp() {
         System.out.println("path::" + PropertyConstants.getMappingJsonPath());
-        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
+        final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = MappingParser
                 .createMapping(PropertyConstants.getMappingJsonPath());
-        PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProject();
-        VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion();
+        PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProject();
+        VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProjectVersion();
+
     }
 
     @Test
