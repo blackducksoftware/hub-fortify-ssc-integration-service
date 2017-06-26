@@ -25,6 +25,7 @@ package com.blackducksoftware.integration.fortify.service;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
@@ -45,6 +46,7 @@ import okhttp3.Response;
  *
  */
 public final class FortifyUploadApi extends FortifyService {
+    private final static Logger logger = Logger.getLogger(FortifyUploadApi.class);
 
     private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
             PropertyConstants.getFortifyPassword());
@@ -61,7 +63,6 @@ public final class FortifyUploadApi extends FortifyService {
      * @param file
      * @return
      * @throws Exception
-     * @throws IOException
      */
     public static JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws IOException {
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
@@ -72,14 +73,19 @@ public final class FortifyUploadApi extends FortifyService {
         RequestBody requestBody = builder.build();
 
         Request request = new Request.Builder().url(URL + fileToken).post(requestBody).build();
-        Response response = okHttpClient.newCall(request).execute();
-        Serializer serializer = new Persister();
-        JobStatusResponse jobStatusResponse;
+        Response response;
+        JobStatusResponse jobStatusResponse = null;
         try {
-            jobStatusResponse = serializer.read(JobStatusResponse.class, response.body().string());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error while reading the upload response", e);
+            response = okHttpClient.newCall(request).execute();
+            Serializer serializer = new Persister();
+            try {
+                jobStatusResponse = serializer.read(JobStatusResponse.class, response.body().string());
+            } catch (Exception e) {
+                logger.error("Error while reading the fortify upload response", e);
+            }
+        } catch (IOException e) {
+            logger.error("Error while uploading the vulnerability to Fortify", e);
+            throw new IOException("Error while uploading the vulnerability to Fortify", e);
         }
 
         return jobStatusResponse;

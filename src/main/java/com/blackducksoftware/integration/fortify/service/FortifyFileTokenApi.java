@@ -24,6 +24,8 @@ package com.blackducksoftware.integration.fortify.service;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
@@ -42,6 +44,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public final class FortifyFileTokenApi extends FortifyService {
 
+    private final static Logger logger = Logger.getLogger(FortifyFileTokenApi.class);
+
     private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
             PropertyConstants.getFortifyPassword());
 
@@ -59,7 +63,13 @@ public final class FortifyFileTokenApi extends FortifyService {
      */
     public static String getFileToken(FileToken fileToken) throws IOException {
         Call<FileTokenResponse> fileTokenResponseCall = apiService.getFileToken(fileToken);
-        FileTokenResponse fileTokenResponse = fileTokenResponseCall.execute().body();
+        FileTokenResponse fileTokenResponse;
+        try {
+            fileTokenResponse = fileTokenResponseCall.execute().body();
+        } catch (IOException e) {
+            logger.error("Error while retrieving the file token for upload", e);
+            throw new IOException("Error while retrieving the file token for upload", e);
+        }
         return fileTokenResponse.getData().getToken();
     }
 
@@ -71,7 +81,13 @@ public final class FortifyFileTokenApi extends FortifyService {
      */
     public static int deleteFileToken() throws IOException {
         Call<ResponseBody> deleteTokenResponseCall = apiService.deleteFileToken();
-        int responseCode = deleteTokenResponseCall.execute().code();
+        int responseCode;
+        try {
+            responseCode = deleteTokenResponseCall.execute().code();
+        } catch (IOException e) {
+            logger.error("Error while deleting the file token for upload", e);
+            throw new IOException("Error while deleting the file token for upload", e);
+        }
         return responseCode;
     }
 }

@@ -24,9 +24,12 @@ package com.blackducksoftware.integration.fortify.batch.util;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.FileSystemNotFoundException;
 import java.util.List;
 
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
@@ -52,10 +55,13 @@ public final class CSVUtils {
      * @param delimiter
      * @throws JsonGenerationException
      * @throws JsonMappingException
+     * @throws FileNotFoundException
+     * @throws UnsupportedEncodingException
      * @throws IOException
      */
+    @SuppressWarnings("resource")
     public static void writeToCSV(List<Vulnerability> vulnerabilities, String fileName, char delimiter)
-            throws JsonGenerationException, JsonMappingException, IOException {
+            throws JsonGenerationException, JsonMappingException, FileNotFoundException, UnsupportedEncodingException, IOException {
         // create mapper and schema
         CsvMapper mapper = new CsvMapper();
         // Create the schema with the header
@@ -65,11 +71,25 @@ public final class CSVUtils {
         // output writer
         ObjectWriter objectWriter = mapper.writer(schema);
         File file = new File(fileName);
-        FileOutputStream fileOutputStream = new FileOutputStream(file);
+        FileOutputStream fileOutputStream;
+        try {
+            fileOutputStream = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            throw new FileSystemNotFoundException(fileName + " CSV file is not created successfully");
+        }
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream, 1024);
-        OutputStreamWriter writerOutputStream = new OutputStreamWriter(bufferedOutputStream, "UTF-8");
+        OutputStreamWriter writerOutputStream;
+        try {
+            writerOutputStream = new OutputStreamWriter(bufferedOutputStream, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new UnsupportedEncodingException(e.getMessage());
+        }
         // write to CSV file
-        objectWriter.writeValue(writerOutputStream, vulnerabilities);
+        try {
+            objectWriter.writeValue(writerOutputStream, vulnerabilities);
+        } catch (IOException e) {
+            throw new IOException("Error while rendering the vulnerabilities in CSV file::" + fileName, e);
+        }
     }
 
 }
