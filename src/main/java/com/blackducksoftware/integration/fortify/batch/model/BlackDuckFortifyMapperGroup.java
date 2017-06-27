@@ -31,45 +31,44 @@ import java.util.List;
  * @author hsathe
  *
  */
-public class BlackDuckFortifyMapperGroup implements Serializable {
-    private String fortifyApplication;
+public final class BlackDuckFortifyMapperGroup implements Serializable {
+    private final String fortifyApplication;
 
-    private String fortifyApplicationVersion;
+    private final String fortifyApplicationVersion;
 
-    private List<HubProjectVersion> hubProjectVersion;
+    private final List<HubProjectVersion> hubProjectVersion;
 
-    private int fortifyApplicationId;
+    private final int fortifyApplicationId;
+
+    /**
+     * @param fortifyApplication
+     * @param fortifyApplicationVersion
+     * @param hubProjectVersion
+     * @param fortifyApplicationId
+     */
+    public BlackDuckFortifyMapperGroup(String fortifyApplication, String fortifyApplicationVersion, List<HubProjectVersion> hubProjectVersion,
+            int fortifyApplicationId) {
+        super();
+        this.fortifyApplication = fortifyApplication;
+        this.fortifyApplicationVersion = fortifyApplicationVersion;
+        this.hubProjectVersion = hubProjectVersion;
+        this.fortifyApplicationId = fortifyApplicationId;
+    }
 
     public String getFortifyApplication() {
         return fortifyApplication;
-    }
-
-    public void setFortifyApplication(String fortifyApplication) {
-        this.fortifyApplication = fortifyApplication;
     }
 
     public String getFortifyApplicationVersion() {
         return fortifyApplicationVersion;
     }
 
-    public void setFortifyApplicationVersion(String fortifyApplicationVersion) {
-        this.fortifyApplicationVersion = fortifyApplicationVersion;
-    }
-
     public int getFortifyApplicationId() {
         return fortifyApplicationId;
     }
 
-    public void setFortifyApplicationId(int fortifyApplicationId) {
-        this.fortifyApplicationId = fortifyApplicationId;
-    }
-
     public List<HubProjectVersion> getHubProjectVersion() {
         return hubProjectVersion;
-    }
-
-    public void setHubProjectVersion(List<HubProjectVersion> hubProjectVersion) {
-        this.hubProjectVersion = hubProjectVersion;
     }
 
     @Override

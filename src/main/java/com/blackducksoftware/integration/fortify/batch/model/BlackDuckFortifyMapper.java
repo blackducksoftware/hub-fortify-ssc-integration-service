@@ -30,55 +30,45 @@ import java.io.Serializable;
  * @author hsathe
  *
  */
-public class BlackDuckFortifyMapper implements Serializable {
-    private String hubProject;
+public final class BlackDuckFortifyMapper implements Serializable {
+    private final String hubProject;
 
-    private String hubProjectVersion;
+    private final String hubProjectVersion;
 
-    private String fortifyApplication;
+    private final String fortifyApplication;
 
-    private String fortifyApplicationVersion;
+    private final String fortifyApplicationVersion;
 
-    private int fortifyApplicationId;
+    private final int fortifyApplicationId;
+
+    public BlackDuckFortifyMapper(String hubProject, String hubProjectVersion, String fortifyApplication, String fortifyApplicationVersion,
+            int fortifyApplicationId) {
+        super();
+        this.hubProject = hubProject;
+        this.hubProjectVersion = hubProjectVersion;
+        this.fortifyApplication = fortifyApplication;
+        this.fortifyApplicationVersion = fortifyApplicationVersion;
+        this.fortifyApplicationId = fortifyApplicationId;
+    }
 
     public String getHubProject() {
         return hubProject;
-    }
-
-    public void setHubProject(String hubProject) {
-        this.hubProject = hubProject;
     }
 
     public String getHubProjectVersion() {
         return hubProjectVersion;
     }
 
-    public void setHubProjectVersion(String hubProjectVersion) {
-        this.hubProjectVersion = hubProjectVersion;
-    }
-
     public String getFortifyApplication() {
         return fortifyApplication;
-    }
-
-    public void setFortifyApplication(String fortifyApplication) {
-        this.fortifyApplication = fortifyApplication;
     }
 
     public String getFortifyApplicationVersion() {
         return fortifyApplicationVersion;
     }
 
-    public void setFortifyApplicationVersion(String fortifyApplicationVersion) {
-        this.fortifyApplicationVersion = fortifyApplicationVersion;
-    }
-
     public int getFortifyApplicationId() {
         return fortifyApplicationId;
-    }
-
-    public void setFortifyApplicationId(int fortifyApplicationId) {
-        this.fortifyApplicationId = fortifyApplicationId;
     }
 
     @Override
