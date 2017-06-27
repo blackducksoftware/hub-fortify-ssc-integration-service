@@ -28,25 +28,27 @@ package com.blackducksoftware.integration.fortify.batch.model;
  * @author hsathe
  *
  */
-public class HubProjectVersion {
-    private String hubProject;
+public final class HubProjectVersion {
+    private final String hubProject;
 
-    private String hubProjectVersion;
+    private final String hubProjectVersion;
+
+    /**
+     * @param hubProject
+     * @param hubProjectVersion
+     */
+    public HubProjectVersion(String hubProject, String hubProjectVersion) {
+        super();
+        this.hubProject = hubProject;
+        this.hubProjectVersion = hubProjectVersion;
+    }
 
     public String getHubProject() {
         return hubProject;
     }
 
-    public void setHubProject(String hubProject) {
-        this.hubProject = hubProject;
-    }
-
     public String getHubProjectVersion() {
         return hubProjectVersion;
-    }
-
-    public void setHubProjectVersion(String hubProjectVersion) {
-        this.hubProjectVersion = hubProjectVersion;
     }
 
     @Override
