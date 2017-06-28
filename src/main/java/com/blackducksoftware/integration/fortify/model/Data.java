@@ -28,84 +28,69 @@ package com.blackducksoftware.integration.fortify.model;
  * @author hsathe
  *
  */
-public class Data {
-    private Integer id;
+public final class Data {
+    private final Integer id;
 
-    private String name;
+    private final String name;
 
-    private Project project;
+    private final Project project;
+
+    public Data(Integer id, String name, Project project) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.project = project;
+    }
 
     public Project getProject() {
         return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
     }
 
     public Integer getId() {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     @Override
     public String toString() {
         return "Data [id=" + id + "]";
-
-        // return "Data [id=" + id + ", name=" + name + ", project=" + project + "]";
     }
 
-    public class Project {
+    public final static class Project {
 
-        private int id;
+        private final int id;
 
-        private String name;
+        private final String name;
 
-        private String description;
+        private final String description;
 
-        private String issueTemplateId;
+        private final String issueTemplateId;
+
+        public Project(int id, String name, String description, String issueTemplateId) {
+            super();
+            this.id = id;
+            this.name = name;
+            this.description = description;
+            this.issueTemplateId = issueTemplateId;
+        }
 
         public int getId() {
             return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
         }
 
         public String getName() {
             return name;
         }
 
-        public void setName(String name) {
-            this.name = name;
-        }
-
         public String getDescription() {
             return description;
         }
 
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
         public String getIssueTemplateId() {
             return issueTemplateId;
-        }
-
-        public void setIssueTemplateId(String issueTemplateId) {
-            this.issueTemplateId = issueTemplateId;
         }
     }
 

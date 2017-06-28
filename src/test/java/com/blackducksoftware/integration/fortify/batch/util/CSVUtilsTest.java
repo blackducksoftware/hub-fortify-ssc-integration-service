@@ -53,17 +53,16 @@ public class CSVUtilsTest extends TestCase {
 
     @Override
     @Before
-    public void setUp() throws JsonIOException, IOException {
-        System.out.println("path::" + PropertyConstants.getMappingJsonPath());
+    public void setUp() throws JsonIOException, IOException, IntegrationException {
         final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = MappingParser
                 .createMapping(PropertyConstants.getMappingJsonPath());
         PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProject();
         VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProjectVersion();
-
     }
 
     @Test
     public void testWriteToCSV() {
+        System.out.println("Executing testWriteToCSV");
         ProjectVersionView projectVersionItem = null;
         List<VulnerableComponentView> vulnerableComponentViews;
         try {

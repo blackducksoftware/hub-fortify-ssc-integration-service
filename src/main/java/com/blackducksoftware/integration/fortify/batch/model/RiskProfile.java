@@ -35,11 +35,12 @@ import com.blackducksoftware.integration.hub.model.HubView;
 public class RiskProfile extends HubView {
     private Date bomLastUpdatedAt;
 
-    public Date getBomLastUpdatedAt() {
-        return bomLastUpdatedAt;
+    public RiskProfile(Date bomLastUpdatedAt) {
+        super();
+        this.bomLastUpdatedAt = bomLastUpdatedAt;
     }
 
-    public void setBomLastUpdatedAt(Date bomLastUpdatedAt) {
-        this.bomLastUpdatedAt = bomLastUpdatedAt;
+    public Date getBomLastUpdatedAt() {
+        return bomLastUpdatedAt;
     }
 }

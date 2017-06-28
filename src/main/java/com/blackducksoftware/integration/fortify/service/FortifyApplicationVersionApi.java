@@ -27,6 +27,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.batch.util.FortifyExceptionUtil;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
@@ -59,9 +61,10 @@ public final class FortifyApplicationVersionApi extends FortifyService {
 
     private final static FortifyApplicationVersionApiService apiService = retrofit.create(FortifyApplicationVersionApiService.class);
 
-    public static FortifyApplicationResponse getApplicationVersionByName(String fields, String filter) throws IOException {
+    public static FortifyApplicationResponse getApplicationVersionByName(String fields, String filter) throws IOException, IntegrationException {
         Call<FortifyApplicationResponse> apiApplicationResponseCall = apiService.getApplicationVersionByName(fields, filter);
         FortifyApplicationResponse applicationAPIResponse = apiApplicationResponseCall.execute().body();
+        FortifyExceptionUtil.verifyFortifyCustomException(applicationAPIResponse.getResponseCode(), "Fortify Get Application Version Api");
         return applicationAPIResponse;
     }
 
@@ -77,11 +80,13 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         return applicationAPIResponse.getData().getId();
     }
 
-    public static int updateApplicationAttributes(int parentId, List<UpdateFortifyApplicationAttributesRequest> request) throws IOException {
+    public static int updateApplicationAttributes(int parentId, List<UpdateFortifyApplicationAttributesRequest> request)
+            throws IOException, IntegrationException {
         Call<ResponseBody> apiApplicationResponseCall = apiService.updateApplicationAttributes(parentId, request);
         int response;
         try {
             response = apiApplicationResponseCall.execute().code();
+            FortifyExceptionUtil.verifyFortifyCustomException(response, "Fortify Update Application Version Api");
         } catch (IOException e) {
             logger.error("Unable to updateApplicationVersion ", e);
             throw new IOException("Unable to updateApplicationVersion ", e);
@@ -89,11 +94,12 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         return response;
     }
 
-    public static int commitApplicationVersion(int id, CommitFortifyApplicationRequest request) throws IOException {
+    public static int commitApplicationVersion(int id, CommitFortifyApplicationRequest request) throws IOException, IntegrationException {
         Call<ResponseBody> apiApplicationResponseCall = apiService.commitApplicationVersion(id, request);
         int response;
         try {
             response = apiApplicationResponseCall.execute().code();
+            FortifyExceptionUtil.verifyFortifyCustomException(response, "Fortify Commit Application Version Api");
         } catch (IOException e) {
             logger.error("Unable to commitApplicationVersion ", e);
             throw new IOException("Unable to commitApplicationVersion ", e);

@@ -84,7 +84,7 @@ public final class RestConnectionHelper {
      * @return
      */
     private static CredentialsRestConnection getRestConnection(final HubServerConfig serverConfig) {
-        return getRestConnection(serverConfig, LogLevel.TRACE);
+        return getRestConnection(serverConfig, LogLevel.DEBUG);
     }
 
     /**

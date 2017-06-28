@@ -24,108 +24,87 @@ package com.blackducksoftware.integration.fortify.model;
 
 import java.io.Serializable;
 
-public class CreateApplicationRequest implements Serializable {
+public final class CreateApplicationRequest implements Serializable {
 
-    private String name;
+    private final String name;
 
-    private String description;
+    private final String description;
 
-    private Boolean active;
+    private final Boolean active;
 
-    private Boolean committed;
+    private final Boolean committed;
 
-    private Project project;
+    private final Project project;
 
-    private String issueTemplateId;
+    private final String issueTemplateId;
+
+    public CreateApplicationRequest(String name, String description, Boolean active, Boolean committed, Project project, String issueTemplateId) {
+        super();
+        this.name = name;
+        this.description = description;
+        this.active = active;
+        this.committed = committed;
+        this.project = project;
+        this.issueTemplateId = issueTemplateId;
+    }
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public Boolean getActive() {
         return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
     }
 
     public Boolean getCommitted() {
         return committed;
     }
 
-    public void setCommitted(Boolean committed) {
-        this.committed = committed;
-    }
-
     public Project getProject() {
         return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
     }
 
     public String getIssueTemplateId() {
         return issueTemplateId;
     }
 
-    public void setIssueTemplateId(String issueTemplateId) {
-        this.issueTemplateId = issueTemplateId;
-    }
+    public final static class Project {
 
-    public class Project {
+        private final String id;
 
-        private String id;
+        private final String name;
 
-        private String name;
+        private final String description;
 
-        private String description;
-
-        private String issueTemplateId;
+        private final String issueTemplateId;
 
         public String getId() {
             return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
         }
 
         public String getName() {
             return name;
         }
 
-        public void setName(String name) {
-            this.name = name;
-        }
-
         public String getDescription() {
             return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
         }
 
         public String getIssueTemplateId() {
             return issueTemplateId;
         }
 
-        public void setIssueTemplateId(String issueTemplateId) {
+        public Project(String id, String name, String description, String issueTemplateId) {
+            super();
+            this.id = id;
+            this.name = name;
+            this.description = description;
             this.issueTemplateId = issueTemplateId;
         }
+
     }
 }

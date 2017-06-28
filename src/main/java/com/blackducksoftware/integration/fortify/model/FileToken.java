@@ -28,15 +28,16 @@ package com.blackducksoftware.integration.fortify.model;
  * @author smanikantan
  *
  */
-public class FileToken {
-    private String fileTokenType;
+public final class FileToken {
+    private final String fileTokenType;
+
+    public FileToken(String fileTokenType) {
+        super();
+        this.fileTokenType = fileTokenType;
+    }
 
     public String getFileTokenType() {
         return fileTokenType;
-    }
-
-    public void setFileTokenType(String fileTokenType) {
-        this.fileTokenType = fileTokenType;
     }
 
     @Override
