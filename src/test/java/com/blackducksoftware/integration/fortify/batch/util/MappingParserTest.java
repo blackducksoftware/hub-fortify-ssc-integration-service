@@ -46,7 +46,7 @@ public class MappingParserTest extends TestCase {
 
     @Test
     public void testMappingFileParser() throws Exception {
-        System.out.println("Executing verifyCustomException");
+        System.out.println("Executing testMappingFileParser");
         List<BlackDuckFortifyMapperGroup> mapping;
         try {
             mapping = MappingParser.createMapping(PropertyConstants.getMappingJsonPath());

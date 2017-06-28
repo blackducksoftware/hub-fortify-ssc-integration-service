@@ -62,6 +62,7 @@ public class CSVUtilsTest extends TestCase {
 
     @Test
     public void testWriteToCSV() {
+        System.out.println("Executing testWriteToCSV");
         ProjectVersionView projectVersionItem = null;
         List<VulnerableComponentView> vulnerableComponentViews;
         try {
