@@ -30,19 +30,28 @@ import java.util.List;
  * @author hsathe
  *
  */
-public class FortifyApplicationResponse {
-    private List<Data> data;
+public final class FortifyApplicationResponse {
+    private final List<Data> data;
 
-    public void setData(List<Data> data) {
+    private final int responseCode;
+
+    public FortifyApplicationResponse(List<Data> data, int responseCode) {
+        super();
         this.data = data;
+        this.responseCode = responseCode;
     }
 
     public List<Data> getData() {
         return data;
     }
 
+    public int getResponseCode() {
+        return responseCode;
+    }
+
     @Override
     public String toString() {
-        return "FortifyApplicationResponse [responseList=" + data + "]";
+        return "FortifyApplicationResponse [data=" + data + ", responseCode=" + responseCode + "]";
     }
+
 }

@@ -39,6 +39,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
@@ -59,7 +60,8 @@ import okhttp3.OkHttpClient;
 @RunWith(PowerMockRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = TestApplication.class)
 @PowerMockRunnerDelegate(SpringRunner.class)
-@PrepareForTest({ FortifyService.class, OkHttpClient.class, OkHttpClient.Builder.class, FortifyApplicationVersionApi.class })
+@PrepareForTest({ FortifyService.class, OkHttpClient.class, OkHttpClient.Builder.class, FortifyApplicationVersionApi.class, FortifyApplicationResponse.class,
+        CreateApplicationRequest.class })
 
 public class FortifyApplicationVersionApiTest extends TestCase {
     @Mock
@@ -68,18 +70,6 @@ public class FortifyApplicationVersionApiTest extends TestCase {
     String FIELDS = "id";
 
     String QUERY = "name:1.3+and+project.name:Logistics";
-
-    @Mock
-    CreateApplicationRequest request;
-
-    @Test
-    public void getApplicationVersionTest() throws IOException {
-        FortifyApplicationResponse mockResponse = new FortifyApplicationResponse();
-
-        Mockito.when(FortifyApplicationVersionApi.getApplicationVersionByName(Mockito.anyString(), Mockito.anyString())).thenReturn(mockResponse);
-        FortifyApplicationResponse response = FortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, QUERY);
-        assertNotNull(response);
-    }
 
     @Override
     @Before
@@ -98,16 +88,30 @@ public class FortifyApplicationVersionApiTest extends TestCase {
     }
 
     @Test
-    public void createApplicationVersionTest() throws IOException {
+    public void getApplicationVersionTest() throws IOException, IntegrationException {
+        System.out.println("Executing getApplicationVersionTest");
+        PowerMockito.mock(FortifyApplicationResponse.class);
+        FortifyApplicationResponse mockResponse = Mockito.mock(FortifyApplicationResponse.class);
 
+        Mockito.when(FortifyApplicationVersionApi.getApplicationVersionByName(Mockito.anyString(), Mockito.anyString())).thenReturn(mockResponse);
+        FortifyApplicationResponse response = FortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, QUERY);
+        assertNotNull(response);
+    }
+
+    @Test
+    public void createApplicationVersionTest() throws IOException {
+        System.out.println("Executing createApplicationVersionTest");
+        PowerMockito.mock(CreateApplicationRequest.class);
+        CreateApplicationRequest mockCreateApplicationRequest = Mockito.mock(CreateApplicationRequest.class);
         Mockito.when(FortifyApplicationVersionApi.createApplicationVersion(Mockito.any())).thenReturn(110);
-        int id = FortifyApplicationVersionApi.createApplicationVersion(request);
+        int id = FortifyApplicationVersionApi.createApplicationVersion(mockCreateApplicationRequest);
         assertEquals("Created application", 110, id);
 
     }
 
     @Test
-    public void updateApplicationAttributesTest() throws IOException {
+    public void updateApplicationAttributesTest() throws IOException, IntegrationException {
+        System.out.println("Executing updateApplicationAttributesTest");
         int parentId = 111;
 
         String attributeValues = "[{\"attributeDefinitionId\":5,\"values\":[{\"guid\":\"New\"}],\"value\":null},{\"attributeDefinitionId\":6,\"values\":[{\"guid\":\"Internal\"}],\"value\":null},{\"attributeDefinitionId\":7,\"values\":[{\"guid\":\"internalnetwork\"}],\"value\":null},{\"attributeDefinitionId\":10,\"values\":[],\"value\":null},{\"attributeDefinitionId\":11,\"values\":[],\"value\":null},{\"attributeDefinitionId\":12,\"values\":[],\"value\":null},{\"attributeDefinitionId\":1,\"values\":[{\"guid\":\"High\"}],\"value\":null},{\"attributeDefinitionId\":2,\"values\":[],\"value\":null},{\"attributeDefinitionId\":3,\"values\":[],\"value\":null},{\"attributeDefinitionId\":4,\"values\":[],\"value\":null}]";
@@ -122,10 +126,10 @@ public class FortifyApplicationVersionApiTest extends TestCase {
     }
 
     @Test
-    public void commitApplicationVersion() throws IOException {
+    public void commitApplicationVersion() throws IOException, IntegrationException {
+        System.out.println("Executing commitApplicationVersion");
         final int ID = 111;
-        CommitFortifyApplicationRequest request = new CommitFortifyApplicationRequest();
-        request.setCommitted(true);
+        CommitFortifyApplicationRequest request = new CommitFortifyApplicationRequest(true);
         Mockito.when(FortifyApplicationVersionApi.commitApplicationVersion(Mockito.anyInt(), Mockito.any())).thenReturn(201);
         int responseCode = FortifyApplicationVersionApi.commitApplicationVersion(ID, request);
         assertEquals("Committed application attributes", 201, responseCode);

@@ -33,12 +33,12 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.model.HubProjectVersion;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
-import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest.Project;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 import com.blackducksoftware.integration.fortify.model.UpdateFortifyApplicationAttributesRequest;
 import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
@@ -71,8 +71,9 @@ public final class MappingParser {
      *            - Filepath to mapping.json
      * @return List<BlackDuckForfifyMapper> Mapped objects with Fortify ID
      * @throws IOException
+     * @throws IntegrationException
      */
-    public static List<BlackDuckFortifyMapperGroup> createMapping(String filePath) throws JsonIOException, IOException {
+    public static List<BlackDuckFortifyMapperGroup> createMapping(String filePath) throws JsonIOException, IOException, IntegrationException {
         Gson gson;
         List<BlackDuckFortifyMapper> mapping;
         try {
@@ -100,8 +101,10 @@ public final class MappingParser {
      * @param blackDuckFortifyMappers
      * @return
      * @throws IOException
+     * @throws IntegrationException
      */
-    private static List<BlackDuckFortifyMapperGroup> buildGroupedMappings(List<BlackDuckFortifyMapper> blackDuckFortifyMappers) throws IOException {
+    private static List<BlackDuckFortifyMapperGroup> buildGroupedMappings(List<BlackDuckFortifyMapper> blackDuckFortifyMappers)
+            throws IOException, IntegrationException {
 
         Map<String, BlackDuckFortifyMapperGroup> mappings = new HashMap<>();
         try {
@@ -149,8 +152,9 @@ public final class MappingParser {
      * @param mapping
      * @return
      * @throws IOException
+     * @throws IntegrationException
      */
-    private static int getFortifyApplicationId(BlackDuckFortifyMapper mapping) throws IOException {
+    private static int getFortifyApplicationId(BlackDuckFortifyMapper mapping) throws IOException, IntegrationException {
         String fortifyApplicationName = mapping.getFortifyApplication();
         String fortifyApplicationVersion = mapping.getFortifyApplicationVersion();
         int applicationId;
@@ -193,10 +197,9 @@ public final class MappingParser {
      * @param createRequest
      * @return int - Application ID
      * @throws IOException
+     * @throws IntegrationException
      */
-    private static int createApplicationVersion(CreateApplicationRequest createRequest) throws IOException {
-        // CreateApplicationRequest createRequest = buildRequestForFortifyApplication(fortifyApplicationName,
-        // fortifyApplicationVersion);
+    private static int createApplicationVersion(CreateApplicationRequest createRequest) throws IOException, IntegrationException {
         int applicationId = 0;
         int SUCCESS = 201;
         try {
@@ -213,8 +216,7 @@ public final class MappingParser {
                 logger.info("Updated attributes for creating new fortify application");
             }
 
-            CommitFortifyApplicationRequest commitRequest = new CommitFortifyApplicationRequest();
-            commitRequest.setCommitted(true);
+            CommitFortifyApplicationRequest commitRequest = new CommitFortifyApplicationRequest(true);
             int commitResponseCode = FortifyApplicationVersionApi.commitApplicationVersion(applicationId, commitRequest);
             if (commitResponseCode == SUCCESS) {
                 logger.info("New Fortify application is now committed");
@@ -234,19 +236,10 @@ public final class MappingParser {
      * @return Request object for
      */
     private static CreateApplicationRequest createVersionRequest(int applicationId, String fortifyApplicationVersion) {
-        CreateApplicationRequest createRequest = new CreateApplicationRequest();
+
         String TEMPLATE = "Prioritized-HighRisk-Project-Template";
-        createRequest.setActive(true);
-        createRequest.setName(fortifyApplicationVersion);
-        createRequest.setCommitted(false);
-        createRequest.setIssueTemplateId(TEMPLATE);
-        createRequest.setDescription("Built using API");
-
-        Project proj = createRequest.new Project();
-        proj.setId(String.valueOf(applicationId));
-        createRequest.setProject(proj);
-
-        return createRequest;
+        return new CreateApplicationRequest(fortifyApplicationVersion, "Built using API", true, false,
+                new CreateApplicationRequest.Project(String.valueOf(applicationId), null, null, null), TEMPLATE);
     }
 
     /**
@@ -257,23 +250,9 @@ public final class MappingParser {
      * @return
      */
     private static CreateApplicationRequest createApplicationVersionRequest(String fortifyProjectName, String fortifyProjectVersion) {
-        CreateApplicationRequest request = new CreateApplicationRequest();
         String TEMPLATE = "Prioritized-HighRisk-Project-Template";
-        request.setActive(true);
-        request.setName(fortifyProjectVersion);
-        request.setCommitted(false);
-        request.setIssueTemplateId(TEMPLATE);
-        request.setDescription("Built using API");
-
-        Project project = request.new Project();
-
-        project.setName(fortifyProjectName);
-        project.setDescription("Built using API");
-        project.setIssueTemplateId(TEMPLATE);
-        project.setId("");
-        request.setProject(project);
-
-        return request;
+        return new CreateApplicationRequest(fortifyProjectVersion, "Built using API", true, false,
+                new CreateApplicationRequest.Project("", fortifyProjectName, "Built using API", TEMPLATE), TEMPLATE);
     }
 
 }

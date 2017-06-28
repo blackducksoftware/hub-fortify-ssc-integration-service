@@ -45,6 +45,7 @@ import com.blackducksoftware.integration.fortify.batch.model.HubProjectVersion;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.fortify.batch.util.CSVUtils;
+import com.blackducksoftware.integration.fortify.batch.util.FortifyExceptionUtil;
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.batch.util.VulnerabilityUtil;
@@ -230,10 +231,10 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
      *
      * @return
      * @throws IOException
+     * @throws IntegrationException
      */
-    private String getFileToken() throws IOException {
-        FileToken fileToken = new FileToken();
-        fileToken.setFileTokenType("UPLOAD");
+    private String getFileToken() throws IOException, IntegrationException {
+        FileToken fileToken = new FileToken("UPLOAD");
         return FortifyFileTokenApi.getFileToken(fileToken);
     }
 
@@ -244,8 +245,9 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
      * @param fileName
      * @param fortifyApplicationId
      * @throws IOException
+     * @throws IntegrationException
      */
-    private void uploadCSV(String token, String fileName, int fortifyApplicationId) throws IOException {
+    private void uploadCSV(String token, String fileName, int fortifyApplicationId) throws IOException, IntegrationException {
         File file = new File(fileName);
         logger.debug("Uploading " + file.getName() + " to fortify");
         // Call Fortify upload
@@ -254,12 +256,15 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
 
         // Check if the upload is submitted successfully, if not don't delete the CSV files. It can be used for
         // debugging
-        if (uploadVulnerabilityResponseBody != null && "-10001".equalsIgnoreCase(uploadVulnerabilityResponseBody.getCode())
+        if (uploadVulnerabilityResponseBody != null && uploadVulnerabilityResponseBody.getCode() == -10001
                 && "Background submission succeeded.".equalsIgnoreCase(uploadVulnerabilityResponseBody.getMessage())) {
             if (file.exists()) {
                 file.delete();
             }
-            logger.info(file.getName() + " File uploaded successfully");
+            logger.info("Response code::" + uploadVulnerabilityResponseBody.getCode() + ", Message::" + file.getName() + " File uploaded successfully");
+        } else {
+            FortifyExceptionUtil.throwFortifyCustomException(uploadVulnerabilityResponseBody.getCode(), "Fortify Upload Api",
+                    uploadVulnerabilityResponseBody.getMessage());
         }
     }
 

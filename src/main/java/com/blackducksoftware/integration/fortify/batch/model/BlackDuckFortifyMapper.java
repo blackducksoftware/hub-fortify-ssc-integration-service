@@ -39,16 +39,12 @@ public final class BlackDuckFortifyMapper implements Serializable {
 
     private final String fortifyApplicationVersion;
 
-    private final int fortifyApplicationId;
-
-    public BlackDuckFortifyMapper(String hubProject, String hubProjectVersion, String fortifyApplication, String fortifyApplicationVersion,
-            int fortifyApplicationId) {
+    public BlackDuckFortifyMapper(String hubProject, String hubProjectVersion, String fortifyApplication, String fortifyApplicationVersion) {
         super();
         this.hubProject = hubProject;
         this.hubProjectVersion = hubProjectVersion;
         this.fortifyApplication = fortifyApplication;
         this.fortifyApplicationVersion = fortifyApplicationVersion;
-        this.fortifyApplicationId = fortifyApplicationId;
     }
 
     public String getHubProject() {
@@ -67,14 +63,9 @@ public final class BlackDuckFortifyMapper implements Serializable {
         return fortifyApplicationVersion;
     }
 
-    public int getFortifyApplicationId() {
-        return fortifyApplicationId;
-    }
-
     @Override
     public String toString() {
         return "BlackDuckFortifyMapper [hubProject=" + hubProject + ", hubProjectVersion=" + hubProjectVersion + ", fortifyApplication=" + fortifyApplication
-                + ", fortifyApplicationVersion=" + fortifyApplicationVersion + ", fortifyApplicationId=" + fortifyApplicationId + "]";
+                + ", fortifyApplicationVersion=" + fortifyApplicationVersion + "]";
     }
-
 }

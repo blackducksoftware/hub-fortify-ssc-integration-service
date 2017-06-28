@@ -22,14 +22,14 @@
  */
 package com.blackducksoftware.integration.fortify.model;
 
-public class CommitFortifyApplicationRequest {
-    boolean committed;
+public final class CommitFortifyApplicationRequest {
+    private final boolean committed;
 
     public boolean isCommitted() {
         return committed;
     }
 
-    public void setCommitted(boolean committed) {
+    public CommitFortifyApplicationRequest(boolean committed) {
         this.committed = committed;
     }
 }

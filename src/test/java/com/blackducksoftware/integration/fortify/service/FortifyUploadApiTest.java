@@ -51,8 +51,8 @@ public class FortifyUploadApiTest extends TestCase {
 
     @Test
     public void uploadCSVFile() throws Exception {
-        FileToken fileToken = new FileToken();
-        fileToken.setFileTokenType("UPLOAD");
+        System.out.println("Executing uploadCSVFile");
+        FileToken fileToken = new FileToken("UPLOAD");
 
         PowerMockito.mockStatic(OkHttpClient.Builder.class);
         OkHttpClient.Builder builder = Mockito.mock(OkHttpClient.Builder.class);
@@ -79,13 +79,8 @@ public class FortifyUploadApiTest extends TestCase {
         // File("/Users/smanikantan/Documents/hub-fortify-integration/report/solrWar2_4.10.4_20170510160506866.csv");
         System.out.println("file::" + file);
 
-        JobStatusResponse mockUploadVulnerabilityResponseBody = new JobStatusResponse();
-        mockUploadVulnerabilityResponseBody.setCode("-10001");
-        mockUploadVulnerabilityResponseBody.setMessage("Background submission succeeded.");
-        mockUploadVulnerabilityResponseBody.setId("JOB_ARTIFACTUPLOAD$f640bef6-703c-4287-926d-7032baed0d7a");
-        mockUploadVulnerabilityResponseBody.setInvokingUserName("admin");
-        mockUploadVulnerabilityResponseBody.setJobType(10);
-        mockUploadVulnerabilityResponseBody.setJobState(0);
+        JobStatusResponse mockUploadVulnerabilityResponseBody = new JobStatusResponse(-10001, "Background submission succeeded.",
+                "JOB_ARTIFACTUPLOAD$f640bef6-703c-4287-926d-7032baed0d7a", "admin", 10, 0);
 
         PowerMockito.mockStatic(FortifyUploadApi.class);
         Mockito.when(FortifyUploadApi.uploadVulnerabilityByProjectVersion(Mockito.anyString(), Mockito.anyLong(), Mockito.any()))

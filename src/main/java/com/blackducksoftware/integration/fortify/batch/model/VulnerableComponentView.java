@@ -45,51 +45,38 @@ public class VulnerableComponentView extends HubView {
 
     private VulnerabilityWithRemediationView vulnerabilityWithRemediation;
 
-    public String getComponentName() {
-        return this.componentName;
+    public VulnerableComponentView(String componentName, String componentVersionName, String componentVersionOriginName, String componentVersionOriginId,
+            String componentVersionLink, VulnerabilityWithRemediationView vulnerabilityWithRemediation) {
+        super();
+        this.componentName = componentName;
+        this.componentVersionName = componentVersionName;
+        this.componentVersionOriginName = componentVersionOriginName;
+        this.componentVersionOriginId = componentVersionOriginId;
+        this.componentVersionLink = componentVersionLink;
+        this.vulnerabilityWithRemediation = vulnerabilityWithRemediation;
     }
 
-    public void setComponentName(String componentName) {
-        this.componentName = componentName;
+    public String getComponentName() {
+        return this.componentName;
     }
 
     public String getComponentVersionName() {
         return this.componentVersionName;
     }
 
-    public void setComponentVersionName(String componentVersionName) {
-        this.componentVersionName = componentVersionName;
-    }
-
     public String getComponentVersionOriginName() {
         return componentVersionOriginName;
-    }
-
-    public void setComponentVersionOriginName(String componentVersionOriginName) {
-        this.componentVersionOriginName = componentVersionOriginName;
     }
 
     public String getComponentVersionOriginId() {
         return componentVersionOriginId;
     }
 
-    public void setComponentVersionOriginId(String componentVersionOriginId) {
-        this.componentVersionOriginId = componentVersionOriginId;
-    }
-
     public String getComponentVersionLink() {
         return this.componentVersionLink;
     }
 
-    public void setComponentVersionLink(String componentVersionLink) {
-        this.componentVersionLink = componentVersionLink;
-    }
-
     public VulnerabilityWithRemediationView getVulnerabilityWithRemediation() {
         return this.vulnerabilityWithRemediation;
-    }
-
-    public void setVulnerabilityWithRemediation(VulnerabilityWithRemediationView vulnerabilityWithRemediation) {
-        this.vulnerabilityWithRemediation = vulnerabilityWithRemediation;
     }
 }
