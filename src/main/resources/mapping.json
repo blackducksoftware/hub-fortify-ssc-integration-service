@@ -1,14 +1,20 @@
 [
     {
-      "hubProject": "solrWar",
-      "hubProjectVersion": "4.10.4",
-      "fortifyApplication": "Hub-Fortify-Test1",
+      "hubProject": "Pong Matcher Rails",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Hub-Fortify-Test17",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "solrWar2",
-      "hubProjectVersion": "4.10.4",
-      "fortifyApplication": "Hub-Fortify-Test2",
+      "hubProject": "Spring Music",
+      "hubProjectVersion": "2.1",
+      "fortifyApplication": "Hub-Fortify-Test17",
       "fortifyApplicationVersion": "1.0"
+    },
+    {
+      "hubProject": "Pong Matcher Rails",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Hub-Fortify-Test16",
+      "fortifyApplicationVersion": "2.0"
     }
 ]
