@@ -26,14 +26,19 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
+import com.blackducksoftware.integration.fortify.batch.model.HubProjectVersion;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
-import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest.Project;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 import com.blackducksoftware.integration.fortify.model.UpdateFortifyApplicationAttributesRequest;
 import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
@@ -65,73 +70,124 @@ public final class MappingParser {
      * @param filePath
      *            - Filepath to mapping.json
      * @return List<BlackDuckForfifyMapper> Mapped objects with Fortify ID
+     * @throws IOException
+     * @throws IntegrationException
      */
-    public static List<BlackDuckFortifyMapper> createMapping(String filePath) {
+    public static List<BlackDuckFortifyMapperGroup> createMapping(String filePath) throws JsonIOException, IOException, IntegrationException {
         Gson gson;
-        List<BlackDuckFortifyMapper> mappingObj = null;
+        List<BlackDuckFortifyMapper> mapping;
         try {
             gson = new Gson();
 
             Type listType = new TypeToken<List<BlackDuckFortifyMapper>>() {
             }.getType();
 
-            List<BlackDuckFortifyMapper> mapping = gson.fromJson(new FileReader(filePath), listType);
-            mappingObj = addApplicationIdToResponse(mapping);
-
+            mapping = gson.fromJson(new FileReader(filePath), listType);
         } catch (JsonIOException jio) {
-            // To Do: Log information
-            jio.printStackTrace();
+            logger.error("Exception occured while creating Mappings", jio);
+            throw new JsonIOException("Exception occured while creating Mappings", jio);
         } catch (FileNotFoundException fe) {
-            // To Do: Log information
-            fe.printStackTrace();
+            logger.error("File Not Found for creating Mappings", fe);
+            throw new FileNotFoundException("Error finding the mapping.json file :: " + filePath);
         }
 
-        return mappingObj;
+        return buildGroupedMappings(mapping);
     }
 
     /**
+     *
+     * This method, groups multiple Hub projects mapped to the same Fortify application.
+     *
+     * @param blackDuckFortifyMappers
+     * @return
+     * @throws IOException
+     * @throws IntegrationException
+     */
+    private static List<BlackDuckFortifyMapperGroup> buildGroupedMappings(List<BlackDuckFortifyMapper> blackDuckFortifyMappers)
+            throws IOException, IntegrationException {
+
+        Map<String, BlackDuckFortifyMapperGroup> mappings = new HashMap<>();
+        try {
+
+            for (BlackDuckFortifyMapper blackDuckFortifyMapper : blackDuckFortifyMappers) {
+                int applicationId;
+                List<HubProjectVersion> hubProjectVersions = new ArrayList<>();
+
+                BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup;
+
+                HubProjectVersion hubProjectVersion = new HubProjectVersion(blackDuckFortifyMapper.getHubProject(),
+                        blackDuckFortifyMapper.getHubProjectVersion());
+
+                String key = blackDuckFortifyMapper.getFortifyApplication() + '_' + blackDuckFortifyMapper.getFortifyApplicationVersion();
+
+                if (mappings.containsKey(key)) {
+                    blackDuckFortifyMapperGroup = mappings.get(key);
+                    hubProjectVersions = blackDuckFortifyMapperGroup.getHubProjectVersion();
+                    applicationId = blackDuckFortifyMapperGroup.getFortifyApplicationId();
+                } else {
+                    applicationId = getFortifyApplicationId(blackDuckFortifyMapper);
+                }
+
+                hubProjectVersions.add(hubProjectVersion);
+
+                blackDuckFortifyMapperGroup = new BlackDuckFortifyMapperGroup(blackDuckFortifyMapper.getFortifyApplication(),
+                        blackDuckFortifyMapper.getFortifyApplicationVersion(), hubProjectVersions, applicationId);
+
+                mappings.put(key, blackDuckFortifyMapperGroup);
+
+            }
+
+        } catch (IOException ioe) {
+            logger.error(ioe.getMessage(), ioe);
+            throw new IOException(ioe);
+        }
+
+        return new ArrayList<>(mappings.values());
+    }
+
+    /**
+     *
      * Finds Application Id for Fortify Application
      *
      * @param mapping
-     *            - List<BlackDuckFortifyMapper> without Application ID
-     * @return List<BlackDuckFortifyMapper> mapping list with Application ID
+     * @return
+     * @throws IOException
+     * @throws IntegrationException
      */
-    public static List<BlackDuckFortifyMapper> addApplicationIdToResponse(List<BlackDuckFortifyMapper> mapping) {
-        for (BlackDuckFortifyMapper element : mapping) {
-            String fortifyApplicationName = element.getFortifyApplication();
-            String fortifyApplicationVersion = element.getFortifyApplicationVersion();
-
-            try {
-                String Q = Q_version + fortifyApplicationVersion + Q_connector + Q_project + fortifyApplicationName;
-                logger.info("Querying fortify " + Q);
-                FortifyApplicationResponse response = FortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, Q);
-                if (response.getData().size() != 0) {
-                    logger.info("Fortify Application Found :" + response.getData().get(0).getId());
-                    element.setFortifyApplicationId(response.getData().get(0).getId());
+    private static int getFortifyApplicationId(BlackDuckFortifyMapper mapping) throws IOException, IntegrationException {
+        String fortifyApplicationName = mapping.getFortifyApplication();
+        String fortifyApplicationVersion = mapping.getFortifyApplicationVersion();
+        int applicationId;
+        try {
+            String Q = Q_version + fortifyApplicationVersion + Q_connector + Q_project + fortifyApplicationName;
+            logger.info("Querying fortify " + Q);
+            FortifyApplicationResponse response = FortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, Q);
+            if (response.getData().size() != 0) {
+                logger.info("Fortify Application Found :" + response.getData().get(0).getId());
+                applicationId = response.getData().get(0).getId();
+            } else {
+                logger.info("Unable to find the Application on fortify, creating a new application");
+                String queryParams = Q_project + fortifyApplicationName;
+                String fieldParams = "id,project";
+                logger.info("Querying fortify " + queryParams);
+                FortifyApplicationResponse applicationResponse = FortifyApplicationVersionApi.getApplicationVersionByName(fieldParams, queryParams);
+                CreateApplicationRequest createRequest;
+                if (applicationResponse.getData().size() != 0) {
+                    // Create only version
+                    int parentApplicationId = applicationResponse.getData().get(0).getProject().getId();
+                    createRequest = createVersionRequest(parentApplicationId, fortifyApplicationVersion);
                 } else {
-                    logger.info("Unable to find the Application on fortify, creating a new application");
-                    String queryParams = Q_project + fortifyApplicationName;
-                    String fieldParams = "id,project";
-                    logger.info("Querying fortify " + queryParams);
-                    FortifyApplicationResponse applicationResponse = FortifyApplicationVersionApi.getApplicationVersionByName(fieldParams, queryParams);
-                    int applicationId;
-                    CreateApplicationRequest createRequest;
-                    if (applicationResponse.getData().size() != 0) {
-                        // Create only version
-                        int parentApplicationId = applicationResponse.getData().get(0).getProject().getId();
-                        createRequest = createVersionRequest(parentApplicationId, fortifyApplicationVersion);
-                    } else {
-                        // Create both new Application and Version
-                        createRequest = createApplicationVersionRequest(fortifyApplicationName, fortifyApplicationVersion);
-                    }
-                    applicationId = createApplicationVersion(createRequest);
-                    element.setFortifyApplicationId(applicationId);
+                    // Create both new Application and Version
+                    createRequest = createApplicationVersionRequest(fortifyApplicationName, fortifyApplicationVersion);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                applicationId = createApplicationVersion(createRequest);
+                // element.setFortifyApplicationId(applicationId);
             }
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            throw new IOException(e);
         }
-        return mapping;
+        return applicationId;
     }
 
     /**
@@ -140,10 +196,10 @@ public final class MappingParser {
      *
      * @param createRequest
      * @return int - Application ID
+     * @throws IOException
+     * @throws IntegrationException
      */
-    private static int createApplicationVersion(CreateApplicationRequest createRequest) {
-        // CreateApplicationRequest createRequest = buildRequestForFortifyApplication(fortifyApplicationName,
-        // fortifyApplicationVersion);
+    private static int createApplicationVersion(CreateApplicationRequest createRequest) throws IOException, IntegrationException {
         int applicationId = 0;
         int SUCCESS = 201;
         try {
@@ -160,16 +216,14 @@ public final class MappingParser {
                 logger.info("Updated attributes for creating new fortify application");
             }
 
-            CommitFortifyApplicationRequest commitRequest = new CommitFortifyApplicationRequest();
-            commitRequest.setCommitted(true);
+            CommitFortifyApplicationRequest commitRequest = new CommitFortifyApplicationRequest(true);
             int commitResponseCode = FortifyApplicationVersionApi.commitApplicationVersion(applicationId, commitRequest);
             if (commitResponseCode == SUCCESS) {
                 logger.info("New Fortify application is now committed");
             }
         } catch (IOException e) {
-            logger.info("Unable to create a new fortify application");
-            logger.info(e);
-            throw new RuntimeException(e);
+            logger.error("Unable to create a new fortify application", e);
+            throw new IOException(e);
         }
         return applicationId;
     }
@@ -182,19 +236,10 @@ public final class MappingParser {
      * @return Request object for
      */
     private static CreateApplicationRequest createVersionRequest(int applicationId, String fortifyApplicationVersion) {
-        CreateApplicationRequest createRequest = new CreateApplicationRequest();
+
         String TEMPLATE = "Prioritized-HighRisk-Project-Template";
-        createRequest.setActive(true);
-        createRequest.setName(fortifyApplicationVersion);
-        createRequest.setCommitted(false);
-        createRequest.setIssueTemplateId(TEMPLATE);
-        createRequest.setDescription("Built using API");
-
-        Project proj = createRequest.new Project();
-        proj.setId(String.valueOf(applicationId));
-        createRequest.setProject(proj);
-
-        return createRequest;
+        return new CreateApplicationRequest(fortifyApplicationVersion, "Built using API", true, false,
+                new CreateApplicationRequest.Project(String.valueOf(applicationId), null, null, null), TEMPLATE);
     }
 
     /**
@@ -205,23 +250,9 @@ public final class MappingParser {
      * @return
      */
     private static CreateApplicationRequest createApplicationVersionRequest(String fortifyProjectName, String fortifyProjectVersion) {
-        CreateApplicationRequest request = new CreateApplicationRequest();
         String TEMPLATE = "Prioritized-HighRisk-Project-Template";
-        request.setActive(true);
-        request.setName(fortifyProjectVersion);
-        request.setCommitted(false);
-        request.setIssueTemplateId(TEMPLATE);
-        request.setDescription("Built using API");
-
-        Project project = request.new Project();
-
-        project.setName(fortifyProjectName);
-        project.setDescription("Built using API");
-        project.setIssueTemplateId(TEMPLATE);
-        project.setId("");
-        request.setProject(project);
-
-        return request;
+        return new CreateApplicationRequest(fortifyProjectVersion, "Built using API", true, false,
+                new CreateApplicationRequest.Project("", fortifyProjectName, "Built using API", TEMPLATE), TEMPLATE);
     }
 
 }

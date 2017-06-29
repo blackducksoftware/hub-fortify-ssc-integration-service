@@ -37,8 +37,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.model.FileToken;
-import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
-import com.blackducksoftware.integration.fortify.model.FileTokenResponse.Data;
 
 import junit.framework.TestCase;
 import okhttp3.OkHttpClient;
@@ -68,8 +66,8 @@ public class FortifyFileTokenApiTest extends TestCase {
 
     @Test
     public void getFileToken() throws Exception {
-        FileToken fileToken = new FileToken();
-        fileToken.setFileTokenType("UPLOAD");
+        System.out.println("Executing getFileToken");
+        FileToken fileToken = new FileToken("UPLOAD");
 
         String token = "ABCDEFG";
 
@@ -82,12 +80,7 @@ public class FortifyFileTokenApiTest extends TestCase {
 
     @Test
     public void deleteFileToken() throws Exception {
-
-        FileTokenResponse mockFileTokenResponse = new FileTokenResponse();
-        Data data = mockFileTokenResponse.new Data();
-        data.setToken("ABCDEFG");
-        mockFileTokenResponse.setData(data);
-
+        System.out.println("Executing deleteFileToken");
         Mockito.when(FortifyFileTokenApi.deleteFileToken()).thenReturn(200);
 
         int responseCode = FortifyFileTokenApi.deleteFileToken();

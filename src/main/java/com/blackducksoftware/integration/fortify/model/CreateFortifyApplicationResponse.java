@@ -22,15 +22,15 @@
  */
 package com.blackducksoftware.integration.fortify.model;
 
-public class CreateFortifyApplicationResponse {
-    private Data data;
+public final class CreateFortifyApplicationResponse {
+    private final Data data;
+
+    public CreateFortifyApplicationResponse(Data data) {
+        this.data = data;
+    }
 
     public Data getData() {
         return data;
-    }
-
-    public void setData(Data data) {
-        this.data = data;
     }
 
     @Override

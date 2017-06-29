@@ -31,65 +31,51 @@ import com.google.gson.annotations.SerializedName;
  * @author smanikantan
  *
  */
-public class VulnerableComponentView extends HubView {
-    private String componentName;
+public final class VulnerableComponentView extends HubView {
+    private final String componentName;
 
-    private String componentVersionName;
+    private final String componentVersionName;
 
-    private String componentVersionOriginName;
+    private final String componentVersionOriginName;
 
-    private String componentVersionOriginId;
+    private final String componentVersionOriginId;
 
     @SerializedName("componentVersion")
-    private String componentVersionLink;
+    private final String componentVersionLink;
 
-    private VulnerabilityWithRemediationView vulnerabilityWithRemediation;
+    private final VulnerabilityWithRemediationView vulnerabilityWithRemediation;
+
+    public VulnerableComponentView(String componentName, String componentVersionName, String componentVersionOriginName, String componentVersionOriginId,
+            String componentVersionLink, VulnerabilityWithRemediationView vulnerabilityWithRemediation) {
+        this.componentName = componentName;
+        this.componentVersionName = componentVersionName;
+        this.componentVersionOriginName = componentVersionOriginName;
+        this.componentVersionOriginId = componentVersionOriginId;
+        this.componentVersionLink = componentVersionLink;
+        this.vulnerabilityWithRemediation = vulnerabilityWithRemediation;
+    }
 
     public String getComponentName() {
         return this.componentName;
-    }
-
-    public void setComponentName(String componentName) {
-        this.componentName = componentName;
     }
 
     public String getComponentVersionName() {
         return this.componentVersionName;
     }
 
-    public void setComponentVersionName(String componentVersionName) {
-        this.componentVersionName = componentVersionName;
-    }
-
     public String getComponentVersionOriginName() {
         return componentVersionOriginName;
-    }
-
-    public void setComponentVersionOriginName(String componentVersionOriginName) {
-        this.componentVersionOriginName = componentVersionOriginName;
     }
 
     public String getComponentVersionOriginId() {
         return componentVersionOriginId;
     }
 
-    public void setComponentVersionOriginId(String componentVersionOriginId) {
-        this.componentVersionOriginId = componentVersionOriginId;
-    }
-
     public String getComponentVersionLink() {
         return this.componentVersionLink;
     }
 
-    public void setComponentVersionLink(String componentVersionLink) {
-        this.componentVersionLink = componentVersionLink;
-    }
-
     public VulnerabilityWithRemediationView getVulnerabilityWithRemediation() {
         return this.vulnerabilityWithRemediation;
-    }
-
-    public void setVulnerabilityWithRemediation(VulnerabilityWithRemediationView vulnerabilityWithRemediation) {
-        this.vulnerabilityWithRemediation = vulnerabilityWithRemediation;
     }
 }

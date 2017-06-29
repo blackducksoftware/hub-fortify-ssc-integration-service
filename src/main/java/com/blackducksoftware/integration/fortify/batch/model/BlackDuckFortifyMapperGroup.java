@@ -23,35 +23,35 @@
 package com.blackducksoftware.integration.fortify.batch.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
- * This class is to store the mapping details after parsing the mapping.json file
+ * This class is used to store the grouped mappings to handle many-to-one hub mappings with fortify application.
  *
  * @author hsathe
  *
  */
-public final class BlackDuckFortifyMapper implements Serializable {
-    private final String hubProject;
-
-    private final String hubProjectVersion;
-
+public final class BlackDuckFortifyMapperGroup implements Serializable {
     private final String fortifyApplication;
 
     private final String fortifyApplicationVersion;
 
-    public BlackDuckFortifyMapper(String hubProject, String hubProjectVersion, String fortifyApplication, String fortifyApplicationVersion) {
-        this.hubProject = hubProject;
-        this.hubProjectVersion = hubProjectVersion;
+    private final List<HubProjectVersion> hubProjectVersion;
+
+    private final int fortifyApplicationId;
+
+    /**
+     * @param fortifyApplication
+     * @param fortifyApplicationVersion
+     * @param hubProjectVersion
+     * @param fortifyApplicationId
+     */
+    public BlackDuckFortifyMapperGroup(String fortifyApplication, String fortifyApplicationVersion, List<HubProjectVersion> hubProjectVersion,
+            int fortifyApplicationId) {
         this.fortifyApplication = fortifyApplication;
         this.fortifyApplicationVersion = fortifyApplicationVersion;
-    }
-
-    public String getHubProject() {
-        return hubProject;
-    }
-
-    public String getHubProjectVersion() {
-        return hubProjectVersion;
+        this.hubProjectVersion = hubProjectVersion;
+        this.fortifyApplicationId = fortifyApplicationId;
     }
 
     public String getFortifyApplication() {
@@ -62,9 +62,18 @@ public final class BlackDuckFortifyMapper implements Serializable {
         return fortifyApplicationVersion;
     }
 
+    public int getFortifyApplicationId() {
+        return fortifyApplicationId;
+    }
+
+    public List<HubProjectVersion> getHubProjectVersion() {
+        return hubProjectVersion;
+    }
+
     @Override
     public String toString() {
-        return "BlackDuckFortifyMapper [hubProject=" + hubProject + ", hubProjectVersion=" + hubProjectVersion + ", fortifyApplication=" + fortifyApplication
-                + ", fortifyApplicationVersion=" + fortifyApplicationVersion + "]";
+        return "BlackDuckFortifyMapperGroup [fortifyApplication=" + fortifyApplication + ", fortifyApplicationVersion=" + fortifyApplicationVersion
+                + ", hubProjectVersion=" + hubProjectVersion + ", fortifyApplicationId=" + fortifyApplicationId + "]";
     }
+
 }

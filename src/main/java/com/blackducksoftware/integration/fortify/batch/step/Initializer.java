@@ -48,7 +48,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
-import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 
@@ -75,15 +75,16 @@ public class Initializer implements Tasklet, StepExecutionListener {
         logger.debug("Found Mapping file:: " + PropertyConstants.getMappingJsonPath());
 
         // Create the mapping between Hub and Fortify
-        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
+        final List<BlackDuckFortifyMapperGroup> groupMap = MappingParser
                 .createMapping(PropertyConstants.getMappingJsonPath());
-        logger.info("blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
+        logger.info("blackDuckFortifyMappers :" + groupMap.toString());
 
         // Create the threads for parallel processing
         ExecutorService exec = Executors.newFixedThreadPool(PropertyConstants.getMaximumThreadSize());
-        List<Future<?>> futures = new ArrayList<>(blackDuckFortifyMappers.size());
-        for (BlackDuckFortifyMapper blackDuckFortifyMapper : blackDuckFortifyMappers) {
-            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapper)));
+        List<Future<?>> futures = new ArrayList<>(groupMap.size());
+
+        for (BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup : groupMap) {
+            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup)));
         }
         for (Future<?> f : futures) {
             f.get(); // wait for a processor to complete
@@ -113,10 +114,13 @@ public class Initializer implements Tasklet, StepExecutionListener {
                     new OutputStreamWriter(new FileOutputStream(PropertyConstants.getBatchJobStatusFilePath()), "utf-8"))) {
                 writer.write(startJobTimeStamp);
             } catch (UnsupportedEncodingException e) {
+                logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             } catch (FileNotFoundException e) {
+                logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             } catch (IOException e) {
+                logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             }
         }

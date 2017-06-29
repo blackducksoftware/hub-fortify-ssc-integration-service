@@ -20,37 +20,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.fortify.model;
-
-import java.util.List;
+package com.blackducksoftware.integration.fortify.batch.model;
 
 /**
- * Holder for Gson conversion from Fortify API json response to Java objects
+ * This class is used to store the Hub Project Versions for grouped mappings.
  *
  * @author hsathe
  *
  */
-public final class FortifyApplicationResponse {
-    private final List<Data> data;
+public final class HubProjectVersion {
+    private final String hubProject;
 
-    private final int responseCode;
+    private final String hubProjectVersion;
 
-    public FortifyApplicationResponse(List<Data> data, int responseCode) {
-        this.data = data;
-        this.responseCode = responseCode;
+    /**
+     * @param hubProject
+     * @param hubProjectVersion
+     */
+    public HubProjectVersion(String hubProject, String hubProjectVersion) {
+        this.hubProject = hubProject;
+        this.hubProjectVersion = hubProjectVersion;
     }
 
-    public List<Data> getData() {
-        return data;
+    public String getHubProject() {
+        return hubProject;
     }
 
-    public int getResponseCode() {
-        return responseCode;
+    public String getHubProjectVersion() {
+        return hubProjectVersion;
     }
 
     @Override
     public String toString() {
-        return "FortifyApplicationResponse [data=" + data + ", responseCode=" + responseCode + "]";
+        return "HubProjectVersion [hubProject=" + hubProject + ", hubProjectVersion=" + hubProjectVersion + "]";
     }
 
 }

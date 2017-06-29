@@ -22,6 +22,7 @@
  */
 package com.blackducksoftware.integration.fortify.batch.util;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,10 +35,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
-import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.model.view.ProjectView;
+import com.google.gson.JsonIOException;
 
 import junit.framework.TestCase;
 
@@ -50,26 +52,12 @@ public class HubServicesTest extends TestCase {
 
     @Override
     @Before
-    public void setUp() {
-        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
+    public void setUp() throws JsonIOException, IOException, IntegrationException {
+        final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = MappingParser
                 .createMapping(PropertyConstants.getMappingJsonPath());
-        PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProject();
-        VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion();
+        PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProject();
+        VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProjectVersion();
     }
-
-    /* @Test
-    public void getAllProjects() {
-        System.out.println("Executing getAllProjects");
-        List<ProjectView> projects = null;
-        try {
-            projects = HubServices.getAllProjects();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IntegrationException e) {
-            e.printStackTrace();
-        }
-        assertNotNull(projects);
-    }*/
 
     @Test
     public void getProjectVersionsByProject() {
@@ -151,6 +139,7 @@ public class HubServicesTest extends TestCase {
 
     @Test
     public void getBomLastUpdatedAt() throws IllegalArgumentException, IntegrationException {
+        System.out.println("Executing getBomLastUpdatedAt");
         ProjectVersionView projectVersionItem = null;
         try {
             projectVersionItem = HubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
