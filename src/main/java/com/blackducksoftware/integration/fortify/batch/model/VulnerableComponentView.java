@@ -31,23 +31,22 @@ import com.google.gson.annotations.SerializedName;
  * @author smanikantan
  *
  */
-public class VulnerableComponentView extends HubView {
-    private String componentName;
+public final class VulnerableComponentView extends HubView {
+    private final String componentName;
 
-    private String componentVersionName;
+    private final String componentVersionName;
 
-    private String componentVersionOriginName;
+    private final String componentVersionOriginName;
 
-    private String componentVersionOriginId;
+    private final String componentVersionOriginId;
 
     @SerializedName("componentVersion")
-    private String componentVersionLink;
+    private final String componentVersionLink;
 
-    private VulnerabilityWithRemediationView vulnerabilityWithRemediation;
+    private final VulnerabilityWithRemediationView vulnerabilityWithRemediation;
 
     public VulnerableComponentView(String componentName, String componentVersionName, String componentVersionOriginName, String componentVersionOriginId,
             String componentVersionLink, VulnerabilityWithRemediationView vulnerabilityWithRemediation) {
-        super();
         this.componentName = componentName;
         this.componentVersionName = componentVersionName;
         this.componentVersionOriginName = componentVersionOriginName;

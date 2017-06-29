@@ -32,7 +32,6 @@ public final class FileToken {
     private final String fileTokenType;
 
     public FileToken(String fileTokenType) {
-        super();
         this.fileTokenType = fileTokenType;
     }
 

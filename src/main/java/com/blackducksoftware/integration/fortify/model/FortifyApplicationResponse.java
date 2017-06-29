@@ -36,7 +36,6 @@ public final class FortifyApplicationResponse {
     private final int responseCode;
 
     public FortifyApplicationResponse(List<Data> data, int responseCode) {
-        super();
         this.data = data;
         this.responseCode = responseCode;
     }

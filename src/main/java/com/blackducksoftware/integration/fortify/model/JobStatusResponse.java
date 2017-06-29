@@ -58,7 +58,6 @@ public final class JobStatusResponse implements Serializable {
     }
 
     public JobStatusResponse(int code, String message, String id, String invokingUserName, int jobType, int jobState) {
-        super();
         this.code = code;
         this.message = message;
         this.id = id;
