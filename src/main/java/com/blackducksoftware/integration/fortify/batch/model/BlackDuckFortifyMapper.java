@@ -40,7 +40,6 @@ public final class BlackDuckFortifyMapper implements Serializable {
     private final String fortifyApplicationVersion;
 
     public BlackDuckFortifyMapper(String hubProject, String hubProjectVersion, String fortifyApplication, String fortifyApplicationVersion) {
-        super();
         this.hubProject = hubProject;
         this.hubProjectVersion = hubProjectVersion;
         this.fortifyApplication = fortifyApplication;

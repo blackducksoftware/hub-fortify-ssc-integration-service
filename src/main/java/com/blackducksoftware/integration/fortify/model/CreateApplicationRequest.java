@@ -39,7 +39,6 @@ public final class CreateApplicationRequest implements Serializable {
     private final String issueTemplateId;
 
     public CreateApplicationRequest(String name, String description, Boolean active, Boolean committed, Project project, String issueTemplateId) {
-        super();
         this.name = name;
         this.description = description;
         this.active = active;
@@ -99,7 +98,6 @@ public final class CreateApplicationRequest implements Serializable {
         }
 
         public Project(String id, String name, String description, String issueTemplateId) {
-            super();
             this.id = id;
             this.name = name;
             this.description = description;

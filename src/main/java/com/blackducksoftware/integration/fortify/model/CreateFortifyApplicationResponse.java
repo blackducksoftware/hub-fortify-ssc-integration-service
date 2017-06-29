@@ -26,7 +26,6 @@ public final class CreateFortifyApplicationResponse {
     private final Data data;
 
     public CreateFortifyApplicationResponse(Data data) {
-        super();
         this.data = data;
     }
 

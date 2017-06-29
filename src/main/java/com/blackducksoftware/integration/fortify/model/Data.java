@@ -36,7 +36,6 @@ public final class Data {
     private final Project project;
 
     public Data(Integer id, String name, Project project) {
-        super();
         this.id = id;
         this.name = name;
         this.project = project;

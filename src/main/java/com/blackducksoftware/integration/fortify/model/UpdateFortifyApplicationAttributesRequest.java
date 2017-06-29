@@ -33,7 +33,6 @@ public final class UpdateFortifyApplicationAttributesRequest implements Serializ
     private final Object value;
 
     public UpdateFortifyApplicationAttributesRequest(Integer attributeDefinitionId, List<Value> values, Object value) {
-        super();
         this.attributeDefinitionId = attributeDefinitionId;
         this.values = values;
         this.value = value;

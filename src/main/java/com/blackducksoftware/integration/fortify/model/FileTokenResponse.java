@@ -34,7 +34,6 @@ public final class FileTokenResponse {
     private final int responseCode;
 
     public FileTokenResponse(Data data, int responseCode) {
-        super();
         this.data = data;
         this.responseCode = responseCode;
     }

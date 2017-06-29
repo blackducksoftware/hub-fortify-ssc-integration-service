@@ -38,7 +38,6 @@ public final class HubProjectVersion {
      * @param hubProjectVersion
      */
     public HubProjectVersion(String hubProject, String hubProjectVersion) {
-        super();
         this.hubProject = hubProject;
         this.hubProjectVersion = hubProjectVersion;
     }

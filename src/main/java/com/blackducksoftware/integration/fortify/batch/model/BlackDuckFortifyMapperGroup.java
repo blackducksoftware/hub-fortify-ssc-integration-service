@@ -48,7 +48,6 @@ public final class BlackDuckFortifyMapperGroup implements Serializable {
      */
     public BlackDuckFortifyMapperGroup(String fortifyApplication, String fortifyApplicationVersion, List<HubProjectVersion> hubProjectVersion,
             int fortifyApplicationId) {
-        super();
         this.fortifyApplication = fortifyApplication;
         this.fortifyApplicationVersion = fortifyApplicationVersion;
         this.hubProjectVersion = hubProjectVersion;
