@@ -24,6 +24,9 @@ package com.blackducksoftware.integration.fortify.service;
 
 import java.io.IOException;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.batch.util.FortifyExceptionUtil;
+
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
@@ -43,7 +46,7 @@ import okhttp3.logging.HttpLoggingInterceptor.Level;
 public abstract class FortifyService {
     public static Builder getHeader(String userName, String password) {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(Level.BASIC);
+        logging.setLevel(Level.NONE);
         OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
 
         okBuilder.authenticator(new Authenticator() {
@@ -52,6 +55,11 @@ public abstract class FortifyService {
             public Request authenticate(Route route, Response response) throws IOException {
                 String credential = Credentials.basic(userName, password);
                 if (credential.equals(response.request().header("Authorization"))) {
+                    try {
+                        FortifyExceptionUtil.verifyFortifyCustomException(response.code(), "Unauthorized access of Fortify Api");
+                    } catch (IntegrationException e) {
+                        throw new RuntimeException(e);
+                    }
                     return null;
                 }
                 return response.request().newBuilder().header("Authorization", credential).build();
