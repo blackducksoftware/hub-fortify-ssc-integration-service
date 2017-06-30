@@ -46,9 +46,8 @@ import okhttp3.logging.HttpLoggingInterceptor.Level;
 public abstract class FortifyService {
     public static Builder getHeader(String userName, String password) {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(Level.NONE);
+        logging.setLevel(Level.BASIC);
         OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
-
         okBuilder.authenticator(new Authenticator() {
 
             @Override
@@ -58,7 +57,7 @@ public abstract class FortifyService {
                     try {
                         FortifyExceptionUtil.verifyFortifyCustomException(response.code(), "Unauthorized access of Fortify Api");
                     } catch (IntegrationException e) {
-                        throw new RuntimeException(e);
+                        throw new IOException(e);
                     }
                     return null;
                 }
