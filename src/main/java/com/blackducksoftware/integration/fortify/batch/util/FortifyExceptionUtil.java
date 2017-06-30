@@ -40,6 +40,9 @@ public final class FortifyExceptionUtil {
         case 400:
             logger.error("Response code::" + responseCode + " ~ " + "Unauthorized access of " + apiName);
             throw new IntegrationException("Response code::" + responseCode + " ~ " + "Unauthorized access of " + apiName);
+        case 401:
+            logger.error("Response code::" + responseCode + " ~ " + apiName);
+            throw new IntegrationException("Response code::" + responseCode + " ~ " + apiName);
         case 403:
             logger.error("Response code::" + responseCode + " ~ " + "Forbidden request of " + apiName);
             throw new IntegrationException("Response code::" + responseCode + " ~ " + "Forbidden request of " + apiName);
