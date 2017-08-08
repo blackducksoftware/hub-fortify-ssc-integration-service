@@ -28,6 +28,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
 
+/**
+ * This class will hold all the key value pairs that are specified in the attributes.properties file
+ *
+ * @author smanikantan
+ *
+ */
 public class AttributeConstants {
 
     private static final Properties properties = new Properties();
