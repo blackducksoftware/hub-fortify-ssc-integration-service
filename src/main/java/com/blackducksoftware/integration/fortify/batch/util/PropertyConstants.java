@@ -139,11 +139,25 @@ public class PropertyConstants {
         PropertyConstants.mappingJsonPath = mappingJsonPath;
     }
 
+    private static String attributeFilePath;
+
+    @Value("${attribute.file}")
+    public void setAttributeFilePath(String attributeFilePath) {
+        PropertyConstants.attributeFilePath = attributeFilePath;
+    }
+
     private static int maximumThreadSize;
 
     @Value("${maximum.thread.size}")
     public void setMaximumThreadSize(int maximumThreadSize) {
         PropertyConstants.maximumThreadSize = maximumThreadSize;
+    }
+
+    private static boolean batchJobStatusCheck;
+
+    @Value("${batch.job.status.check}")
+    public void setBatchJobStatusCheck(boolean batchJobStatusCheck) {
+        PropertyConstants.batchJobStatusCheck = batchJobStatusCheck;
     }
 
     public static String getHubUserName() {
@@ -206,7 +220,16 @@ public class PropertyConstants {
         return mappingJsonPath;
     }
 
+    public static String getAttributeFilePath() {
+        return attributeFilePath;
+    }
+
     public static int getMaximumThreadSize() {
         return maximumThreadSize;
     }
+
+    public static boolean isBatchJobStatusCheck() {
+        return batchJobStatusCheck;
+    }
+
 }

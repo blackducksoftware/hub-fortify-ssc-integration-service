@@ -97,11 +97,13 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
         // Get the project version view from Hub and calculate the max BOM updated date
         final List<ProjectVersionView> projectVersionItems = getProjectVersionItemsAndMaxBomUpdatedDate(hubProjectVersions);
         logger.info("Compare Dates: "
-                + ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)));
-        logger.debug("getLastSuccessfulJobRunTime::" + getLastSuccessfulJobRunTime);
+                + ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)
+                        || (!PropertyConstants.isBatchJobStatusCheck())));
         logger.debug("maxBomUpdatedDate:: " + maxBomUpdatedDate);
+        logger.debug("isBatchJobStatusCheck::" + PropertyConstants.isBatchJobStatusCheck());
 
-        if ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)) {
+        if ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)
+                || (!PropertyConstants.isBatchJobStatusCheck())) {
             // Get the vulnerabilities for all Hub project versions and merge it
             List<Vulnerability> mergedVulnerabilities = mergeVulnerabilities(hubProjectVersions, projectVersionItems);
             if (mergedVulnerabilities.size() > 0) {
@@ -172,6 +174,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
             throws IllegalArgumentException, IntegrationException {
         int index = 0;
         List<Vulnerability> mergedVulnerabilities = new ArrayList<>();
+
         for (HubProjectVersion hubProjectVersion : hubProjectVersions) {
 
             // Get the Vulnerability information

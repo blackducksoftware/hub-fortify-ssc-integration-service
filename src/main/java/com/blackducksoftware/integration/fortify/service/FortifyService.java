@@ -55,7 +55,7 @@ public abstract class FortifyService {
                 String credential = Credentials.basic(userName, password);
                 if (credential.equals(response.request().header("Authorization"))) {
                     try {
-                        FortifyExceptionUtil.verifyFortifyCustomException(response.code(), "Unauthorized access of Fortify Api");
+                        FortifyExceptionUtil.verifyFortifyResponseCode(response.code(), "Unauthorized access of Fortify Api");
                     } catch (IntegrationException e) {
                         throw new IOException(e);
                     }

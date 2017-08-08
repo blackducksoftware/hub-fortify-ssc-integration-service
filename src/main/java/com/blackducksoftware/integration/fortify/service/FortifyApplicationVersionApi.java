@@ -64,7 +64,7 @@ public final class FortifyApplicationVersionApi extends FortifyService {
     public static FortifyApplicationResponse getApplicationVersionByName(String fields, String filter) throws IOException, IntegrationException {
         Call<FortifyApplicationResponse> apiApplicationResponseCall = apiService.getApplicationVersionByName(fields, filter);
         FortifyApplicationResponse applicationAPIResponse = apiApplicationResponseCall.execute().body();
-        FortifyExceptionUtil.verifyFortifyCustomException(applicationAPIResponse.getResponseCode(), "Fortify Get Application Version Api");
+        FortifyExceptionUtil.verifyFortifyResponseCode(applicationAPIResponse.getResponseCode(), "Fortify Get Application Version Api");
         return applicationAPIResponse;
     }
 
@@ -86,7 +86,7 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         int response;
         try {
             response = apiApplicationResponseCall.execute().code();
-            FortifyExceptionUtil.verifyFortifyCustomException(response, "Fortify Update Application Version Api");
+            FortifyExceptionUtil.verifyFortifyResponseCode(response, "Fortify Update Application Version Api");
         } catch (IOException e) {
             logger.error("Unable to updateApplicationVersion ", e);
             throw new IOException("Unable to updateApplicationVersion ", e);
@@ -99,7 +99,7 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         int response;
         try {
             response = apiApplicationResponseCall.execute().code();
-            FortifyExceptionUtil.verifyFortifyCustomException(response, "Fortify Commit Application Version Api");
+            FortifyExceptionUtil.verifyFortifyResponseCode(response, "Fortify Commit Application Version Api");
         } catch (IOException e) {
             logger.error("Unable to commitApplicationVersion ", e);
             throw new IOException("Unable to commitApplicationVersion ", e);

@@ -69,7 +69,7 @@ public final class FortifyFileTokenApi extends FortifyService {
         FileTokenResponse fileTokenResponse;
         try {
             fileTokenResponse = fileTokenResponseCall.execute().body();
-            FortifyExceptionUtil.verifyFortifyCustomException(fileTokenResponse.getResponseCode(), "Fortify Upload Get File Token Api");
+            FortifyExceptionUtil.verifyFortifyResponseCode(fileTokenResponse.getResponseCode(), "Fortify Upload Get File Token Api");
         } catch (IOException e) {
             logger.error("Error while retrieving the file token for upload", e);
             throw new IOException("Error while retrieving the file token for upload", e);
@@ -89,7 +89,7 @@ public final class FortifyFileTokenApi extends FortifyService {
         int responseCode;
         try {
             responseCode = deleteTokenResponseCall.execute().code();
-            FortifyExceptionUtil.verifyFortifyCustomException(responseCode, "Fortify Upload Delete File Token Api");
+            FortifyExceptionUtil.verifyFortifyResponseCode(responseCode, "Fortify Upload Delete File Token Api");
         } catch (IOException e) {
             logger.error("Error while deleting the file token for upload", e);
             throw new IOException("Error while deleting the file token for upload", e);
