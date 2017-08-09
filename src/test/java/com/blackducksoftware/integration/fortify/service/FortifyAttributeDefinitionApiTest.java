@@ -30,6 +30,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.model.FortifyAttributeDefinitionResponse;
 
@@ -41,7 +42,8 @@ public class FortifyAttributeDefinitionApiTest extends TestCase {
 
     @Test
     public void getApplicationAttributeDefinition() throws IOException, IntegrationException {
-        FortifyAttributeDefinitionResponse fortifyAttributeDefintionResponse = FortifyAttributeDefinitionApi.getAttributeDefinitions();
+        FortifyAttributeDefinitionResponse fortifyAttributeDefintionResponse = new SpringConfiguration().getFortifyAttributeDefinitionApi()
+                .getAttributeDefinitions();
         System.out.println(fortifyAttributeDefintionResponse);
         assertNotNull(fortifyAttributeDefintionResponse);
     }

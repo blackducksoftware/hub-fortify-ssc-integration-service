@@ -40,19 +40,17 @@ import java.util.concurrent.Callable;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.model.HubProjectVersion;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.fortify.batch.util.CSVUtils;
 import com.blackducksoftware.integration.fortify.batch.util.FortifyExceptionUtil;
-import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.batch.util.VulnerabilityUtil;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.JobStatusResponse;
-import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
-import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -80,8 +78,11 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
 
     private final static Logger logger = Logger.getLogger(BlackDuckFortifyPushThread.class);
 
+    private SpringConfiguration springConfiguration;
+
     public BlackDuckFortifyPushThread(BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup) {
         this.blackDuckFortifyMapperGroup = blackDuckFortifyMapperGroup;
+        springConfiguration = new SpringConfiguration();
     }
 
     @Override
@@ -125,7 +126,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
                 uploadCSV(token, fileDir + fileName, blackDuckFortifyMapperGroup.getFortifyApplicationId());
 
                 // Delete the file token that is created for upload
-                FortifyFileTokenApi.deleteFileToken();
+                springConfiguration.getFortifyFileTokenApi().deleteFileToken();
             }
         }
         return true;
@@ -148,9 +149,9 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
             String projectVersion = hubProjectVersion.getHubProjectVersion();
 
             // Get the project version
-            final ProjectVersionView projectVersionItem = HubServices.getProjectVersion(projectName, projectVersion);
+            final ProjectVersionView projectVersionItem = springConfiguration.getHubServices().getProjectVersion(projectName, projectVersion);
             projectVersionItems.add(projectVersionItem);
-            Date bomUpdatedValueAt = HubServices.getBomLastUpdatedAt(projectVersionItem);
+            Date bomUpdatedValueAt = springConfiguration.getHubServices().getBomLastUpdatedAt(projectVersionItem);
 
             if (maxBomUpdatedDate == null || bomUpdatedValueAt.after(maxBomUpdatedDate)) {
                 maxBomUpdatedDate = bomUpdatedValueAt;
@@ -178,7 +179,8 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
         for (HubProjectVersion hubProjectVersion : hubProjectVersions) {
 
             // Get the Vulnerability information
-            final List<VulnerableComponentView> vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItems.get(index));
+            final List<VulnerableComponentView> vulnerableComponentViews = springConfiguration.getHubServices()
+                    .getVulnerabilityComponentViews(projectVersionItems.get(index));
             index++;
 
             // Convert the Hub Vulnerability component view to CSV Vulnerability object
@@ -238,7 +240,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
      */
     private String getFileToken() throws IOException, IntegrationException {
         FileToken fileToken = new FileToken("UPLOAD");
-        return FortifyFileTokenApi.getFileToken(fileToken);
+        return springConfiguration.getFortifyFileTokenApi().getFileToken(fileToken);
     }
 
     /**
@@ -254,7 +256,8 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
         File file = new File(fileName);
         logger.debug("Uploading " + file.getName() + " to fortify");
         // Call Fortify upload
-        final JobStatusResponse uploadVulnerabilityResponseBody = FortifyUploadApi.uploadVulnerabilityByProjectVersion(token, fortifyApplicationId, file);
+        final JobStatusResponse uploadVulnerabilityResponseBody = springConfiguration.getFortifyUploadApi().uploadVulnerabilityByProjectVersion(token,
+                fortifyApplicationId, file);
         logger.debug("uploadVulnerabilityResponseBody:: " + uploadVulnerabilityResponseBody);
 
         // Check if the upload is submitted successfully, if not don't delete the CSV files. It can be used for

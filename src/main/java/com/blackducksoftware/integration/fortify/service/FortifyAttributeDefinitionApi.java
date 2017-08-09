@@ -35,7 +35,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class FortifyAttributeDefinitionApi extends FortifyService {
+public final class FortifyAttributeDefinitionApi extends FortifyService {
     private final static String FILTER_REQUIRE_ATTRIBUTE = "required:true";
 
     private final static String FIELDS_ATTRIBUTE = "id,name,category,type,options,required";
@@ -48,7 +48,7 @@ public class FortifyAttributeDefinitionApi extends FortifyService {
 
     private final static FortifyAttributeDefinitionApiService apiService = retrofit.create(FortifyAttributeDefinitionApiService.class);
 
-    public static FortifyAttributeDefinitionResponse getAttributeDefinitions() throws IOException, IntegrationException {
+    public FortifyAttributeDefinitionResponse getAttributeDefinitions() throws IOException, IntegrationException {
         Call<FortifyAttributeDefinitionResponse> apiApplicationResponseCall = apiService.getAttributeDefinitions(FIELDS_ATTRIBUTE, FILTER_REQUIRE_ATTRIBUTE);
         Response<FortifyAttributeDefinitionResponse> applicationAPIResponse = apiApplicationResponseCall.execute();
         FortifyExceptionUtil.verifyFortifyResponseCode(applicationAPIResponse.code(), "Fortify Get Application Attributes Api");

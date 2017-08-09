@@ -61,14 +61,14 @@ public final class FortifyApplicationVersionApi extends FortifyService {
 
     private final static FortifyApplicationVersionApiService apiService = retrofit.create(FortifyApplicationVersionApiService.class);
 
-    public static FortifyApplicationResponse getApplicationVersionByName(String fields, String filter) throws IOException, IntegrationException {
+    public FortifyApplicationResponse getApplicationVersionByName(String fields, String filter) throws IOException, IntegrationException {
         Call<FortifyApplicationResponse> apiApplicationResponseCall = apiService.getApplicationVersionByName(fields, filter);
         FortifyApplicationResponse applicationAPIResponse = apiApplicationResponseCall.execute().body();
         FortifyExceptionUtil.verifyFortifyResponseCode(applicationAPIResponse.getResponseCode(), "Fortify Get Application Version Api");
         return applicationAPIResponse;
     }
 
-    public static int createApplicationVersion(CreateApplicationRequest request) throws IOException {
+    public int createApplicationVersion(CreateApplicationRequest request) throws IOException {
         Call<CreateFortifyApplicationResponse> apiApplicationResponseCall = apiService.createApplicationVersion(request);
         CreateFortifyApplicationResponse applicationAPIResponse;
         try {
@@ -80,7 +80,7 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         return applicationAPIResponse.getData().getId();
     }
 
-    public static int updateApplicationAttributes(int parentId, List<UpdateFortifyApplicationAttributesRequest> request)
+    public int updateApplicationAttributes(int parentId, List<UpdateFortifyApplicationAttributesRequest> request)
             throws IOException, IntegrationException {
         Call<ResponseBody> apiApplicationResponseCall = apiService.updateApplicationAttributes(parentId, request);
         int response;
@@ -94,7 +94,7 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         return response;
     }
 
-    public static int commitApplicationVersion(int id, CommitFortifyApplicationRequest request) throws IOException, IntegrationException {
+    public int commitApplicationVersion(int id, CommitFortifyApplicationRequest request) throws IOException, IntegrationException {
         Call<ResponseBody> apiApplicationResponseCall = apiService.commitApplicationVersion(id, request);
         int response;
         try {
@@ -103,6 +103,19 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         } catch (IOException e) {
             logger.error("Unable to commitApplicationVersion ", e);
             throw new IOException("Unable to commitApplicationVersion ", e);
+        }
+        return response;
+    }
+
+    public int deleteApplicationVersion(int id) throws IOException, IntegrationException {
+        Call<ResponseBody> apiApplicationResponseCall = apiService.deleteApplicationVersion(id);
+        int response;
+        try {
+            response = apiApplicationResponseCall.execute().code();
+            FortifyExceptionUtil.verifyFortifyResponseCode(response, "Fortify Delete Application Version Api");
+        } catch (IOException e) {
+            logger.error("Unable to deleteApplicationVersion ", e);
+            throw new IOException("Unable to deleteApplicationVersion ", e);
         }
         return response;
     }

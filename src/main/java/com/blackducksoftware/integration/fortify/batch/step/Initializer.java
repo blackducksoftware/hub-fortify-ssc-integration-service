@@ -48,8 +48,8 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
+import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
-import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 
 /**
@@ -75,8 +75,7 @@ public class Initializer implements Tasklet, StepExecutionListener {
         logger.debug("Found Mapping file:: " + PropertyConstants.getMappingJsonPath());
 
         // Create the mapping between Hub and Fortify
-        final List<BlackDuckFortifyMapperGroup> groupMap = MappingParser
-                .createMapping(PropertyConstants.getMappingJsonPath());
+        final List<BlackDuckFortifyMapperGroup> groupMap = new SpringConfiguration().getMappingParser().createMapping(PropertyConstants.getMappingJsonPath());
         logger.info("blackDuckFortifyMappers :" + groupMap.toString());
 
         // Create the threads for parallel processing

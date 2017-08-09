@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 
@@ -49,7 +50,7 @@ public class MappingParserTest extends TestCase {
         System.out.println("Executing testMappingFileParser");
         List<BlackDuckFortifyMapperGroup> mapping;
         try {
-            mapping = MappingParser.createMapping(PropertyConstants.getMappingJsonPath());
+            mapping = new SpringConfiguration().getMappingParser().createMapping(PropertyConstants.getMappingJsonPath());
             assertNotNull(mapping);
         } catch (Exception e) {
             e.printStackTrace();

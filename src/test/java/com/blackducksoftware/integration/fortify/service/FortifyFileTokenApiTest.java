@@ -26,42 +26,24 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 
 import junit.framework.TestCase;
-import okhttp3.OkHttpClient;
 
-@RunWith(PowerMockRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = TestApplication.class)
-@PowerMockRunnerDelegate(SpringRunner.class)
-@PrepareForTest({ FortifyService.class, OkHttpClient.class, OkHttpClient.Builder.class, FortifyFileTokenApi.class })
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = TestApplication.class)
 public class FortifyFileTokenApiTest extends TestCase {
+    private SpringConfiguration springConfiguration;
 
     @Override
     @Before
     public void setUp() {
-
-        PowerMockito.mockStatic(OkHttpClient.Builder.class);
-        OkHttpClient.Builder builder = Mockito.mock(OkHttpClient.Builder.class);
-
-        PowerMockito.mockStatic(FortifyService.class);
-        Mockito.when(FortifyService.getHeader(Mockito.anyString(), Mockito.anyString())).thenReturn(builder);
-
-        PowerMockito.mockStatic(OkHttpClient.class);
-        OkHttpClient okHttpClient = Mockito.mock(OkHttpClient.class);
-        Mockito.when(builder.build()).thenReturn(okHttpClient);
-
-        PowerMockito.mockStatic(FortifyFileTokenApi.class);
+        springConfiguration = new SpringConfiguration();
     }
 
     @Test
@@ -69,11 +51,7 @@ public class FortifyFileTokenApiTest extends TestCase {
         System.out.println("Executing getFileToken");
         FileToken fileToken = new FileToken("UPLOAD");
 
-        String token = "ABCDEFG";
-
-        Mockito.when(FortifyFileTokenApi.getFileToken(Mockito.any())).thenReturn(token);
-
-        String fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
+        String fileTokenResponse = springConfiguration.getFortifyFileTokenApi().getFileToken(fileToken);
         System.out.println("fileTokenResponse::" + fileTokenResponse);
         Assert.assertNotNull(fileTokenResponse);
     }
@@ -81,9 +59,7 @@ public class FortifyFileTokenApiTest extends TestCase {
     @Test
     public void deleteFileToken() throws Exception {
         System.out.println("Executing deleteFileToken");
-        Mockito.when(FortifyFileTokenApi.deleteFileToken()).thenReturn(200);
-
-        int responseCode = FortifyFileTokenApi.deleteFileToken();
+        int responseCode = springConfiguration.getFortifyFileTokenApi().deleteFileToken();
         System.out.println("Response code::" + responseCode);
     }
 
