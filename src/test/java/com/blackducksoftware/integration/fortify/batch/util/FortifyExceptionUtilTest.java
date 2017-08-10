@@ -39,25 +39,25 @@ public class FortifyExceptionUtilTest extends TestCase {
     public void verifyCustomException() {
         System.out.println("Executing verifyCustomException");
         try {
-            FortifyExceptionUtil.verifyFortifyCustomException(200, "Create Fortify Application Version API");
-            FortifyExceptionUtil.verifyFortifyCustomException(201, "Update Fortify Application Version API");
+            FortifyExceptionUtil.verifyFortifyResponseCode(200, "Create Fortify Application Version API");
+            FortifyExceptionUtil.verifyFortifyResponseCode(201, "Update Fortify Application Version API");
             try {
-                FortifyExceptionUtil.verifyFortifyCustomException(400, "Create Fortify Application Version API");
+                FortifyExceptionUtil.verifyFortifyResponseCode(400, "Create Fortify Application Version API");
             } catch (IntegrationException e) {
                 // do nothing
             }
             try {
-                FortifyExceptionUtil.verifyFortifyCustomException(403, "Create Fortify Application Version API");
+                FortifyExceptionUtil.verifyFortifyResponseCode(403, "Create Fortify Application Version API");
             } catch (IntegrationException e) {
                 // do nothing
             }
             try {
-                FortifyExceptionUtil.verifyFortifyCustomException(404, "Create Fortify Application Version API");
+                FortifyExceptionUtil.verifyFortifyResponseCode(404, "Create Fortify Application Version API");
             } catch (IntegrationException e) {
                 // do nothing
             }
             try {
-                FortifyExceptionUtil.verifyFortifyCustomException(500, "Create Fortify Application Version API");
+                FortifyExceptionUtil.verifyFortifyResponseCode(500, "Create Fortify Application Version API");
             } catch (IntegrationException e) {
                 // do nothing
             }

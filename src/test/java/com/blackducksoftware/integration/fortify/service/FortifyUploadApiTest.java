@@ -25,68 +25,48 @@ package com.blackducksoftware.integration.fortify.service;
 import java.io.File;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
+import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.JobStatusResponse;
 
 import junit.framework.TestCase;
-import okhttp3.OkHttpClient;
 
-@RunWith(PowerMockRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = TestApplication.class)
-@PowerMockRunnerDelegate(SpringRunner.class)
-@PrepareForTest({ FortifyService.class, OkHttpClient.class, OkHttpClient.Builder.class, FortifyFileTokenApi.class, FortifyUploadApi.class })
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = TestApplication.class)
 public class FortifyUploadApiTest extends TestCase {
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
+
+    @Override
+    @Before
+    public void setUp() {
+        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
+    }
 
     @Test
     public void uploadCSVFile() throws Exception {
         System.out.println("Executing uploadCSVFile");
         FileToken fileToken = new FileToken("UPLOAD");
 
-        PowerMockito.mockStatic(OkHttpClient.Builder.class);
-        OkHttpClient.Builder builder = Mockito.mock(OkHttpClient.Builder.class);
-
-        PowerMockito.mockStatic(FortifyService.class);
-        Mockito.when(FortifyService.getHeader(Mockito.anyString(), Mockito.anyString())).thenReturn(builder);
-
-        PowerMockito.mockStatic(OkHttpClient.class);
-        OkHttpClient okHttpClient = Mockito.mock(OkHttpClient.class);
-        Mockito.when(builder.build()).thenReturn(okHttpClient);
-
-        String token = "ABCDEFG";
-
-        PowerMockito.mockStatic(FortifyFileTokenApi.class);
-        Mockito.when(FortifyFileTokenApi.getFileToken(Mockito.any())).thenReturn(token);
-
-        String fileTokenResponse = FortifyFileTokenApi.getFileToken(fileToken);
+        String fileTokenResponse = blackDuckFortifyJobConfig.getFortifyFileTokenApi().getFileToken(fileToken);
         System.out.println("File Token::" + fileTokenResponse);
-        Assert.assertNotNull(token);
+        Assert.assertNotNull(fileTokenResponse);
 
-        // File file = new File("/Users/smanikantan/Downloads/security.csv");
-        File file = Mockito.mock(File.class);
+        File file = new File("sample.csv");
+        // File file = Mockito.mock(File.class);
         // File file = new
         // File("/Users/smanikantan/Documents/hub-fortify-integration/report/solrWar2_4.10.4_20170510160506866.csv");
         System.out.println("file::" + file);
 
-        JobStatusResponse mockUploadVulnerabilityResponseBody = new JobStatusResponse(-10001, "Background submission succeeded.",
-                "JOB_ARTIFACTUPLOAD$f640bef6-703c-4287-926d-7032baed0d7a", "admin", 10, 0);
-
-        PowerMockito.mockStatic(FortifyUploadApi.class);
-        Mockito.when(FortifyUploadApi.uploadVulnerabilityByProjectVersion(Mockito.anyString(), Mockito.anyLong(), Mockito.any()))
-                .thenReturn(mockUploadVulnerabilityResponseBody);
-
-        JobStatusResponse uploadVulnerabilityResponseBody = FortifyUploadApi.uploadVulnerabilityByProjectVersion(token, 2l, file);
+        JobStatusResponse uploadVulnerabilityResponseBody = blackDuckFortifyJobConfig.getFortifyUploadApi().uploadVulnerabilityByProjectVersion(
+                fileTokenResponse, 2l,
+                file);
         System.out.println("uploadVulnerabilityResponse::" + uploadVulnerabilityResponseBody);
         Assert.assertNotNull(uploadVulnerabilityResponseBody);
     }

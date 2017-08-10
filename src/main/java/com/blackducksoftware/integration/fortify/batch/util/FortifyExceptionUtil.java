@@ -29,7 +29,7 @@ import com.blackducksoftware.integration.exception.IntegrationException;
 public final class FortifyExceptionUtil {
     private final static Logger logger = Logger.getLogger(FortifyExceptionUtil.class);
 
-    public static void verifyFortifyCustomException(int responseCode, String apiName) throws IntegrationException {
+    public static void verifyFortifyResponseCode(int responseCode, String apiName) throws IntegrationException {
         switch (responseCode) {
         case 200:
             logger.info("Response code::" + responseCode + " ~ " + apiName + " executed successfuly");

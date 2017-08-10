@@ -48,13 +48,13 @@ public final class FortifyFileTokenApi extends FortifyService {
 
     private final static Logger logger = Logger.getLogger(FortifyFileTokenApi.class);
 
-    private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
+    private final OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
             PropertyConstants.getFortifyPassword());
 
-    private final static Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getFortifyServerUrl())
+    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getFortifyServerUrl())
             .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
 
-    private final static FortifyFileTokenApiService apiService = retrofit.create(FortifyFileTokenApiService.class);
+    private final FortifyFileTokenApiService apiService = retrofit.create(FortifyFileTokenApiService.class);
 
     /**
      * Get the Fortify File token to upload any files
@@ -64,12 +64,12 @@ public final class FortifyFileTokenApi extends FortifyService {
      * @throws IOException
      * @throws IntegrationException
      */
-    public static String getFileToken(FileToken fileToken) throws IOException, IntegrationException {
+    public String getFileToken(FileToken fileToken) throws IOException, IntegrationException {
         Call<FileTokenResponse> fileTokenResponseCall = apiService.getFileToken(fileToken);
         FileTokenResponse fileTokenResponse;
         try {
             fileTokenResponse = fileTokenResponseCall.execute().body();
-            FortifyExceptionUtil.verifyFortifyCustomException(fileTokenResponse.getResponseCode(), "Fortify Upload Get File Token Api");
+            FortifyExceptionUtil.verifyFortifyResponseCode(fileTokenResponse.getResponseCode(), "Fortify Upload Get File Token Api");
         } catch (IOException e) {
             logger.error("Error while retrieving the file token for upload", e);
             throw new IOException("Error while retrieving the file token for upload", e);
@@ -84,12 +84,12 @@ public final class FortifyFileTokenApi extends FortifyService {
      * @throws IOException
      * @throws IntegrationException
      */
-    public static int deleteFileToken() throws IOException, IntegrationException {
+    public int deleteFileToken() throws IOException, IntegrationException {
         Call<ResponseBody> deleteTokenResponseCall = apiService.deleteFileToken();
         int responseCode;
         try {
             responseCode = deleteTokenResponseCall.execute().code();
-            FortifyExceptionUtil.verifyFortifyCustomException(responseCode, "Fortify Upload Delete File Token Api");
+            FortifyExceptionUtil.verifyFortifyResponseCode(responseCode, "Fortify Upload Delete File Token Api");
         } catch (IOException e) {
             logger.error("Error while deleting the file token for upload", e);
             throw new IOException("Error while deleting the file token for upload", e);

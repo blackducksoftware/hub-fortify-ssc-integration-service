@@ -22,22 +22,24 @@
  */
 package com.blackducksoftware.integration.fortify.service;
 
-import org.junit.Assert;
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
-import com.blackducksoftware.integration.fortify.model.FileToken;
+import com.blackducksoftware.integration.fortify.model.FortifyAttributeDefinitionResponse;
 
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestApplication.class)
-public class FortifyFileTokenApiTest extends TestCase {
+@SpringBootTest(classes = { TestApplication.class })
+public class FortifyAttributeDefinitionApiTest extends TestCase {
     private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
 
     @Override
@@ -47,20 +49,10 @@ public class FortifyFileTokenApiTest extends TestCase {
     }
 
     @Test
-    public void getFileToken() throws Exception {
-        System.out.println("Executing getFileToken");
-        FileToken fileToken = new FileToken("UPLOAD");
-
-        String fileTokenResponse = blackDuckFortifyJobConfig.getFortifyFileTokenApi().getFileToken(fileToken);
-        System.out.println("fileTokenResponse::" + fileTokenResponse);
-        Assert.assertNotNull(fileTokenResponse);
+    public void getApplicationAttributeDefinition() throws IOException, IntegrationException {
+        FortifyAttributeDefinitionResponse fortifyAttributeDefintionResponse = blackDuckFortifyJobConfig.getFortifyAttributeDefinitionApi()
+                .getAttributeDefinitions();
+        System.out.println(fortifyAttributeDefintionResponse);
+        assertNotNull(fortifyAttributeDefintionResponse);
     }
-
-    @Test
-    public void deleteFileToken() throws Exception {
-        System.out.println("Executing deleteFileToken");
-        int responseCode = blackDuckFortifyJobConfig.getFortifyFileTokenApi().deleteFileToken();
-        System.out.println("Response code::" + responseCode);
-    }
-
 }
