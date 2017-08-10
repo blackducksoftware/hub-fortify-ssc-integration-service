@@ -64,7 +64,7 @@ public class SpringConfiguration {
 
     @Bean
     public MappingParser getMappingParser() {
-        return new MappingParser();
+        return new MappingParser(this);
     }
 
 }

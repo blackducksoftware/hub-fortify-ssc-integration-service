@@ -78,11 +78,11 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
 
     private final static Logger logger = Logger.getLogger(BlackDuckFortifyPushThread.class);
 
-    private SpringConfiguration springConfiguration;
+    private final SpringConfiguration springConfiguration;
 
-    public BlackDuckFortifyPushThread(BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup) {
+    public BlackDuckFortifyPushThread(final BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup, final SpringConfiguration springConfiguration) {
         this.blackDuckFortifyMapperGroup = blackDuckFortifyMapperGroup;
-        springConfiguration = new SpringConfiguration();
+        this.springConfiguration = springConfiguration;
     }
 
     @Override

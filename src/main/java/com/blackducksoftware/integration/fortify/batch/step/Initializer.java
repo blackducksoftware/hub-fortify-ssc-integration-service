@@ -67,6 +67,12 @@ public class Initializer implements Tasklet, StepExecutionListener {
 
     private final static Logger logger = Logger.getLogger(Initializer.class);
 
+    private final SpringConfiguration springConfiguration;
+
+    public Initializer(final SpringConfiguration springConfiguration) {
+        this.springConfiguration = springConfiguration;
+    }
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         logger.info("Started MappingParserTask");
@@ -75,7 +81,7 @@ public class Initializer implements Tasklet, StepExecutionListener {
         logger.debug("Found Mapping file:: " + PropertyConstants.getMappingJsonPath());
 
         // Create the mapping between Hub and Fortify
-        final List<BlackDuckFortifyMapperGroup> groupMap = new SpringConfiguration().getMappingParser().createMapping(PropertyConstants.getMappingJsonPath());
+        final List<BlackDuckFortifyMapperGroup> groupMap = springConfiguration.getMappingParser().createMapping(PropertyConstants.getMappingJsonPath());
         logger.info("blackDuckFortifyMappers :" + groupMap.toString());
 
         // Create the threads for parallel processing
@@ -83,7 +89,7 @@ public class Initializer implements Tasklet, StepExecutionListener {
         List<Future<?>> futures = new ArrayList<>(groupMap.size());
 
         for (BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup : groupMap) {
-            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup)));
+            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup, springConfiguration)));
         }
         for (Future<?> f : futures) {
             f.get(); // wait for a processor to complete

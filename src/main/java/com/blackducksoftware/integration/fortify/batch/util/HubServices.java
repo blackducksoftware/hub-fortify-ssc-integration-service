@@ -53,7 +53,7 @@ public final class HubServices {
 
     private final static Logger logger = Logger.getLogger(HubServices.class);
 
-    private HubServicesFactory hubServicesFactory;
+    private final HubServicesFactory hubServicesFactory;
 
     public HubServices(HubServicesFactory hubServicesFactory) {
         this.hubServicesFactory = hubServicesFactory;

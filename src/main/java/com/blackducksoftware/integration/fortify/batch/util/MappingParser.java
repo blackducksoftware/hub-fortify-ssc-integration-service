@@ -74,10 +74,10 @@ public final class MappingParser {
 
     private final static Logger logger = Logger.getLogger(MappingParser.class);
 
-    private SpringConfiguration springConfiguration;
+    private final SpringConfiguration springConfiguration;
 
-    public MappingParser() {
-        springConfiguration = new SpringConfiguration();
+    public MappingParser(final SpringConfiguration springConfiguration) {
+        this.springConfiguration = springConfiguration;
     }
 
     /**

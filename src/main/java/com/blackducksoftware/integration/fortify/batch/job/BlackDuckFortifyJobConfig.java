@@ -43,6 +43,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
+import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.step.Initializer;
 
 /**
@@ -66,13 +67,23 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     private StepBuilderFactory stepBuilderFactory;
 
     /**
+     * Create bean for Spring Configuration
+     *
+     * @return Initializer
+     */
+    @Bean
+    public SpringConfiguration getSpringConfiguration() {
+        return new SpringConfiguration();
+    }
+
+    /**
      * Create new Initializer task
      *
      * @return Initializer
      */
     @Bean
     public Initializer getMappingParserTask() {
-        return new Initializer();
+        return new Initializer(getSpringConfiguration());
     }
 
     /**
