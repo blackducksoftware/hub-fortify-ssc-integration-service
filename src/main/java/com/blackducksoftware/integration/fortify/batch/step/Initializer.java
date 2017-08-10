@@ -49,8 +49,11 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
+import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
+import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
+import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 
 /**
  * This class will be the first step of the batch job and it will be used to parse the Mapping.json and based on the
@@ -67,6 +70,22 @@ public class Initializer implements Tasklet, StepExecutionListener {
 
     private final static Logger logger = Logger.getLogger(Initializer.class);
 
+    private final MappingParser mappingParser;
+
+    private final HubServices hubServices;
+
+    private final FortifyFileTokenApi fortifyFileTokenApi;
+
+    private final FortifyUploadApi fortifyUploadApi;
+
+    public Initializer(final MappingParser mappingParser, final HubServices hubServices, final FortifyFileTokenApi fortifyFileTokenApi,
+            final FortifyUploadApi fortifyUploadApi) {
+        this.mappingParser = mappingParser;
+        this.hubServices = hubServices;
+        this.fortifyFileTokenApi = fortifyFileTokenApi;
+        this.fortifyUploadApi = fortifyUploadApi;
+    }
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         logger.info("Started MappingParserTask");
@@ -75,8 +94,7 @@ public class Initializer implements Tasklet, StepExecutionListener {
         logger.debug("Found Mapping file:: " + PropertyConstants.getMappingJsonPath());
 
         // Create the mapping between Hub and Fortify
-        final List<BlackDuckFortifyMapperGroup> groupMap = MappingParser
-                .createMapping(PropertyConstants.getMappingJsonPath());
+        final List<BlackDuckFortifyMapperGroup> groupMap = mappingParser.createMapping(PropertyConstants.getMappingJsonPath());
         logger.info("blackDuckFortifyMappers :" + groupMap.toString());
 
         // Create the threads for parallel processing
@@ -84,7 +102,7 @@ public class Initializer implements Tasklet, StepExecutionListener {
         List<Future<?>> futures = new ArrayList<>(groupMap.size());
 
         for (BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup : groupMap) {
-            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup)));
+            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup, hubServices, fortifyFileTokenApi, fortifyUploadApi)));
         }
         for (Future<?> f : futures) {
             f.get(); // wait for a processor to complete

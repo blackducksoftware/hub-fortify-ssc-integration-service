@@ -33,6 +33,7 @@ import com.blackducksoftware.integration.fortify.model.UpdateFortifyApplicationA
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
@@ -62,4 +63,8 @@ public interface FortifyApplicationVersionApiService {
     @Headers({ "Accept: application/json", "Content-Type:application/json" })
     @PUT("api/v1/projectVersions/{id}")
     Call<ResponseBody> commitApplicationVersion(@Path("id") int id, @Body CommitFortifyApplicationRequest request);
+
+    @Headers({ "Accept: application/json", "Content-Type:application/json" })
+    @DELETE("api/v1/projectVersions/{id}")
+    Call<ResponseBody> deleteApplicationVersion(@Path("id") int id);
 }

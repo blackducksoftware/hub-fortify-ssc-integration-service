@@ -64,7 +64,7 @@ public final class FortifyUploadApi extends FortifyService {
      * @return
      * @throws Exception
      */
-    public static JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws IOException {
+    public JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws IOException {
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         builder.addFormDataPart("entityId", String.valueOf(entityIdVal));
         builder.addFormDataPart("engineType", "BLACKDUCK");

@@ -30,7 +30,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 group 'com.blackducksoftware.integration.fortify'
-version = '2.0.1'
+version = '2.0.2'
 
 mainClassName = 'com.blackducksoftware.integration.fortify.Application'
 
@@ -112,6 +112,7 @@ distributions {
             	rename {'application.properties'}
             }
             from('src/main/resources/mapping.json') {into 'config/'}
+            from('src/main/resources/attributes.properties') {into 'config/'}
             from('src/main/resources/batch_job_status.txt') {into 'config/'}
             from('src/main/resources/hub-fortify.log') {into 'log/'}
             from('sample.csv') { into 'report/'}

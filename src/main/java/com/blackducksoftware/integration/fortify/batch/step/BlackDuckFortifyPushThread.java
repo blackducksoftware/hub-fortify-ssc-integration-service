@@ -72,7 +72,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  */
 public class BlackDuckFortifyPushThread implements Callable<Boolean> {
 
-    private BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup;
+    private final BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup;
 
     private Date maxBomUpdatedDate;
 
@@ -80,8 +80,18 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
 
     private final static Logger logger = Logger.getLogger(BlackDuckFortifyPushThread.class);
 
-    public BlackDuckFortifyPushThread(BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup) {
+    private final HubServices hubServices;
+
+    private final FortifyFileTokenApi fortifyFileTokenApi;
+
+    private final FortifyUploadApi fortifyUploadApi;
+
+    public BlackDuckFortifyPushThread(final BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup, final HubServices hubServices,
+            final FortifyFileTokenApi fortifyFileTokenApi, final FortifyUploadApi fortifyUploadApi) {
         this.blackDuckFortifyMapperGroup = blackDuckFortifyMapperGroup;
+        this.hubServices = hubServices;
+        this.fortifyFileTokenApi = fortifyFileTokenApi;
+        this.fortifyUploadApi = fortifyUploadApi;
     }
 
     @Override
@@ -97,11 +107,13 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
         // Get the project version view from Hub and calculate the max BOM updated date
         final List<ProjectVersionView> projectVersionItems = getProjectVersionItemsAndMaxBomUpdatedDate(hubProjectVersions);
         logger.info("Compare Dates: "
-                + ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)));
-        logger.debug("getLastSuccessfulJobRunTime::" + getLastSuccessfulJobRunTime);
+                + ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)
+                        || (!PropertyConstants.isBatchJobStatusCheck())));
         logger.debug("maxBomUpdatedDate:: " + maxBomUpdatedDate);
+        logger.debug("isBatchJobStatusCheck::" + PropertyConstants.isBatchJobStatusCheck());
 
-        if ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)) {
+        if ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)
+                || (!PropertyConstants.isBatchJobStatusCheck())) {
             // Get the vulnerabilities for all Hub project versions and merge it
             List<Vulnerability> mergedVulnerabilities = mergeVulnerabilities(hubProjectVersions, projectVersionItems);
             if (mergedVulnerabilities.size() > 0) {
@@ -123,7 +135,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
                 uploadCSV(token, fileDir + fileName, blackDuckFortifyMapperGroup.getFortifyApplicationId());
 
                 // Delete the file token that is created for upload
-                FortifyFileTokenApi.deleteFileToken();
+                fortifyFileTokenApi.deleteFileToken();
             }
         }
         return true;
@@ -146,9 +158,9 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
             String projectVersion = hubProjectVersion.getHubProjectVersion();
 
             // Get the project version
-            final ProjectVersionView projectVersionItem = HubServices.getProjectVersion(projectName, projectVersion);
+            final ProjectVersionView projectVersionItem = hubServices.getProjectVersion(projectName, projectVersion);
             projectVersionItems.add(projectVersionItem);
-            Date bomUpdatedValueAt = HubServices.getBomLastUpdatedAt(projectVersionItem);
+            Date bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
 
             if (maxBomUpdatedDate == null || bomUpdatedValueAt.after(maxBomUpdatedDate)) {
                 maxBomUpdatedDate = bomUpdatedValueAt;
@@ -172,10 +184,11 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
             throws IllegalArgumentException, IntegrationException {
         int index = 0;
         List<Vulnerability> mergedVulnerabilities = new ArrayList<>();
+
         for (HubProjectVersion hubProjectVersion : hubProjectVersions) {
 
             // Get the Vulnerability information
-            final List<VulnerableComponentView> vulnerableComponentViews = HubServices.getVulnerabilityComponentViews(projectVersionItems.get(index));
+            final List<VulnerableComponentView> vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItems.get(index));
             index++;
 
             // Convert the Hub Vulnerability component view to CSV Vulnerability object
@@ -235,7 +248,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
      */
     private String getFileToken() throws IOException, IntegrationException {
         FileToken fileToken = new FileToken("UPLOAD");
-        return FortifyFileTokenApi.getFileToken(fileToken);
+        return fortifyFileTokenApi.getFileToken(fileToken);
     }
 
     /**
@@ -251,7 +264,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
         File file = new File(fileName);
         logger.debug("Uploading " + file.getName() + " to fortify");
         // Call Fortify upload
-        final JobStatusResponse uploadVulnerabilityResponseBody = FortifyUploadApi.uploadVulnerabilityByProjectVersion(token, fortifyApplicationId, file);
+        final JobStatusResponse uploadVulnerabilityResponseBody = fortifyUploadApi.uploadVulnerabilityByProjectVersion(token, fortifyApplicationId, file);
         logger.debug("uploadVulnerabilityResponseBody:: " + uploadVulnerabilityResponseBody);
 
         // Check if the upload is submitted successfully, if not don't delete the CSV files. It can be used for
