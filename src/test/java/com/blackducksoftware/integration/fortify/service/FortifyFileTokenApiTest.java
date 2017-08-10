@@ -29,8 +29,8 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
+import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 
 import junit.framework.TestCase;
@@ -38,12 +38,12 @@ import junit.framework.TestCase;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TestApplication.class)
 public class FortifyFileTokenApiTest extends TestCase {
-    private SpringConfiguration springConfiguration;
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
 
     @Override
     @Before
     public void setUp() {
-        springConfiguration = new SpringConfiguration();
+        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
     }
 
     @Test
@@ -51,7 +51,7 @@ public class FortifyFileTokenApiTest extends TestCase {
         System.out.println("Executing getFileToken");
         FileToken fileToken = new FileToken("UPLOAD");
 
-        String fileTokenResponse = springConfiguration.getFortifyFileTokenApi().getFileToken(fileToken);
+        String fileTokenResponse = blackDuckFortifyJobConfig.getFortifyFileTokenApi().getFileToken(fileToken);
         System.out.println("fileTokenResponse::" + fileTokenResponse);
         Assert.assertNotNull(fileTokenResponse);
     }
@@ -59,7 +59,7 @@ public class FortifyFileTokenApiTest extends TestCase {
     @Test
     public void deleteFileToken() throws Exception {
         System.out.println("Executing deleteFileToken");
-        int responseCode = springConfiguration.getFortifyFileTokenApi().deleteFileToken();
+        int responseCode = blackDuckFortifyJobConfig.getFortifyFileTokenApi().deleteFileToken();
         System.out.println("Response code::" + responseCode);
     }
 

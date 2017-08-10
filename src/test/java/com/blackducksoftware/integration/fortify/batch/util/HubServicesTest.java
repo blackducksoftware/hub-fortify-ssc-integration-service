@@ -34,8 +34,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
+import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
@@ -51,13 +51,13 @@ public class HubServicesTest extends TestCase {
 
     private String VERSION_NAME;
 
-    private SpringConfiguration springConfiguration;
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
 
     @Override
     @Before
     public void setUp() throws JsonIOException, IOException, IntegrationException {
-        springConfiguration = new SpringConfiguration();
-        final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = springConfiguration.getMappingParser()
+        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
+        final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = blackDuckFortifyJobConfig.getMappingParser()
                 .createMapping(PropertyConstants.getMappingJsonPath());
         PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProject();
         VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProjectVersion();
@@ -69,8 +69,8 @@ public class HubServicesTest extends TestCase {
         ProjectView project = null;
         List<ProjectVersionView> projectVersionViews = new ArrayList<>();
         try {
-            project = springConfiguration.getHubServices().getProjectByProjectName(PROJECT_NAME);
-            projectVersionViews = springConfiguration.getHubServices().getProjectVersionsByProject(project);
+            project = blackDuckFortifyJobConfig.getHubServices().getProjectByProjectName(PROJECT_NAME);
+            projectVersionViews = blackDuckFortifyJobConfig.getHubServices().getProjectVersionsByProject(project);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IntegrationException e) {
@@ -84,7 +84,7 @@ public class HubServicesTest extends TestCase {
         System.out.println("Executing getProjectVersion");
         ProjectVersionView projectVersionItem = null;
         try {
-            projectVersionItem = springConfiguration.getHubServices().getProjectVersion(PROJECT_NAME, VERSION_NAME);
+            projectVersionItem = blackDuckFortifyJobConfig.getHubServices().getProjectVersion(PROJECT_NAME, VERSION_NAME);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IntegrationException e) {
@@ -98,7 +98,7 @@ public class HubServicesTest extends TestCase {
         System.out.println("Executing getProjectVersionWithInvalidProjectName");
         ProjectVersionView projectVersionItem = null;
         try {
-            projectVersionItem = springConfiguration.getHubServices().getProjectVersion("Solr1", VERSION_NAME);
+            projectVersionItem = blackDuckFortifyJobConfig.getHubServices().getProjectVersion("Solr1", VERSION_NAME);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IntegrationException e) {
@@ -114,7 +114,7 @@ public class HubServicesTest extends TestCase {
         System.out.println("Executing getProjectVersionWithInvalidVersionName");
         ProjectVersionView projectVersionItem = null;
         try {
-            projectVersionItem = springConfiguration.getHubServices().getProjectVersion(PROJECT_NAME, "3.10");
+            projectVersionItem = blackDuckFortifyJobConfig.getHubServices().getProjectVersion(PROJECT_NAME, "3.10");
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IntegrationException e) {
@@ -130,13 +130,13 @@ public class HubServicesTest extends TestCase {
         System.out.println("Executing getVulnerability");
         ProjectVersionView projectVersionItem = null;
         try {
-            projectVersionItem = springConfiguration.getHubServices().getProjectVersion(PROJECT_NAME, VERSION_NAME);
+            projectVersionItem = blackDuckFortifyJobConfig.getHubServices().getProjectVersion(PROJECT_NAME, VERSION_NAME);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IntegrationException e) {
             e.printStackTrace();
         }
-        List<VulnerableComponentView> vulnerableComponentViews = springConfiguration.getHubServices().getVulnerabilityComponentViews(projectVersionItem);
+        List<VulnerableComponentView> vulnerableComponentViews = blackDuckFortifyJobConfig.getHubServices().getVulnerabilityComponentViews(projectVersionItem);
         System.out.println("vulnerableComponentViews size::" + vulnerableComponentViews.size() + ", vulnerableComponentViews::" + vulnerableComponentViews);
         assertNotNull(vulnerableComponentViews);
     }
@@ -146,13 +146,13 @@ public class HubServicesTest extends TestCase {
         System.out.println("Executing getBomLastUpdatedAt");
         ProjectVersionView projectVersionItem = null;
         try {
-            projectVersionItem = springConfiguration.getHubServices().getProjectVersion(PROJECT_NAME, VERSION_NAME);
+            projectVersionItem = blackDuckFortifyJobConfig.getHubServices().getProjectVersion(PROJECT_NAME, VERSION_NAME);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IntegrationException e) {
             e.printStackTrace();
         }
-        Date bomLastUpdatedAt = springConfiguration.getHubServices().getBomLastUpdatedAt(projectVersionItem);
+        Date bomLastUpdatedAt = blackDuckFortifyJobConfig.getHubServices().getBomLastUpdatedAt(projectVersionItem);
         System.out.println("bomLastUpdatedAt::" + bomLastUpdatedAt);
         assertNotNull(bomLastUpdatedAt);
     }

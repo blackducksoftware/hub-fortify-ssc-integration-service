@@ -24,14 +24,15 @@ package com.blackducksoftware.integration.fortify.service;
 
 import java.io.IOException;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
+import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.model.FortifyAttributeDefinitionResponse;
 
 import junit.framework.TestCase;
@@ -39,10 +40,17 @@ import junit.framework.TestCase;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { TestApplication.class })
 public class FortifyAttributeDefinitionApiTest extends TestCase {
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
+
+    @Override
+    @Before
+    public void setUp() {
+        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
+    }
 
     @Test
     public void getApplicationAttributeDefinition() throws IOException, IntegrationException {
-        FortifyAttributeDefinitionResponse fortifyAttributeDefintionResponse = new SpringConfiguration().getFortifyAttributeDefinitionApi()
+        FortifyAttributeDefinitionResponse fortifyAttributeDefintionResponse = blackDuckFortifyJobConfig.getFortifyAttributeDefinitionApi()
                 .getAttributeDefinitions();
         System.out.println(fortifyAttributeDefintionResponse);
         assertNotNull(fortifyAttributeDefintionResponse);

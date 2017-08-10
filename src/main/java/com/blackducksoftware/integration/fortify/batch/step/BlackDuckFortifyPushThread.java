@@ -40,17 +40,19 @@ import java.util.concurrent.Callable;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.model.HubProjectVersion;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
 import com.blackducksoftware.integration.fortify.batch.util.CSVUtils;
 import com.blackducksoftware.integration.fortify.batch.util.FortifyExceptionUtil;
+import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.batch.util.VulnerabilityUtil;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.JobStatusResponse;
+import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
+import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -70,7 +72,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  */
 public class BlackDuckFortifyPushThread implements Callable<Boolean> {
 
-    private BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup;
+    private final BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup;
 
     private Date maxBomUpdatedDate;
 
@@ -78,11 +80,18 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
 
     private final static Logger logger = Logger.getLogger(BlackDuckFortifyPushThread.class);
 
-    private final SpringConfiguration springConfiguration;
+    private final HubServices hubServices;
 
-    public BlackDuckFortifyPushThread(final BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup, final SpringConfiguration springConfiguration) {
+    private final FortifyFileTokenApi fortifyFileTokenApi;
+
+    private final FortifyUploadApi fortifyUploadApi;
+
+    public BlackDuckFortifyPushThread(final BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup, final HubServices hubServices,
+            final FortifyFileTokenApi fortifyFileTokenApi, final FortifyUploadApi fortifyUploadApi) {
         this.blackDuckFortifyMapperGroup = blackDuckFortifyMapperGroup;
-        this.springConfiguration = springConfiguration;
+        this.hubServices = hubServices;
+        this.fortifyFileTokenApi = fortifyFileTokenApi;
+        this.fortifyUploadApi = fortifyUploadApi;
     }
 
     @Override
@@ -126,7 +135,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
                 uploadCSV(token, fileDir + fileName, blackDuckFortifyMapperGroup.getFortifyApplicationId());
 
                 // Delete the file token that is created for upload
-                springConfiguration.getFortifyFileTokenApi().deleteFileToken();
+                fortifyFileTokenApi.deleteFileToken();
             }
         }
         return true;
@@ -149,9 +158,9 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
             String projectVersion = hubProjectVersion.getHubProjectVersion();
 
             // Get the project version
-            final ProjectVersionView projectVersionItem = springConfiguration.getHubServices().getProjectVersion(projectName, projectVersion);
+            final ProjectVersionView projectVersionItem = hubServices.getProjectVersion(projectName, projectVersion);
             projectVersionItems.add(projectVersionItem);
-            Date bomUpdatedValueAt = springConfiguration.getHubServices().getBomLastUpdatedAt(projectVersionItem);
+            Date bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
 
             if (maxBomUpdatedDate == null || bomUpdatedValueAt.after(maxBomUpdatedDate)) {
                 maxBomUpdatedDate = bomUpdatedValueAt;
@@ -179,8 +188,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
         for (HubProjectVersion hubProjectVersion : hubProjectVersions) {
 
             // Get the Vulnerability information
-            final List<VulnerableComponentView> vulnerableComponentViews = springConfiguration.getHubServices()
-                    .getVulnerabilityComponentViews(projectVersionItems.get(index));
+            final List<VulnerableComponentView> vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItems.get(index));
             index++;
 
             // Convert the Hub Vulnerability component view to CSV Vulnerability object
@@ -240,7 +248,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
      */
     private String getFileToken() throws IOException, IntegrationException {
         FileToken fileToken = new FileToken("UPLOAD");
-        return springConfiguration.getFortifyFileTokenApi().getFileToken(fileToken);
+        return fortifyFileTokenApi.getFileToken(fileToken);
     }
 
     /**
@@ -256,8 +264,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
         File file = new File(fileName);
         logger.debug("Uploading " + file.getName() + " to fortify");
         // Call Fortify upload
-        final JobStatusResponse uploadVulnerabilityResponseBody = springConfiguration.getFortifyUploadApi().uploadVulnerabilityByProjectVersion(token,
-                fortifyApplicationId, file);
+        final JobStatusResponse uploadVulnerabilityResponseBody = fortifyUploadApi.uploadVulnerabilityByProjectVersion(token, fortifyApplicationId, file);
         logger.debug("uploadVulnerabilityResponseBody:: " + uploadVulnerabilityResponseBody);
 
         // Check if the upload is submitted successfully, if not don't delete the CSV files. It can be used for

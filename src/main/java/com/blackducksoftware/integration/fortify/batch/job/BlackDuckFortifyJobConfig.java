@@ -43,8 +43,14 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.step.Initializer;
+import com.blackducksoftware.integration.fortify.batch.util.HubServices;
+import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
+import com.blackducksoftware.integration.fortify.batch.util.RestConnectionHelper;
+import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
+import com.blackducksoftware.integration.fortify.service.FortifyAttributeDefinitionApi;
+import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
+import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 
 /**
  * Schedule the batch job
@@ -67,13 +73,63 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     private StepBuilderFactory stepBuilderFactory;
 
     /**
-     * Create bean for Spring Configuration
+     * Created the bean for Fortify Application Version Api
      *
-     * @return Initializer
+     * @return
      */
     @Bean
-    public SpringConfiguration getSpringConfiguration() {
-        return new SpringConfiguration();
+    public FortifyApplicationVersionApi getFortifyApplicationVersionApi() {
+        return new FortifyApplicationVersionApi();
+    }
+
+    /**
+     * Created the bean for Fortify Attribute Version Api
+     *
+     * @return
+     */
+    @Bean
+    public FortifyAttributeDefinitionApi getFortifyAttributeDefinitionApi() {
+        return new FortifyAttributeDefinitionApi();
+    }
+
+    /**
+     * Created the bean to get the instance of Fortify File Token Api
+     *
+     * @return
+     */
+    @Bean
+    public FortifyFileTokenApi getFortifyFileTokenApi() {
+        return new FortifyFileTokenApi();
+    }
+
+    /**
+     * Created the bean to get the instance of Fortify Upload Api
+     *
+     * @return
+     */
+    @Bean
+    public FortifyUploadApi getFortifyUploadApi() {
+        return new FortifyUploadApi();
+    }
+
+    /**
+     * Created the bean to get the instance of Hub Services
+     *
+     * @return
+     */
+    @Bean
+    public HubServices getHubServices() {
+        return new HubServices(RestConnectionHelper.createHubServicesFactory());
+    }
+
+    /**
+     * Created the bean to get the instance of Mapping Parser
+     *
+     * @return
+     */
+    @Bean
+    public MappingParser getMappingParser() {
+        return new MappingParser(getFortifyApplicationVersionApi(), getFortifyAttributeDefinitionApi());
     }
 
     /**
@@ -83,7 +139,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Bean
     public Initializer getMappingParserTask() {
-        return new Initializer(getSpringConfiguration());
+        return new Initializer(getMappingParser(), getHubServices(), getFortifyFileTokenApi(), getFortifyUploadApi());
     }
 
     /**

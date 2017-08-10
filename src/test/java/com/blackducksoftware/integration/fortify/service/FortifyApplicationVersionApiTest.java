@@ -33,8 +33,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
+import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
@@ -58,18 +58,18 @@ public class FortifyApplicationVersionApiTest extends TestCase {
 
     String QUERY = "name:1.3+and+project.name:Logistics";
 
-    private SpringConfiguration springConfiguration;
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
 
     @Override
     @Before
     public void setUp() {
-        springConfiguration = new SpringConfiguration();
+        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
     }
 
     @Test
     public void getApplicationVersionTest() throws IOException, IntegrationException {
         System.out.println("Executing getApplicationVersionTest");
-        FortifyApplicationResponse response = springConfiguration.getFortifyApplicationVersionApi().getApplicationVersionByName(FIELDS, QUERY);
+        FortifyApplicationResponse response = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().getApplicationVersionByName(FIELDS, QUERY);
         assertNotNull(response);
     }
 
@@ -77,7 +77,7 @@ public class FortifyApplicationVersionApiTest extends TestCase {
     public void createApplicationVersionTest() throws IOException, IntegrationException {
         System.out.println("Executing createApplicationVersionTest");
         CreateApplicationRequest createApplicationRequest = createApplicationVersionRequest("Fortify-Test", "1.0");
-        int id = springConfiguration.getFortifyApplicationVersionApi().createApplicationVersion(createApplicationRequest);
+        int id = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().createApplicationVersion(createApplicationRequest);
         assertNotNull(id);
         try {
             updateApplicationAttributesTest(id);
@@ -100,21 +100,21 @@ public class FortifyApplicationVersionApiTest extends TestCase {
         }.getType();
 
         List<UpdateFortifyApplicationAttributesRequest> request = gson.fromJson(attributeValues, listType);
-        request = springConfiguration.getMappingParser().addCustomAttributes(request);
-        int responseCode = springConfiguration.getFortifyApplicationVersionApi().updateApplicationAttributes(parentId, request);
+        request = blackDuckFortifyJobConfig.getMappingParser().addCustomAttributes(request);
+        int responseCode = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().updateApplicationAttributes(parentId, request);
         assertEquals("Updated application attributes", 200, responseCode);
     }
 
     public void commitApplicationVersion(int applicationId) throws IOException, IntegrationException {
         System.out.println("Executing commitApplicationVersion");
         CommitFortifyApplicationRequest request = new CommitFortifyApplicationRequest(true);
-        int responseCode = springConfiguration.getFortifyApplicationVersionApi().commitApplicationVersion(applicationId, request);
+        int responseCode = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().commitApplicationVersion(applicationId, request);
         assertEquals("Committed application attributes", 200, responseCode);
     }
 
     public void deleteApplicationVersion(int applicationId) throws IOException, IntegrationException {
         System.out.println("Executing deleteApplicationVersion");
-        int responseCode = springConfiguration.getFortifyApplicationVersionApi().deleteApplicationVersion(applicationId);
+        int responseCode = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().deleteApplicationVersion(applicationId);
         assertEquals("Delete application version", 200, responseCode);
     }
 

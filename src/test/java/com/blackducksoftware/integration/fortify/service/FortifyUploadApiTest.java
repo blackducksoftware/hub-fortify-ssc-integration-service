@@ -31,8 +31,8 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
+import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.JobStatusResponse;
 
@@ -41,12 +41,12 @@ import junit.framework.TestCase;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TestApplication.class)
 public class FortifyUploadApiTest extends TestCase {
-    private SpringConfiguration springConfiguration;
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
 
     @Override
     @Before
     public void setUp() {
-        springConfiguration = new SpringConfiguration();
+        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
     }
 
     @Test
@@ -54,7 +54,7 @@ public class FortifyUploadApiTest extends TestCase {
         System.out.println("Executing uploadCSVFile");
         FileToken fileToken = new FileToken("UPLOAD");
 
-        String fileTokenResponse = springConfiguration.getFortifyFileTokenApi().getFileToken(fileToken);
+        String fileTokenResponse = blackDuckFortifyJobConfig.getFortifyFileTokenApi().getFileToken(fileToken);
         System.out.println("File Token::" + fileTokenResponse);
         Assert.assertNotNull(fileTokenResponse);
 
@@ -64,7 +64,8 @@ public class FortifyUploadApiTest extends TestCase {
         // File("/Users/smanikantan/Documents/hub-fortify-integration/report/solrWar2_4.10.4_20170510160506866.csv");
         System.out.println("file::" + file);
 
-        JobStatusResponse uploadVulnerabilityResponseBody = springConfiguration.getFortifyUploadApi().uploadVulnerabilityByProjectVersion(fileTokenResponse, 2l,
+        JobStatusResponse uploadVulnerabilityResponseBody = blackDuckFortifyJobConfig.getFortifyUploadApi().uploadVulnerabilityByProjectVersion(
+                fileTokenResponse, 2l,
                 file);
         System.out.println("uploadVulnerabilityResponse::" + uploadVulnerabilityResponseBody);
         Assert.assertNotNull(uploadVulnerabilityResponseBody);

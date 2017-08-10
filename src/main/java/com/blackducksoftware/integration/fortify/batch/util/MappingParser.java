@@ -38,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.fortify.batch.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.model.HubProjectVersion;
@@ -50,6 +49,8 @@ import com.blackducksoftware.integration.fortify.model.FortifyAttributeDefinitio
 import com.blackducksoftware.integration.fortify.model.FortifyAttributeDefinitionResponse.FortifyAttributeDefinition.Option;
 import com.blackducksoftware.integration.fortify.model.UpdateFortifyApplicationAttributesRequest;
 import com.blackducksoftware.integration.fortify.model.UpdateFortifyApplicationAttributesRequest.Value;
+import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
+import com.blackducksoftware.integration.fortify.service.FortifyAttributeDefinitionApi;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
@@ -74,10 +75,13 @@ public final class MappingParser {
 
     private final static Logger logger = Logger.getLogger(MappingParser.class);
 
-    private final SpringConfiguration springConfiguration;
+    private final FortifyApplicationVersionApi fortifyApplicationVersionApi;
 
-    public MappingParser(final SpringConfiguration springConfiguration) {
-        this.springConfiguration = springConfiguration;
+    private final FortifyAttributeDefinitionApi fortifyAttributeDefinitionApi;
+
+    public MappingParser(final FortifyApplicationVersionApi fortifyApplicationVersionApi, final FortifyAttributeDefinitionApi fortifyAttributeDefinitionApi) {
+        this.fortifyApplicationVersionApi = fortifyApplicationVersionApi;
+        this.fortifyAttributeDefinitionApi = fortifyAttributeDefinitionApi;
     }
 
     /**
@@ -177,7 +181,7 @@ public final class MappingParser {
         try {
             String Q = Q_version + fortifyApplicationVersion + Q_connector + Q_project + fortifyApplicationName;
             logger.info("Querying fortify " + Q);
-            FortifyApplicationResponse response = springConfiguration.getFortifyApplicationVersionApi().getApplicationVersionByName(FIELDS, Q);
+            FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, Q);
             if (response.getData().size() != 0) {
                 logger.info("Fortify Application Found :" + response.getData().get(0).getId());
                 applicationId = response.getData().get(0).getId();
@@ -186,8 +190,7 @@ public final class MappingParser {
                 String queryParams = Q_project + fortifyApplicationName;
                 String fieldParams = "id,project";
                 logger.info("Querying fortify " + queryParams);
-                FortifyApplicationResponse applicationResponse = springConfiguration.getFortifyApplicationVersionApi().getApplicationVersionByName(fieldParams,
-                        queryParams);
+                FortifyApplicationResponse applicationResponse = fortifyApplicationVersionApi.getApplicationVersionByName(fieldParams, queryParams);
                 CreateApplicationRequest createRequest;
                 if (applicationResponse.getData().size() != 0) {
                     // Create only version
@@ -220,7 +223,7 @@ public final class MappingParser {
         int applicationId = 0;
         int SUCCESS = 201;
         try {
-            applicationId = springConfiguration.getFortifyApplicationVersionApi().createApplicationVersion(createRequest);
+            applicationId = fortifyApplicationVersionApi.createApplicationVersion(createRequest);
 
             String attributeValuesTemplate = "[{\"attributeDefinitionId\":5,\"values\":[{\"guid\":\"New\"}],\"value\":null},{\"attributeDefinitionId\":6,\"values\":[{\"guid\":\"Internal\"}],\"value\":null},{\"attributeDefinitionId\":7,\"values\":[{\"guid\":\"internalnetwork\"}],\"value\":null},{\"attributeDefinitionId\":10,\"values\":[],\"value\":null},{\"attributeDefinitionId\":11,\"values\":[],\"value\":null},{\"attributeDefinitionId\":12,\"values\":[],\"value\":null},{\"attributeDefinitionId\":1,\"values\":[{\"guid\":\"High\"}],\"value\":null},{\"attributeDefinitionId\":2,\"values\":[],\"value\":null},{\"attributeDefinitionId\":3,\"values\":[],\"value\":null},{\"attributeDefinitionId\":4,\"values\":[],\"value\":null}]";
             Gson gson = new Gson();
@@ -230,13 +233,13 @@ public final class MappingParser {
             List<UpdateFortifyApplicationAttributesRequest> updateAttributerequest = gson.fromJson(attributeValuesTemplate, listType);
             updateAttributerequest = addCustomAttributes(updateAttributerequest);
             logger.info("updateAttributerequest::" + updateAttributerequest);
-            int responseCode = springConfiguration.getFortifyApplicationVersionApi().updateApplicationAttributes(applicationId, updateAttributerequest);
+            int responseCode = fortifyApplicationVersionApi.updateApplicationAttributes(applicationId, updateAttributerequest);
             if (responseCode == SUCCESS) {
                 logger.info("Updated attributes for creating new fortify application");
             }
 
             CommitFortifyApplicationRequest commitRequest = new CommitFortifyApplicationRequest(true);
-            int commitResponseCode = springConfiguration.getFortifyApplicationVersionApi().commitApplicationVersion(applicationId, commitRequest);
+            int commitResponseCode = fortifyApplicationVersionApi.commitApplicationVersion(applicationId, commitRequest);
             if (commitResponseCode == SUCCESS) {
                 logger.info("New Fortify application is now committed");
             }
@@ -257,8 +260,7 @@ public final class MappingParser {
      */
     public List<UpdateFortifyApplicationAttributesRequest> addCustomAttributes(List<UpdateFortifyApplicationAttributesRequest> updateAttributerequests)
             throws IOException, IntegrationException {
-        FortifyAttributeDefinitionResponse fortifyAttributeDefinitionResponse = springConfiguration.getFortifyAttributeDefinitionApi()
-                .getAttributeDefinitions();
+        FortifyAttributeDefinitionResponse fortifyAttributeDefinitionResponse = fortifyAttributeDefinitionApi.getAttributeDefinitions();
         logger.info(fortifyAttributeDefinitionResponse);
         for (FortifyAttributeDefinition fortifyAttributeDefinition : fortifyAttributeDefinitionResponse.getApplicationAttributeDefinitions()) {
             if (fortifyAttributeDefinition.getId() <= 7 || (fortifyAttributeDefinition.getId() >= 10 && fortifyAttributeDefinition.getId() <= 12)
