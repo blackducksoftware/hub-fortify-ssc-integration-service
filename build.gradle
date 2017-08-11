@@ -68,7 +68,6 @@ dependencies {
 	compile("javax.servlet:javax.servlet-api")
 	compile("com.squareup.retrofit2:retrofit:2.1.0")
 	compile("com.fasterxml.jackson.core:jackson-annotations:2.8.8")
-	// compile("com.squareup.retrofit2:converter-jackson:2.1.0")
 	compile("com.squareup.retrofit2:converter-gson:2.1.0")
 	compile("com.google.code.gson:gson")
 	compile("com.squareup.okhttp3:okhttp:3.3.1")
@@ -109,8 +108,14 @@ distributions {
             	into 'config/'
             	rename {'application.properties'}
             }
-            from('src/main/resources/mapping.json') {into 'config/'}
-            from('src/main/resources/attributes.properties') {into 'config/'}
+            from('src/main/resources/attributes_prod.properties') {
+            	into 'config/'
+            	rename {'attributes.properties'}
+            }
+            from('src/main/resources/mapping_prod.json') {
+            	into 'config/'
+            	rename {'mapping.json'}
+            }
             from('src/main/resources/batch_job_status.txt') {into 'config/'}
             from('src/main/resources/hub-fortify.log') {into 'log/'}
             from('sample.csv') { into 'report/'}
