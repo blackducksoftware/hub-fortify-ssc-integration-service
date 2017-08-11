@@ -59,17 +59,24 @@ public final class FortifyAttributeDefinitionResponse {
         public final class Option {
             private final String guid;
 
-            public Option(String guid) {
+            private final String name;
+
+            public Option(String guid, String name) {
                 this.guid = guid;
+                this.name = name;
             }
 
             public String getGuid() {
                 return guid;
             }
 
+            public String getName() {
+                return name;
+            }
+
             @Override
             public String toString() {
-                return "Option [guid=" + guid + "]";
+                return "Option [guid=" + guid + ", name=" + name + "]";
             }
 
         }
