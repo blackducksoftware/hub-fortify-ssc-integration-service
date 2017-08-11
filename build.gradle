@@ -53,7 +53,6 @@ ext {
 }
 
 repositories {
-	mavenLocal()
 	mavenCentral()
 }
 
