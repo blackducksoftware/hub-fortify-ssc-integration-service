@@ -23,7 +23,6 @@
 package com.blackducksoftware.integration.fortify.service;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.List;
 
 import org.junit.Before;
@@ -39,8 +38,6 @@ import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationR
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 import com.blackducksoftware.integration.fortify.model.UpdateFortifyApplicationAttributesRequest;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
 
@@ -93,14 +90,7 @@ public class FortifyApplicationVersionApiTest extends TestCase {
 
     public void updateApplicationAttributesTest(int parentId) throws IOException, IntegrationException {
         System.out.println("Executing updateApplicationAttributesTest");
-
-        String attributeValues = "[{\"attributeDefinitionId\":5,\"values\":[{\"guid\":\"New\"}],\"value\":null},{\"attributeDefinitionId\":6,\"values\":[{\"guid\":\"Internal\"}],\"value\":null},{\"attributeDefinitionId\":7,\"values\":[{\"guid\":\"internalnetwork\"}],\"value\":null},{\"attributeDefinitionId\":10,\"values\":[],\"value\":null},{\"attributeDefinitionId\":11,\"values\":[],\"value\":null},{\"attributeDefinitionId\":12,\"values\":[],\"value\":null},{\"attributeDefinitionId\":1,\"values\":[{\"guid\":\"High\"}],\"value\":null},{\"attributeDefinitionId\":2,\"values\":[],\"value\":null},{\"attributeDefinitionId\":3,\"values\":[],\"value\":null},{\"attributeDefinitionId\":4,\"values\":[],\"value\":null}]";
-        Gson gson = new Gson();
-        Type listType = new TypeToken<List<UpdateFortifyApplicationAttributesRequest>>() {
-        }.getType();
-
-        List<UpdateFortifyApplicationAttributesRequest> request = gson.fromJson(attributeValues, listType);
-        request = blackDuckFortifyJobConfig.getMappingParser().addCustomAttributes(request);
+        List<UpdateFortifyApplicationAttributesRequest> request = blackDuckFortifyJobConfig.getMappingParser().addCustomAttributes();
         int responseCode = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().updateApplicationAttributes(parentId, request);
         assertEquals("Updated application attributes", 200, responseCode);
     }

@@ -30,6 +30,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -225,15 +227,9 @@ public final class MappingParser {
         try {
             applicationId = fortifyApplicationVersionApi.createApplicationVersion(createRequest);
 
-            String attributeValuesTemplate = "[{\"attributeDefinitionId\":5,\"values\":[{\"guid\":\"New\"}],\"value\":null},{\"attributeDefinitionId\":6,\"values\":[{\"guid\":\"Internal\"}],\"value\":null},{\"attributeDefinitionId\":7,\"values\":[{\"guid\":\"internalnetwork\"}],\"value\":null},{\"attributeDefinitionId\":10,\"values\":[],\"value\":null},{\"attributeDefinitionId\":11,\"values\":[],\"value\":null},{\"attributeDefinitionId\":12,\"values\":[],\"value\":null},{\"attributeDefinitionId\":1,\"values\":[{\"guid\":\"High\"}],\"value\":null},{\"attributeDefinitionId\":2,\"values\":[],\"value\":null},{\"attributeDefinitionId\":3,\"values\":[],\"value\":null},{\"attributeDefinitionId\":4,\"values\":[],\"value\":null}]";
-            Gson gson = new Gson();
-            Type listType = new TypeToken<List<UpdateFortifyApplicationAttributesRequest>>() {
-            }.getType();
-
-            List<UpdateFortifyApplicationAttributesRequest> updateAttributerequest = gson.fromJson(attributeValuesTemplate, listType);
-            updateAttributerequest = addCustomAttributes(updateAttributerequest);
+            final List<UpdateFortifyApplicationAttributesRequest> updateAttributerequest = addCustomAttributes();
             logger.info("updateAttributerequest::" + updateAttributerequest);
-            int responseCode = fortifyApplicationVersionApi.updateApplicationAttributes(applicationId, updateAttributerequest);
+            final int responseCode = fortifyApplicationVersionApi.updateApplicationAttributes(applicationId, updateAttributerequest);
             if (responseCode == SUCCESS) {
                 logger.info("Updated attributes for creating new fortify application");
             }
@@ -258,20 +254,34 @@ public final class MappingParser {
      * @throws IOException
      * @throws IntegrationException
      */
-    public List<UpdateFortifyApplicationAttributesRequest> addCustomAttributes(List<UpdateFortifyApplicationAttributesRequest> updateAttributerequests)
+    public List<UpdateFortifyApplicationAttributesRequest> addCustomAttributes()
             throws IOException, IntegrationException {
         FortifyAttributeDefinitionResponse fortifyAttributeDefinitionResponse = fortifyAttributeDefinitionApi.getAttributeDefinitions();
-        logger.info(fortifyAttributeDefinitionResponse);
+        List<String> ignoreAttributes = Arrays.asList("Known Compliance Obligations", "Data Classification", "Application Classification", "Interfaces",
+                "Development Languages", "Authentication System");
+        List<UpdateFortifyApplicationAttributesRequest> updateAttributerequests = new ArrayList<>();
+        logger.debug(fortifyAttributeDefinitionResponse);
         for (FortifyAttributeDefinition fortifyAttributeDefinition : fortifyAttributeDefinitionResponse.getApplicationAttributeDefinitions()) {
-            if (fortifyAttributeDefinition.getId() <= 7 || (fortifyAttributeDefinition.getId() >= 10 && fortifyAttributeDefinition.getId() <= 12)
-                    || DYNAMIC_SCAN_REQUEST.equalsIgnoreCase(fortifyAttributeDefinition.getCategory())) {
+            if (DYNAMIC_SCAN_REQUEST.equalsIgnoreCase(fortifyAttributeDefinition.getCategory()))
                 continue;
-            }
-            if (StringUtils.isEmpty(AttributeConstants.getProperty(fortifyAttributeDefinition.getName()))) {
+
+            /*
+             * If the values are in the ignore list, then no validation on the value
+             * else if the values are null for other list, throw error
+             * else perform the validation and add the values to the list
+             */
+
+            if (Collections.binarySearch(ignoreAttributes, fortifyAttributeDefinition.getName(), String.CASE_INSENSITIVE_ORDER) == 0
+                    && StringUtils.isEmpty(AttributeConstants.getProperty(fortifyAttributeDefinition.getName()))) {
+                logger.debug("Attribute name::" + fortifyAttributeDefinition.getName() + ", value::"
+                        + AttributeConstants.getProperty(fortifyAttributeDefinition.getName()));
+                updateAttributerequests.add(new UpdateFortifyApplicationAttributesRequest(fortifyAttributeDefinition.getId(), new ArrayList<Value>(), null));
+            } else if (StringUtils.isEmpty(AttributeConstants.getProperty(fortifyAttributeDefinition.getName()))) {
                 throw new IntegrationException(
                         "Attribute value for " + fortifyAttributeDefinition.getName() + " is missing in " + PropertyConstants.getAttributeFilePath());
+            } else {
+                updateAttributerequests.add(addCustomAttributes(fortifyAttributeDefinition));
             }
-            updateAttributerequests.add(addCustomAttributes(fortifyAttributeDefinition));
         }
         return updateAttributerequests;
     }
@@ -322,6 +332,7 @@ public final class MappingParser {
                     + AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim())
                     + "\" is not a valid date! Please make sure the date format is MM/dd/yyyy");
         }
+        logger.debug("Attribute name::" + fortifyAttributeDefinition.getName() + ", values::" + values + ", value::" + value);
         return new UpdateFortifyApplicationAttributesRequest(fortifyAttributeDefinition.getId(), values, value);
     }
 
@@ -335,14 +346,14 @@ public final class MappingParser {
     private List<Value> addSingleOrMultipleDataTypeAttributes(FortifyAttributeDefinition fortifyAttributeDefinition) throws IntegrationException {
         List<Value> values = new ArrayList<>();
         Value value;
-        validateSingleAndMultipleDataTypeAttributeValue(fortifyAttributeDefinition);
         if ("SINGLE".equalsIgnoreCase(fortifyAttributeDefinition.getType())) {
-            value = new Value(AttributeConstants.getProperty(fortifyAttributeDefinition.getName()));
+            value = new Value(validateSingleAndMultipleDataTypeAttributeValue(fortifyAttributeDefinition,
+                    AttributeConstants.getProperty(fortifyAttributeDefinition.getName())));
             values.add(value);
         } else {
             String[] valueArr = AttributeConstants.getProperty(fortifyAttributeDefinition.getName()).split(",");
             for (String strValue : valueArr) {
-                value = new Value(strValue.trim());
+                value = new Value(validateSingleAndMultipleDataTypeAttributeValue(fortifyAttributeDefinition, strValue.trim()));
                 values.add(value);
             }
         }
@@ -355,18 +366,16 @@ public final class MappingParser {
      * @param fortifyAttributeDefinition
      * @throws IntegrationException
      */
-    private void validateSingleAndMultipleDataTypeAttributeValue(FortifyAttributeDefinition fortifyAttributeDefinition) throws IntegrationException {
+    private String validateSingleAndMultipleDataTypeAttributeValue(FortifyAttributeDefinition fortifyAttributeDefinition, String value)
+            throws IntegrationException {
         List<Option> options = fortifyAttributeDefinition.getOptions();
-        boolean flag = false;
         for (Option option : options) {
-            if (option.getGuid().equalsIgnoreCase(AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()))) {
-                flag = true;
-                break;
+            if (option.getName().equalsIgnoreCase(value)) {
+                return option.getGuid();
             }
         }
-        if (!flag)
-            throw new IntegrationException(fortifyAttributeDefinition.getName() + "'s attribute value \""
-                    + AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()) + "\" is not a valid option!");
+        throw new IntegrationException(fortifyAttributeDefinition.getName() + "'s attribute value \""
+                + AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()) + "\" is not a valid option!");
     }
 
     /**
