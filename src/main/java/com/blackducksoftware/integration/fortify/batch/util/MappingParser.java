@@ -227,14 +227,12 @@ public final class MappingParser {
         try {
             final List<UpdateFortifyApplicationAttributesRequest> updateAttributerequest = addCustomAttributes();
             logger.info("updateAttributerequest::" + updateAttributerequest);
-            final int responseCode = fortifyApplicationVersionApi.updateApplicationAttributes(applicationId, updateAttributerequest);
-            if (responseCode == SUCCESS) {
+            if (SUCCESS == fortifyApplicationVersionApi.updateApplicationAttributes(applicationId, updateAttributerequest)) {
                 logger.info("Updated attributes for creating new fortify application");
             }
 
             CommitFortifyApplicationRequest commitRequest = new CommitFortifyApplicationRequest(true);
-            int commitResponseCode = fortifyApplicationVersionApi.commitApplicationVersion(applicationId, commitRequest);
-            if (commitResponseCode == SUCCESS) {
+            if (SUCCESS == fortifyApplicationVersionApi.commitApplicationVersion(applicationId, commitRequest)) {
                 logger.info("New Fortify application is now committed");
             }
         } catch (IOException e) {
@@ -242,8 +240,7 @@ public final class MappingParser {
         } catch (IntegrationException e) {
             throw new IntegrationException(e);
         } finally {
-            int deleteResponseCode = deleteApplicationVersion(applicationId);
-            if (deleteResponseCode == SUCCESS) {
+            if (SUCCESS == deleteApplicationVersion(applicationId)) {
                 logger.info("Fortify application is deleted");
             }
         }
