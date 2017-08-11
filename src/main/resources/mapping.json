@@ -1,14 +1,26 @@
 [
     {
-      "hubProject": "Hub-Fortify-Test1",
-      "hubProjectVersion": "1.0",
-      "fortifyApplication": "Hub-Fortify-Test",
+      "hubProject": "QACrudComponentCommentsProject 20170510104812",
+      "hubProjectVersion": "QACrudComponenetCommentsVersion1",
+      "fortifyApplication": "Hub-Fortify-Test1",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "Hub-Fortify-Test2",
-      "hubProjectVersion": "1.0",
+      "hubProject": "QACrudComponentCommentsProject 20170510113738",
+      "hubProjectVersion": "QACrudComponenetCommentsVersion1",
       "fortifyApplication": "Hub-Fortify-Test1",
+      "fortifyApplicationVersion": "1.0"
+    },
+    {
+      "hubProject": "QACrudComponentCommentsProject 20170510104812",
+      "hubProjectVersion": "QACrudComponenetCommentsVersion1",
+      "fortifyApplication": "Hub-Fortify-Test2",
+      "fortifyApplicationVersion": "3.0"
+    },
+    {
+      "hubProject": "QACrudComponentCommentsProject 20170510113738",
+      "hubProjectVersion": "QACrudComponenetCommentsVersion1",
+      "fortifyApplication": "Hub-Fortify-Test2",
       "fortifyApplicationVersion": "1.0"
     }
 ]
