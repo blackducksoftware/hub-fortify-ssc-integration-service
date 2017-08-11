@@ -188,10 +188,9 @@ public final class MappingParser {
                 logger.info("Fortify Application Found :" + response.getData().get(0).getId());
                 applicationId = response.getData().get(0).getId();
             } else {
-                logger.info("Unable to find the Application on fortify, creating a new application");
+                logger.info("Unable to find the Application on fortify application " + fortifyApplicationName + ", creating a new application");
                 String queryParams = Q_project + fortifyApplicationName;
                 String fieldParams = "id,project";
-                logger.info("Querying fortify " + queryParams);
                 FortifyApplicationResponse applicationResponse = fortifyApplicationVersionApi.getApplicationVersionByName(fieldParams, queryParams);
                 CreateApplicationRequest createRequest;
                 if (applicationResponse.getData().size() != 0) {
@@ -224,9 +223,8 @@ public final class MappingParser {
     private int createApplicationVersion(CreateApplicationRequest createRequest) throws IOException, IntegrationException {
         int applicationId = 0;
         int SUCCESS = 201;
+        applicationId = fortifyApplicationVersionApi.createApplicationVersion(createRequest);
         try {
-            applicationId = fortifyApplicationVersionApi.createApplicationVersion(createRequest);
-
             final List<UpdateFortifyApplicationAttributesRequest> updateAttributerequest = addCustomAttributes();
             logger.info("updateAttributerequest::" + updateAttributerequest);
             final int responseCode = fortifyApplicationVersionApi.updateApplicationAttributes(applicationId, updateAttributerequest);
@@ -240,8 +238,14 @@ public final class MappingParser {
                 logger.info("New Fortify application is now committed");
             }
         } catch (IOException e) {
-            logger.error("Unable to create a new fortify application", e);
             throw new IOException(e);
+        } catch (IntegrationException e) {
+            throw new IntegrationException(e);
+        } finally {
+            int deleteResponseCode = deleteApplicationVersion(applicationId);
+            if (deleteResponseCode == SUCCESS) {
+                logger.info("Fortify application is deleted");
+            }
         }
         return applicationId;
     }
@@ -403,6 +407,18 @@ public final class MappingParser {
         String TEMPLATE = "Prioritized-HighRisk-Project-Template";
         return new CreateApplicationRequest(fortifyProjectVersion, "Built using API", true, false,
                 new CreateApplicationRequest.Project("", fortifyProjectName, "Built using API", TEMPLATE), TEMPLATE);
+    }
+
+    /**
+     * Delete the Fortify application version
+     *
+     * @param applicationId
+     * @throws IOException
+     * @throws IntegrationException
+     */
+    private int deleteApplicationVersion(int applicationId) throws IOException, IntegrationException {
+        System.out.println("Executing deleteApplicationVersion");
+        return fortifyApplicationVersionApi.deleteApplicationVersion(applicationId);
     }
 
 }
