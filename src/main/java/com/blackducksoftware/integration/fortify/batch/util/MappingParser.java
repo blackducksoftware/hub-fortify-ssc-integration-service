@@ -222,27 +222,20 @@ public final class MappingParser {
      */
     private int createApplicationVersion(CreateApplicationRequest createRequest) throws IOException, IntegrationException {
         int applicationId = 0;
-        int SUCCESS = 201;
         applicationId = fortifyApplicationVersionApi.createApplicationVersion(createRequest);
         try {
             final List<UpdateFortifyApplicationAttributesRequest> updateAttributerequest = addCustomAttributes();
             logger.info("updateAttributerequest::" + updateAttributerequest);
-            if (SUCCESS == fortifyApplicationVersionApi.updateApplicationAttributes(applicationId, updateAttributerequest)) {
-                logger.info("Updated attributes for creating new fortify application");
-            }
+            fortifyApplicationVersionApi.updateApplicationAttributes(applicationId, updateAttributerequest);
 
             CommitFortifyApplicationRequest commitRequest = new CommitFortifyApplicationRequest(true);
-            if (SUCCESS == fortifyApplicationVersionApi.commitApplicationVersion(applicationId, commitRequest)) {
-                logger.info("New Fortify application is now committed");
-            }
+            fortifyApplicationVersionApi.commitApplicationVersion(applicationId, commitRequest);
         } catch (IOException e) {
             throw new IOException(e);
         } catch (IntegrationException e) {
             throw new IntegrationException(e);
         } finally {
-            if (SUCCESS == deleteApplicationVersion(applicationId)) {
-                logger.info("Fortify application is deleted");
-            }
+            fortifyApplicationVersionApi.deleteApplicationVersion(applicationId);
         }
         return applicationId;
     }
@@ -404,18 +397,6 @@ public final class MappingParser {
         String TEMPLATE = "Prioritized-HighRisk-Project-Template";
         return new CreateApplicationRequest(fortifyProjectVersion, "Built using API", true, false,
                 new CreateApplicationRequest.Project("", fortifyProjectName, "Built using API", TEMPLATE), TEMPLATE);
-    }
-
-    /**
-     * Delete the Fortify application version
-     *
-     * @param applicationId
-     * @throws IOException
-     * @throws IntegrationException
-     */
-    private int deleteApplicationVersion(int applicationId) throws IOException, IntegrationException {
-        System.out.println("Executing deleteApplicationVersion");
-        return fortifyApplicationVersionApi.deleteApplicationVersion(applicationId);
     }
 
 }

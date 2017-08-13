@@ -59,8 +59,7 @@ public class FortifyFileTokenApiTest extends TestCase {
     @Test
     public void deleteFileToken() throws Exception {
         System.out.println("Executing deleteFileToken");
-        int responseCode = blackDuckFortifyJobConfig.getFortifyFileTokenApi().deleteFileToken();
-        System.out.println("Response code::" + responseCode);
+        blackDuckFortifyJobConfig.getFortifyFileTokenApi().deleteFileToken();
     }
 
 }
