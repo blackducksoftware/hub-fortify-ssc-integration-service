@@ -91,21 +91,18 @@ public class FortifyApplicationVersionApiTest extends TestCase {
     public void updateApplicationAttributesTest(int parentId) throws IOException, IntegrationException {
         System.out.println("Executing updateApplicationAttributesTest");
         List<UpdateFortifyApplicationAttributesRequest> request = blackDuckFortifyJobConfig.getMappingParser().addCustomAttributes();
-        int responseCode = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().updateApplicationAttributes(parentId, request);
-        assertEquals("Updated application attributes", 200, responseCode);
+        blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().updateApplicationAttributes(parentId, request);
     }
 
     public void commitApplicationVersion(int applicationId) throws IOException, IntegrationException {
         System.out.println("Executing commitApplicationVersion");
         CommitFortifyApplicationRequest request = new CommitFortifyApplicationRequest(true);
-        int responseCode = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().commitApplicationVersion(applicationId, request);
-        assertEquals("Committed application attributes", 200, responseCode);
+        blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().commitApplicationVersion(applicationId, request);
     }
 
     public void deleteApplicationVersion(int applicationId) throws IOException, IntegrationException {
         System.out.println("Executing deleteApplicationVersion");
-        int responseCode = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().deleteApplicationVersion(applicationId);
-        assertEquals("Delete application version", 200, responseCode);
+        blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().deleteApplicationVersion(applicationId);
     }
 
     private CreateApplicationRequest createApplicationVersionRequest(String fortifyProjectName, String fortifyProjectVersion) {
