@@ -84,7 +84,7 @@ public final class FortifyFileTokenApi extends FortifyService {
      * @throws IOException
      * @throws IntegrationException
      */
-    public int deleteFileToken() throws IOException, IntegrationException {
+    public void deleteFileToken() throws IOException, IntegrationException {
         Call<ResponseBody> deleteTokenResponseCall = apiService.deleteFileToken();
         int responseCode;
         try {
@@ -94,6 +94,5 @@ public final class FortifyFileTokenApi extends FortifyService {
             logger.error("Error while deleting the file token for upload", e);
             throw new IOException("Error while deleting the file token for upload", e);
         }
-        return responseCode;
     }
 }

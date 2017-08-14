@@ -188,10 +188,9 @@ public final class MappingParser {
                 logger.info("Fortify Application Found :" + response.getData().get(0).getId());
                 applicationId = response.getData().get(0).getId();
             } else {
-                logger.info("Unable to find the Application on fortify, creating a new application");
+                logger.info("Unable to find the Application on fortify application " + fortifyApplicationName + ", creating a new application");
                 String queryParams = Q_project + fortifyApplicationName;
                 String fieldParams = "id,project";
-                logger.info("Querying fortify " + queryParams);
                 FortifyApplicationResponse applicationResponse = fortifyApplicationVersionApi.getApplicationVersionByName(fieldParams, queryParams);
                 CreateApplicationRequest createRequest;
                 if (applicationResponse.getData().size() != 0) {
@@ -223,25 +222,20 @@ public final class MappingParser {
      */
     private int createApplicationVersion(CreateApplicationRequest createRequest) throws IOException, IntegrationException {
         int applicationId = 0;
-        int SUCCESS = 201;
+        applicationId = fortifyApplicationVersionApi.createApplicationVersion(createRequest);
         try {
-            applicationId = fortifyApplicationVersionApi.createApplicationVersion(createRequest);
-
             final List<UpdateFortifyApplicationAttributesRequest> updateAttributerequest = addCustomAttributes();
             logger.info("updateAttributerequest::" + updateAttributerequest);
-            final int responseCode = fortifyApplicationVersionApi.updateApplicationAttributes(applicationId, updateAttributerequest);
-            if (responseCode == SUCCESS) {
-                logger.info("Updated attributes for creating new fortify application");
-            }
+            fortifyApplicationVersionApi.updateApplicationAttributes(applicationId, updateAttributerequest);
 
             CommitFortifyApplicationRequest commitRequest = new CommitFortifyApplicationRequest(true);
-            int commitResponseCode = fortifyApplicationVersionApi.commitApplicationVersion(applicationId, commitRequest);
-            if (commitResponseCode == SUCCESS) {
-                logger.info("New Fortify application is now committed");
-            }
+            fortifyApplicationVersionApi.commitApplicationVersion(applicationId, commitRequest);
         } catch (IOException e) {
-            logger.error("Unable to create a new fortify application", e);
             throw new IOException(e);
+        } catch (IntegrationException e) {
+            throw new IntegrationException(e);
+        } finally {
+            fortifyApplicationVersionApi.deleteApplicationVersion(applicationId);
         }
         return applicationId;
     }

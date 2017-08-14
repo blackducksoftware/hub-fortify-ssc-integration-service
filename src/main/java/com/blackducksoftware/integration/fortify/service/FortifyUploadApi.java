@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
+import com.blackducksoftware.integration.fortify.batch.util.FortifyExceptionUtil;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.JobStatusResponse;
 
@@ -64,7 +65,7 @@ public final class FortifyUploadApi extends FortifyService {
      * @return
      * @throws Exception
      */
-    public JobStatusResponse uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws IOException {
+    public boolean uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws IOException {
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         builder.addFormDataPart("entityId", String.valueOf(entityIdVal));
         builder.addFormDataPart("engineType", "BLACKDUCK");
@@ -80,6 +81,13 @@ public final class FortifyUploadApi extends FortifyService {
             Serializer serializer = new Persister();
             try {
                 jobStatusResponse = serializer.read(JobStatusResponse.class, response.body().string());
+                if (jobStatusResponse != null && jobStatusResponse.getCode() == -10001
+                        && "Background submission succeeded.".equalsIgnoreCase(jobStatusResponse.getMessage())) {
+                    return true;
+                } else {
+                    FortifyExceptionUtil.throwFortifyCustomException(jobStatusResponse.getCode(), "Fortify Upload Api",
+                            jobStatusResponse.getMessage());
+                }
             } catch (Exception e) {
                 logger.error("Error while reading the fortify upload response", e);
             }
@@ -88,6 +96,6 @@ public final class FortifyUploadApi extends FortifyService {
             throw new IOException("Error while uploading the vulnerability to Fortify", e);
         }
 
-        return jobStatusResponse;
+        return false;
     }
 }

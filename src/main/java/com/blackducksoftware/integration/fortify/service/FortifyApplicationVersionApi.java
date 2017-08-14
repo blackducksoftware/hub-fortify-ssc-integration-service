@@ -80,7 +80,7 @@ public final class FortifyApplicationVersionApi extends FortifyService {
         return applicationAPIResponse.getData().getId();
     }
 
-    public int updateApplicationAttributes(int parentId, List<UpdateFortifyApplicationAttributesRequest> request)
+    public void updateApplicationAttributes(int parentId, List<UpdateFortifyApplicationAttributesRequest> request)
             throws IOException, IntegrationException {
         Call<ResponseBody> apiApplicationResponseCall = apiService.updateApplicationAttributes(parentId, request);
         int response;
@@ -91,10 +91,9 @@ public final class FortifyApplicationVersionApi extends FortifyService {
             logger.error("Unable to updateApplicationVersion ", e);
             throw new IOException("Unable to updateApplicationVersion ", e);
         }
-        return response;
     }
 
-    public int commitApplicationVersion(int id, CommitFortifyApplicationRequest request) throws IOException, IntegrationException {
+    public void commitApplicationVersion(int id, CommitFortifyApplicationRequest request) throws IOException, IntegrationException {
         Call<ResponseBody> apiApplicationResponseCall = apiService.commitApplicationVersion(id, request);
         int response;
         try {
@@ -104,10 +103,9 @@ public final class FortifyApplicationVersionApi extends FortifyService {
             logger.error("Unable to commitApplicationVersion ", e);
             throw new IOException("Unable to commitApplicationVersion ", e);
         }
-        return response;
     }
 
-    public int deleteApplicationVersion(int id) throws IOException, IntegrationException {
+    public void deleteApplicationVersion(int id) throws IOException, IntegrationException {
         Call<ResponseBody> apiApplicationResponseCall = apiService.deleteApplicationVersion(id);
         int response;
         try {
@@ -117,6 +115,5 @@ public final class FortifyApplicationVersionApi extends FortifyService {
             logger.error("Unable to deleteApplicationVersion ", e);
             throw new IOException("Unable to deleteApplicationVersion ", e);
         }
-        return response;
     }
 }
