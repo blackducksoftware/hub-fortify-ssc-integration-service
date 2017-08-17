@@ -324,7 +324,7 @@ public final class MappingParser {
         } catch (DateTimeParseException e) {
             throw new IntegrationException(fortifyAttributeDefinition.getName() + "'s attribute value \""
                     + AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim())
-                    + "\" is not a valid date! Please make sure the date format is MM/dd/yyyy");
+                    + "\" is not a valid date! Please make sure the date format is yyyy-MM-dd");
         }
         logger.debug("Attribute name::" + fortifyAttributeDefinition.getName() + ", values::" + values + ", value::" + value);
         return new UpdateFortifyApplicationAttributesRequest(fortifyAttributeDefinition.getId(), values, value);
