@@ -231,11 +231,11 @@ public final class MappingParser {
             CommitFortifyApplicationRequest commitRequest = new CommitFortifyApplicationRequest(true);
             fortifyApplicationVersionApi.commitApplicationVersion(applicationId, commitRequest);
         } catch (IOException e) {
+            fortifyApplicationVersionApi.deleteApplicationVersion(applicationId);
             throw new IOException(e);
         } catch (IntegrationException e) {
-            throw new IntegrationException(e);
-        } finally {
             fortifyApplicationVersionApi.deleteApplicationVersion(applicationId);
+            throw new IntegrationException(e);
         }
         return applicationId;
     }
