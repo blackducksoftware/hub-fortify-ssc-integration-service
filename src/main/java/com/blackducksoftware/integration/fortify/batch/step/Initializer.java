@@ -47,8 +47,6 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
 
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
@@ -84,8 +82,6 @@ public class Initializer implements Tasklet, StepExecutionListener {
      *
      * @return
      */
-    @Bean
-    @Scope("prototype")
     public HubServices getHubServices() {
         return new HubServices(RestConnectionHelper.createHubServicesFactory());
     }
