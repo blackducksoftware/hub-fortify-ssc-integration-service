@@ -44,9 +44,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.step.Initializer;
-import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
-import com.blackducksoftware.integration.fortify.batch.util.RestConnectionHelper;
 import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
 import com.blackducksoftware.integration.fortify.service.FortifyAttributeDefinitionApi;
 import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
@@ -113,16 +111,6 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     }
 
     /**
-     * Created the bean to get the instance of Hub Services
-     *
-     * @return
-     */
-    @Bean
-    public HubServices getHubServices() {
-        return new HubServices(RestConnectionHelper.createHubServicesFactory());
-    }
-
-    /**
      * Created the bean to get the instance of Mapping Parser
      *
      * @return
@@ -139,7 +127,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Bean
     public Initializer getMappingParserTask() {
-        return new Initializer(getMappingParser(), getHubServices(), getFortifyFileTokenApi(), getFortifyUploadApi());
+        return new Initializer(getMappingParser(), getFortifyFileTokenApi(), getFortifyUploadApi());
     }
 
     /**
