@@ -47,11 +47,14 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
+import com.blackducksoftware.integration.fortify.batch.util.RestConnectionHelper;
 import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
 import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 
@@ -72,16 +75,24 @@ public class Initializer implements Tasklet, StepExecutionListener {
 
     private final MappingParser mappingParser;
 
-    private final HubServices hubServices;
-
     private final FortifyFileTokenApi fortifyFileTokenApi;
 
     private final FortifyUploadApi fortifyUploadApi;
 
-    public Initializer(final MappingParser mappingParser, final HubServices hubServices, final FortifyFileTokenApi fortifyFileTokenApi,
+    /**
+     * Created the bean to get the instance of Hub Services
+     *
+     * @return
+     */
+    @Bean
+    @Scope("prototype")
+    public HubServices getHubServices() {
+        return new HubServices(RestConnectionHelper.createHubServicesFactory());
+    }
+
+    public Initializer(final MappingParser mappingParser, final FortifyFileTokenApi fortifyFileTokenApi,
             final FortifyUploadApi fortifyUploadApi) {
         this.mappingParser = mappingParser;
-        this.hubServices = hubServices;
         this.fortifyFileTokenApi = fortifyFileTokenApi;
         this.fortifyUploadApi = fortifyUploadApi;
     }
@@ -102,7 +113,7 @@ public class Initializer implements Tasklet, StepExecutionListener {
         List<Future<?>> futures = new ArrayList<>(groupMap.size());
 
         for (BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup : groupMap) {
-            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup, hubServices, fortifyFileTokenApi, fortifyUploadApi)));
+            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup, getHubServices(), fortifyFileTokenApi, fortifyUploadApi)));
         }
         for (Future<?> f : futures) {
             f.get(); // wait for a processor to complete

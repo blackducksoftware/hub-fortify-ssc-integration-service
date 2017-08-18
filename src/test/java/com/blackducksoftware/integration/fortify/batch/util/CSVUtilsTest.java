@@ -35,6 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
+import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
 import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponentView;
@@ -54,10 +55,13 @@ public class CSVUtilsTest extends TestCase {
 
     private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
 
+    private SpringConfiguration springConfiguration;
+
     @Override
     @Before
     public void setUp() throws JsonIOException, IOException, IntegrationException {
         blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
+        springConfiguration = new SpringConfiguration();
         final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = blackDuckFortifyJobConfig.getMappingParser()
                 .createMapping(PropertyConstants.getMappingJsonPath());
         PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProject();
@@ -70,9 +74,9 @@ public class CSVUtilsTest extends TestCase {
         ProjectVersionView projectVersionItem = null;
         List<VulnerableComponentView> vulnerableComponentViews;
         try {
-            projectVersionItem = blackDuckFortifyJobConfig.getHubServices().getProjectVersion(PROJECT_NAME, VERSION_NAME);
-            vulnerableComponentViews = blackDuckFortifyJobConfig.getHubServices().getVulnerabilityComponentViews(projectVersionItem);
-            bomUpdatedValueAt = blackDuckFortifyJobConfig.getHubServices().getBomLastUpdatedAt(projectVersionItem);
+            projectVersionItem = springConfiguration.getHubServices().getProjectVersion(PROJECT_NAME, VERSION_NAME);
+            vulnerableComponentViews = springConfiguration.getHubServices().getVulnerabilityComponentViews(projectVersionItem);
+            bomUpdatedValueAt = springConfiguration.getHubServices().getBomLastUpdatedAt(projectVersionItem);
         } catch (IllegalArgumentException e1) {
             e1.printStackTrace();
             throw new RuntimeException(e1);
