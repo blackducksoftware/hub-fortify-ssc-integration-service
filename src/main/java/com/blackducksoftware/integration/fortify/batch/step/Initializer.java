@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -104,12 +105,18 @@ public class Initializer implements Tasklet, StepExecutionListener {
         final List<BlackDuckFortifyMapperGroup> groupMap = mappingParser.createMapping(PropertyConstants.getMappingJsonPath());
         logger.info("blackDuckFortifyMappers :" + groupMap.toString());
 
+        List<HubServices> hubServices = new ArrayList<>();
+        for (int i = 0; i < PropertyConstants.getMaximumThreadSize(); i++) {
+            hubServices.add(getHubServices());
+        }
+
         // Create the threads for parallel processing
         ExecutorService exec = Executors.newFixedThreadPool(PropertyConstants.getMaximumThreadSize());
         List<Future<?>> futures = new ArrayList<>(groupMap.size());
-
+        Random rand = new Random();
         for (BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup : groupMap) {
-            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup, getHubServices(), fortifyFileTokenApi, fortifyUploadApi)));
+            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup,
+                    hubServices.get(rand.nextInt(PropertyConstants.getMaximumThreadSize())), fortifyFileTokenApi, fortifyUploadApi)));
         }
         for (Future<?> f : futures) {
             f.get(); // wait for a processor to complete
