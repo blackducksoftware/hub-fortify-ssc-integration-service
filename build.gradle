@@ -47,7 +47,7 @@ ext {
 	uploadDefs = new File("${rootDir}/uploadArtifacts.gradle")
 	
         buildName = 'hub-fortify-ssc-integration-service'
-        buildNumber = System.getenv()['BUILD_NUMBER'] ?: "developer-${System.currentTimeMillis()}"
+        uploadRepoKey = System.properties['uploadRepoKey'] ?: 'bds-alliance-snapshot'
 }
 
 repositories {
@@ -125,14 +125,3 @@ publishing{
                 }
         }
 }
-
-if (uploadDefs.exists()){
-        apply from: uploadDefs
-
-        artifactory{
-                clientConfig.setIncludeEnvVars(true)
-                clientConfig.info.setBuildName(buildName)
-                clientConfig.info.setBuildNumber("${version}-${buildNumber}")
-        }
-}
-
