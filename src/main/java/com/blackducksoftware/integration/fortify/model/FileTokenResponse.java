@@ -28,25 +28,22 @@ package com.blackducksoftware.integration.fortify.model;
  * @author smanikantan
  *
  */
-public class FileTokenResponse {
-    private Data data;
+public final class FileTokenResponse {
+    private final Data data;
 
-    private String responseCode;
+    private final int responseCode;
+
+    public FileTokenResponse(Data data, int responseCode) {
+        this.data = data;
+        this.responseCode = responseCode;
+    }
 
     public Data getData() {
         return data;
     }
 
-    public void setData(Data data) {
-        this.data = data;
-    }
-
-    public String getResponseCode() {
+    public int getResponseCode() {
         return responseCode;
-    }
-
-    public void setResponseCode(String responseCode) {
-        this.responseCode = responseCode;
     }
 
     @Override
@@ -54,25 +51,23 @@ public class FileTokenResponse {
         return "Data::" + data.toString() + ", responseCode::" + responseCode;
     }
 
-    public class Data {
-        private String token;
+    public final static class Data {
+        private final String token;
 
-        private String fileTokenType;
+        private final String fileTokenType;
+
+        public Data(String token, String fileTokenType) {
+            super();
+            this.token = token;
+            this.fileTokenType = fileTokenType;
+        }
 
         public String getToken() {
             return token;
         }
 
-        public void setToken(String token) {
-            this.token = token;
-        }
-
         public String getFileTokenType() {
             return fileTokenType;
-        }
-
-        public void setFileTokenType(String fileTokenType) {
-            this.fileTokenType = fileTokenType;
         }
 
         @Override

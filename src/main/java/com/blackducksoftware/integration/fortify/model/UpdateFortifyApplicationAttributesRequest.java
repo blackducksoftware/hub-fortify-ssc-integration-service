@@ -25,47 +25,42 @@ package com.blackducksoftware.integration.fortify.model;
 import java.io.Serializable;
 import java.util.List;
 
-public class UpdateFortifyApplicationAttributesRequest implements Serializable {
-    private Integer attributeDefinitionId;
+public final class UpdateFortifyApplicationAttributesRequest implements Serializable {
+    private final Integer attributeDefinitionId;
 
-    private List<Value> values = null;
+    private final List<Value> values;
 
-    private Object value;
+    private final Object value;
+
+    public UpdateFortifyApplicationAttributesRequest(Integer attributeDefinitionId, List<Value> values, Object value) {
+        this.attributeDefinitionId = attributeDefinitionId;
+        this.values = values;
+        this.value = value;
+    }
 
     public Integer getAttributeDefinitionId() {
         return attributeDefinitionId;
-    }
-
-    public void setAttributeDefinitionId(Integer attributeDefinitionId) {
-        this.attributeDefinitionId = attributeDefinitionId;
     }
 
     public List<Value> getValues() {
         return values;
     }
 
-    public void setValues(List<Value> values) {
-        this.values = values;
-    }
-
     public Object getValue() {
         return value;
     }
 
-    public void setValue(Object value) {
-        this.value = value;
-    }
+    public final static class Value {
 
-    public class Value {
+        private final String guid;
 
-        private String guid;
+        public Value(String guid) {
+            super();
+            this.guid = guid;
+        }
 
         public String getGuid() {
             return guid;
-        }
-
-        public void setGuid(String guid) {
-            this.guid = guid;
         }
 
         @Override

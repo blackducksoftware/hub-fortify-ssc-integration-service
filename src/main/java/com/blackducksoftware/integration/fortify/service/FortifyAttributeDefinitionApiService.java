@@ -20,37 +20,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.fortify.model;
+package com.blackducksoftware.integration.fortify.service;
 
-import java.util.List;
+import com.blackducksoftware.integration.fortify.model.FortifyAttributeDefinitionResponse;
 
-/**
- * Holder for Gson conversion from Fortify API json response to Java objects
- *
- * @author hsathe
- *
- */
-public final class FortifyApplicationResponse {
-    private final List<Data> data;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Headers;
+import retrofit2.http.Query;
 
-    private final int responseCode;
-
-    public FortifyApplicationResponse(List<Data> data, int responseCode) {
-        this.data = data;
-        this.responseCode = responseCode;
-    }
-
-    public List<Data> getData() {
-        return data;
-    }
-
-    public int getResponseCode() {
-        return responseCode;
-    }
-
-    @Override
-    public String toString() {
-        return "FortifyApplicationResponse [data=" + data + ", responseCode=" + responseCode + "]";
-    }
-
+public interface FortifyAttributeDefinitionApiService {
+    @Headers({ "Accept: application/json", "Content-Type:application/json" })
+    @GET("api/v1/attributeDefinitions")
+    Call<FortifyAttributeDefinitionResponse> getAttributeDefinitions(@Query("fields") String fields, @Query("q") String filter);
 }

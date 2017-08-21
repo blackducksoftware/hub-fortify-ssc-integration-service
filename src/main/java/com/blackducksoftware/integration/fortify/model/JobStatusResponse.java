@@ -22,7 +22,10 @@
  */
 package com.blackducksoftware.integration.fortify.model;
 
+import java.io.Serializable;
+
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 
 /**
  * This class is used to store the Fortify upload response data
@@ -30,9 +33,10 @@ import org.simpleframework.xml.Element;
  * @author smanikantan
  *
  */
-public class JobStatusResponse {
+@Root
+public final class JobStatusResponse implements Serializable {
     @Element(name = "code")
-    private String code;
+    private int code;
 
     @Element(name = "msg")
     private String message;
@@ -49,52 +53,41 @@ public class JobStatusResponse {
     @Element(name = "jobState", required = false)
     private int jobState;
 
-    public String getCode() {
-        return code;
+    public JobStatusResponse() {
+
     }
 
-    public void setCode(String code) {
+    public JobStatusResponse(int code, String message, String id, String invokingUserName, int jobType, int jobState) {
         this.code = code;
+        this.message = message;
+        this.id = id;
+        this.invokingUserName = invokingUserName;
+        this.jobType = jobType;
+        this.jobState = jobState;
+    }
+
+    public int getCode() {
+        return code;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getInvokingUserName() {
         return invokingUserName;
     }
 
-    public void setInvokingUserName(String invokingUserName) {
-        this.invokingUserName = invokingUserName;
-    }
-
     public int getJobType() {
         return jobType;
     }
 
-    public void setJobType(int jobType) {
-        this.jobType = jobType;
-    }
-
     public int getJobState() {
         return jobState;
-    }
-
-    public void setJobState(int jobState) {
-        this.jobState = jobState;
     }
 
     @Override

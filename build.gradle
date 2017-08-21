@@ -3,7 +3,6 @@ buildscript {
 		springBootVersion = '1.5.3.RELEASE'
 	}
 	repositories {
-		mavenLocal()
 		mavenCentral()
 		maven{url "https://plugins.gradle.org/m2/"}
 	}
@@ -13,21 +12,24 @@ buildscript {
 	}
 }
 
-apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'application'
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '1.5.3.RELEASE'
+    id 'application'
+    id 'jacoco'
+    id 'com.github.kt3k.coveralls' version '2.8.1'
+}
 allprojects{ 
 	apply plugin: 'maven-publish' 
 	apply plugin: "com.jfrog.artifactory"
 }
-
 
 sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
 
 group 'com.blackducksoftware.integration.fortify'
-version = '1.0.0'
+version = '2.0.2'
 
 mainClassName = 'com.blackducksoftware.integration.fortify.Application'
 
@@ -51,7 +53,6 @@ ext {
 }
 
 repositories {
-	mavenLocal()
 	mavenCentral()
 }
 
@@ -67,7 +68,6 @@ dependencies {
 	compile("javax.servlet:javax.servlet-api")
 	compile("com.squareup.retrofit2:retrofit:2.1.0")
 	compile("com.fasterxml.jackson.core:jackson-annotations:2.8.8")
-	// compile("com.squareup.retrofit2:converter-jackson:2.1.0")
 	compile("com.squareup.retrofit2:converter-gson:2.1.0")
 	compile("com.google.code.gson:gson")
 	compile("com.squareup.okhttp3:okhttp:3.3.1")
@@ -108,7 +108,14 @@ distributions {
             	into 'config/'
             	rename {'application.properties'}
             }
-            from('src/main/resources/mapping.json') {into 'config/'}
+            from('src/main/resources/attributes_prod.properties') {
+            	into 'config/'
+            	rename {'attributes.properties'}
+            }
+            from('src/main/resources/mapping_prod.json') {
+            	into 'config/'
+            	rename {'mapping.json'}
+            }
             from('src/main/resources/batch_job_status.txt') {into 'config/'}
             from('src/main/resources/hub-fortify.log') {into 'log/'}
             from('sample.csv') { into 'report/'}
@@ -124,4 +131,8 @@ publishing{
 			artifact distTar 
                 }
         }
+}
+
+jacocoTestReport {
+    reports { xml.enabled = true }
 }

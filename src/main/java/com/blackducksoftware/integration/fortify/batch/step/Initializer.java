@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -48,9 +49,13 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
-import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
+import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
+import com.blackducksoftware.integration.fortify.batch.util.RestConnectionHelper;
+import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
+import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 
 /**
  * This class will be the first step of the batch job and it will be used to parse the Mapping.json and based on the
@@ -67,6 +72,28 @@ public class Initializer implements Tasklet, StepExecutionListener {
 
     private final static Logger logger = Logger.getLogger(Initializer.class);
 
+    private final MappingParser mappingParser;
+
+    private final FortifyFileTokenApi fortifyFileTokenApi;
+
+    private final FortifyUploadApi fortifyUploadApi;
+
+    /**
+     * Created the bean to get the instance of Hub Services
+     *
+     * @return
+     */
+    public HubServices getHubServices() {
+        return new HubServices(RestConnectionHelper.createHubServicesFactory());
+    }
+
+    public Initializer(final MappingParser mappingParser, final FortifyFileTokenApi fortifyFileTokenApi,
+            final FortifyUploadApi fortifyUploadApi) {
+        this.mappingParser = mappingParser;
+        this.fortifyFileTokenApi = fortifyFileTokenApi;
+        this.fortifyUploadApi = fortifyUploadApi;
+    }
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         logger.info("Started MappingParserTask");
@@ -75,15 +102,21 @@ public class Initializer implements Tasklet, StepExecutionListener {
         logger.debug("Found Mapping file:: " + PropertyConstants.getMappingJsonPath());
 
         // Create the mapping between Hub and Fortify
-        final List<BlackDuckFortifyMapper> blackDuckFortifyMappers = MappingParser
-                .createMapping(PropertyConstants.getMappingJsonPath());
-        logger.info("blackDuckFortifyMappers :" + blackDuckFortifyMappers.toString());
+        final List<BlackDuckFortifyMapperGroup> groupMap = mappingParser.createMapping(PropertyConstants.getMappingJsonPath());
+        logger.info("blackDuckFortifyMappers :" + groupMap.toString());
+
+        List<HubServices> hubServices = new ArrayList<>();
+        for (int i = 0; i < PropertyConstants.getMaximumThreadSize(); i++) {
+            hubServices.add(getHubServices());
+        }
 
         // Create the threads for parallel processing
         ExecutorService exec = Executors.newFixedThreadPool(PropertyConstants.getMaximumThreadSize());
-        List<Future<?>> futures = new ArrayList<>(blackDuckFortifyMappers.size());
-        for (BlackDuckFortifyMapper blackDuckFortifyMapper : blackDuckFortifyMappers) {
-            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapper)));
+        List<Future<?>> futures = new ArrayList<>(groupMap.size());
+        Random rand = new Random();
+        for (BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup : groupMap) {
+            futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup,
+                    hubServices.get(rand.nextInt(PropertyConstants.getMaximumThreadSize())), fortifyFileTokenApi, fortifyUploadApi)));
         }
         for (Future<?> f : futures) {
             f.get(); // wait for a processor to complete
@@ -113,10 +146,13 @@ public class Initializer implements Tasklet, StepExecutionListener {
                     new OutputStreamWriter(new FileOutputStream(PropertyConstants.getBatchJobStatusFilePath()), "utf-8"))) {
                 writer.write(startJobTimeStamp);
             } catch (UnsupportedEncodingException e) {
+                logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             } catch (FileNotFoundException e) {
+                logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             } catch (IOException e) {
+                logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             }
         }

@@ -1,0 +1,26 @@
+[
+    {
+      "hubProject": "Hub-Example-Project-1",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Fortify-Example-Project1",
+      "fortifyApplicationVersion": "1.0"
+    },
+    {
+      "hubProject": "Hub-Example-Project-2",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Fortify-Example-Project1",
+      "fortifyApplicationVersion": "1.0"
+    },
+    {
+      "hubProject": "Hub-Example-Project-1",
+      "hubProjectVersion": "2.0",
+      "fortifyApplication": "Fortify-Example-Project1",
+      "fortifyApplicationVersion": "2.0"
+    },
+    {
+      "hubProject": "Hub-Example-Project-3",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Fortify-Example-Project2",
+      "fortifyApplicationVersion": "1.0"
+    }
+]

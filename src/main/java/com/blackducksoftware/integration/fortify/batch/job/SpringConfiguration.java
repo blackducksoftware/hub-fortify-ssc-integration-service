@@ -20,37 +20,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.fortify.model;
+package com.blackducksoftware.integration.fortify.batch.job;
 
-import java.util.List;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 
-/**
- * Holder for Gson conversion from Fortify API json response to Java objects
- *
- * @author hsathe
- *
- */
-public final class FortifyApplicationResponse {
-    private final List<Data> data;
+import com.blackducksoftware.integration.fortify.batch.util.HubServices;
+import com.blackducksoftware.integration.fortify.batch.util.RestConnectionHelper;
 
-    private final int responseCode;
-
-    public FortifyApplicationResponse(List<Data> data, int responseCode) {
-        this.data = data;
-        this.responseCode = responseCode;
+public final class SpringConfiguration {
+    /**
+     * Created the bean to get the instance of Hub Services
+     *
+     * @return
+     */
+    @Bean
+    @Scope("prototype")
+    public HubServices getHubServices() {
+        return new HubServices(RestConnectionHelper.createHubServicesFactory());
     }
-
-    public List<Data> getData() {
-        return data;
-    }
-
-    public int getResponseCode() {
-        return responseCode;
-    }
-
-    @Override
-    public String toString() {
-        return "FortifyApplicationResponse [data=" + data + ", responseCode=" + responseCode + "]";
-    }
-
 }

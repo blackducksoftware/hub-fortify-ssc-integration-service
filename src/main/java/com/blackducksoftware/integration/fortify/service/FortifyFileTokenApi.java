@@ -24,6 +24,10 @@ package com.blackducksoftware.integration.fortify.service;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
+import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.batch.util.FortifyExceptionUtil;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.FileTokenResponse;
@@ -42,13 +46,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public final class FortifyFileTokenApi extends FortifyService {
 
-    private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
+    private final static Logger logger = Logger.getLogger(FortifyFileTokenApi.class);
+
+    private final OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
             PropertyConstants.getFortifyPassword());
 
-    private final static Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getFortifyServerUrl())
+    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getFortifyServerUrl())
             .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
 
-    private final static FortifyFileTokenApiService apiService = retrofit.create(FortifyFileTokenApiService.class);
+    private final FortifyFileTokenApiService apiService = retrofit.create(FortifyFileTokenApiService.class);
 
     /**
      * Get the Fortify File token to upload any files
@@ -56,10 +62,18 @@ public final class FortifyFileTokenApi extends FortifyService {
      * @param fileToken
      * @return
      * @throws IOException
+     * @throws IntegrationException
      */
-    public static String getFileToken(FileToken fileToken) throws IOException {
+    public String getFileToken(FileToken fileToken) throws IOException, IntegrationException {
         Call<FileTokenResponse> fileTokenResponseCall = apiService.getFileToken(fileToken);
-        FileTokenResponse fileTokenResponse = fileTokenResponseCall.execute().body();
+        FileTokenResponse fileTokenResponse;
+        try {
+            fileTokenResponse = fileTokenResponseCall.execute().body();
+            FortifyExceptionUtil.verifyFortifyResponseCode(fileTokenResponse.getResponseCode(), "Fortify Upload Get File Token Api");
+        } catch (IOException e) {
+            logger.error("Error while retrieving the file token for upload", e);
+            throw new IOException("Error while retrieving the file token for upload", e);
+        }
         return fileTokenResponse.getData().getToken();
     }
 
@@ -68,10 +82,17 @@ public final class FortifyFileTokenApi extends FortifyService {
      *
      * @return
      * @throws IOException
+     * @throws IntegrationException
      */
-    public static int deleteFileToken() throws IOException {
+    public void deleteFileToken() throws IOException, IntegrationException {
         Call<ResponseBody> deleteTokenResponseCall = apiService.deleteFileToken();
-        int responseCode = deleteTokenResponseCall.execute().code();
-        return responseCode;
+        int responseCode;
+        try {
+            responseCode = deleteTokenResponseCall.execute().code();
+            FortifyExceptionUtil.verifyFortifyResponseCode(responseCode, "Fortify Upload Delete File Token Api");
+        } catch (IOException e) {
+            logger.error("Error while deleting the file token for upload", e);
+            throw new IOException("Error while deleting the file token for upload", e);
+        }
     }
 }

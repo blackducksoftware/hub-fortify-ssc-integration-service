@@ -22,15 +22,20 @@
  */
 package com.blackducksoftware.integration.fortify.batch.util;
 
+import java.io.IOException;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
-import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapper;
+import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
+import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
+import com.google.gson.JsonIOException;
 
 import junit.framework.TestCase;
 
@@ -44,12 +49,21 @@ import junit.framework.TestCase;
 @SpringBootTest(classes = TestApplication.class)
 public class MappingParserTest extends TestCase {
 
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
+
+    @Override
+    @Before
+    public void setUp() throws JsonIOException, IOException, IntegrationException {
+        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
+    }
+
     @Test
     public void testMappingFileParser() throws Exception {
-        List<BlackDuckFortifyMapper> mapping;
+        System.out.println("Executing testMappingFileParser");
+        List<BlackDuckFortifyMapperGroup> mapping;
         try {
-            mapping = MappingParser.createMapping(PropertyConstants.getMappingJsonPath());
-            System.out.println(mapping);
+            mapping = blackDuckFortifyJobConfig.getMappingParser().createMapping(PropertyConstants.getMappingJsonPath());
+            assertNotNull(mapping);
         } catch (Exception e) {
             e.printStackTrace();
             // Logger info to be added

@@ -23,32 +23,23 @@
 package com.blackducksoftware.integration.fortify.service;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
+import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 import com.blackducksoftware.integration.fortify.model.UpdateFortifyApplicationAttributesRequest;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
-import okhttp3.OkHttpClient;
 
 /**
  * Fortify API Tests
@@ -56,79 +47,67 @@ import okhttp3.OkHttpClient;
  * @author hsathe
  *
  */
-@RunWith(PowerMockRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = TestApplication.class)
-@PowerMockRunnerDelegate(SpringRunner.class)
-@PrepareForTest({ FortifyService.class, OkHttpClient.class, OkHttpClient.Builder.class, FortifyApplicationVersionApi.class })
-
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = TestApplication.class)
 public class FortifyApplicationVersionApiTest extends TestCase {
-    @Mock
-    OkHttpClient okHttpClient;
 
     String FIELDS = "id";
 
     String QUERY = "name:1.3+and+project.name:Logistics";
 
-    @Mock
-    CreateApplicationRequest request;
-
-    @Test
-    public void getApplicationVersionTest() throws IOException {
-        FortifyApplicationResponse mockResponse = new FortifyApplicationResponse();
-
-        Mockito.when(FortifyApplicationVersionApi.getApplicationVersionByName(Mockito.anyString(), Mockito.anyString())).thenReturn(mockResponse);
-        FortifyApplicationResponse response = FortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, QUERY);
-        assertNotNull(response);
-    }
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
 
     @Override
     @Before
     public void setUp() {
-        PowerMockito.mockStatic(OkHttpClient.Builder.class);
-        OkHttpClient.Builder builder = Mockito.mock(OkHttpClient.Builder.class);
-
-        PowerMockito.mockStatic(FortifyService.class);
-        Mockito.when(FortifyService.getHeader(Mockito.anyString(), Mockito.anyString())).thenReturn(builder);
-
-        PowerMockito.mockStatic(OkHttpClient.class);
-        OkHttpClient okHttpClient = Mockito.mock(OkHttpClient.class);
-        Mockito.when(builder.build()).thenReturn(okHttpClient);
-
-        PowerMockito.mockStatic(FortifyApplicationVersionApi.class);
+        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
     }
 
     @Test
-    public void createApplicationVersionTest() throws IOException {
-
-        Mockito.when(FortifyApplicationVersionApi.createApplicationVersion(Mockito.any())).thenReturn(110);
-        int id = FortifyApplicationVersionApi.createApplicationVersion(request);
-        assertEquals("Created application", 110, id);
-
+    public void getApplicationVersionTest() throws IOException, IntegrationException {
+        System.out.println("Executing getApplicationVersionTest");
+        FortifyApplicationResponse response = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().getApplicationVersionByName(FIELDS, QUERY);
+        assertNotNull(response);
     }
 
     @Test
-    public void updateApplicationAttributesTest() throws IOException {
-        int parentId = 111;
-
-        String attributeValues = "[{\"attributeDefinitionId\":5,\"values\":[{\"guid\":\"New\"}],\"value\":null},{\"attributeDefinitionId\":6,\"values\":[{\"guid\":\"Internal\"}],\"value\":null},{\"attributeDefinitionId\":7,\"values\":[{\"guid\":\"internalnetwork\"}],\"value\":null},{\"attributeDefinitionId\":10,\"values\":[],\"value\":null},{\"attributeDefinitionId\":11,\"values\":[],\"value\":null},{\"attributeDefinitionId\":12,\"values\":[],\"value\":null},{\"attributeDefinitionId\":1,\"values\":[{\"guid\":\"High\"}],\"value\":null},{\"attributeDefinitionId\":2,\"values\":[],\"value\":null},{\"attributeDefinitionId\":3,\"values\":[],\"value\":null},{\"attributeDefinitionId\":4,\"values\":[],\"value\":null}]";
-        Gson gson = new Gson();
-        Type listType = new TypeToken<List<UpdateFortifyApplicationAttributesRequest>>() {
-        }.getType();
-
-        List<UpdateFortifyApplicationAttributesRequest> request = gson.fromJson(attributeValues, listType);
-        Mockito.when(FortifyApplicationVersionApi.updateApplicationAttributes(Mockito.anyInt(), Mockito.any())).thenReturn(201);
-        int responseCode = FortifyApplicationVersionApi.updateApplicationAttributes(parentId, request);
-        assertEquals("Updated application attributes", 201, responseCode);
+    public void createApplicationVersionTest() throws IOException, IntegrationException {
+        System.out.println("Executing createApplicationVersionTest");
+        CreateApplicationRequest createApplicationRequest = createApplicationVersionRequest("Fortify-Test", "1.0");
+        int id = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().createApplicationVersion(createApplicationRequest);
+        assertNotNull(id);
+        try {
+            updateApplicationAttributesTest(id);
+            commitApplicationVersion(id);
+        } catch (IOException e) {
+            throw new IOException(e);
+        } catch (IntegrationException e) {
+            throw new IntegrationException(e);
+        } finally {
+            deleteApplicationVersion(id);
+        }
     }
 
-    @Test
-    public void commitApplicationVersion() throws IOException {
-        final int ID = 111;
-        CommitFortifyApplicationRequest request = new CommitFortifyApplicationRequest();
-        request.setCommitted(true);
-        Mockito.when(FortifyApplicationVersionApi.commitApplicationVersion(Mockito.anyInt(), Mockito.any())).thenReturn(201);
-        int responseCode = FortifyApplicationVersionApi.commitApplicationVersion(ID, request);
-        assertEquals("Committed application attributes", 201, responseCode);
+    public void updateApplicationAttributesTest(int parentId) throws IOException, IntegrationException {
+        System.out.println("Executing updateApplicationAttributesTest");
+        List<UpdateFortifyApplicationAttributesRequest> request = blackDuckFortifyJobConfig.getMappingParser().addCustomAttributes();
+        blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().updateApplicationAttributes(parentId, request);
     }
 
+    public void commitApplicationVersion(int applicationId) throws IOException, IntegrationException {
+        System.out.println("Executing commitApplicationVersion");
+        CommitFortifyApplicationRequest request = new CommitFortifyApplicationRequest(true);
+        blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().commitApplicationVersion(applicationId, request);
+    }
+
+    public void deleteApplicationVersion(int applicationId) throws IOException, IntegrationException {
+        System.out.println("Executing deleteApplicationVersion");
+        blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().deleteApplicationVersion(applicationId);
+    }
+
+    private CreateApplicationRequest createApplicationVersionRequest(String fortifyProjectName, String fortifyProjectVersion) {
+        String TEMPLATE = "Prioritized-HighRisk-Project-Template";
+        return new CreateApplicationRequest(fortifyProjectVersion, "Built using API", true, false,
+                new CreateApplicationRequest.Project("", fortifyProjectName, "Built using API", TEMPLATE), TEMPLATE);
+    }
 }
