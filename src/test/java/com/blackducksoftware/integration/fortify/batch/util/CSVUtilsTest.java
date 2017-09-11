@@ -29,10 +29,13 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
@@ -46,6 +49,7 @@ import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TestApplication.class)
+@ContextConfiguration(classes = { SpringConfiguration.class, BlackDuckFortifyJobConfig.class, BatchSchedulerConfig.class, PropertyConstants.class })
 public class CSVUtilsTest extends TestCase {
     private String PROJECT_NAME;
 
@@ -53,17 +57,20 @@ public class CSVUtilsTest extends TestCase {
 
     private Date bomUpdatedValueAt = null;
 
-    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
+    @Autowired
+    private HubServices hubServices;
 
-    private SpringConfiguration springConfiguration;
+    @Autowired
+    private MappingParser mappingParser;
+
+    @Autowired
+    private PropertyConstants propertyConstants;
 
     @Override
     @Before
     public void setUp() throws JsonIOException, IOException, IntegrationException {
-        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
-        springConfiguration = new SpringConfiguration();
-        final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = blackDuckFortifyJobConfig.getMappingParser()
-                .createMapping(PropertyConstants.getMappingJsonPath());
+        final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = mappingParser
+                .createMapping(propertyConstants.getMappingJsonPath());
         PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProject();
         VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProjectVersion();
     }
@@ -74,9 +81,9 @@ public class CSVUtilsTest extends TestCase {
         ProjectVersionView projectVersionItem = null;
         List<VulnerableComponentView> vulnerableComponentViews;
         try {
-            projectVersionItem = springConfiguration.getHubServices().getProjectVersion(PROJECT_NAME, VERSION_NAME);
-            vulnerableComponentViews = springConfiguration.getHubServices().getVulnerabilityComponentViews(projectVersionItem);
-            bomUpdatedValueAt = springConfiguration.getHubServices().getBomLastUpdatedAt(projectVersionItem);
+            projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
+            vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItem);
+            bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
         } catch (IllegalArgumentException e1) {
             e1.printStackTrace();
             throw new RuntimeException(e1);
@@ -88,7 +95,7 @@ public class CSVUtilsTest extends TestCase {
         assertNotNull(bomUpdatedValueAt);
 
         List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(vulnerableComponentViews, PROJECT_NAME, VERSION_NAME,
-                bomUpdatedValueAt);
+                bomUpdatedValueAt, propertyConstants);
         try {
             // csvUtils.writeToCSV(vulnerabilities, PROJECT_NAME + "_" + VERSION_NAME + new Date(), ',');
             CSVUtils.writeToCSV(vulnerabilities, "sample.csv", ',');

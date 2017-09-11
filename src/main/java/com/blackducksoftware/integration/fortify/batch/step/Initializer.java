@@ -78,45 +78,48 @@ public class Initializer implements Tasklet, StepExecutionListener {
 
     private final FortifyUploadApi fortifyUploadApi;
 
+    private final PropertyConstants propertyConstants;
+
     /**
      * Created the bean to get the instance of Hub Services
      *
      * @return
      */
     public HubServices getHubServices() {
-        return new HubServices(RestConnectionHelper.createHubServicesFactory());
+        return new HubServices(RestConnectionHelper.createHubServicesFactory(propertyConstants));
     }
 
     public Initializer(final MappingParser mappingParser, final FortifyFileTokenApi fortifyFileTokenApi,
-            final FortifyUploadApi fortifyUploadApi) {
+            final FortifyUploadApi fortifyUploadApi, PropertyConstants propertyConstants) {
         this.mappingParser = mappingParser;
         this.fortifyFileTokenApi = fortifyFileTokenApi;
         this.fortifyUploadApi = fortifyUploadApi;
+        this.propertyConstants = propertyConstants;
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         logger.info("Started MappingParserTask");
         // Delete the files that are error out in previous run
-        Arrays.stream(new File(PropertyConstants.getReportDir()).listFiles()).forEach(File::delete);
-        logger.debug("Found Mapping file:: " + PropertyConstants.getMappingJsonPath());
+        Arrays.stream(new File(propertyConstants.getReportDir()).listFiles()).forEach(File::delete);
+        logger.debug("Found Mapping file:: " + propertyConstants.getMappingJsonPath());
 
         // Create the mapping between Hub and Fortify
-        final List<BlackDuckFortifyMapperGroup> groupMap = mappingParser.createMapping(PropertyConstants.getMappingJsonPath());
+        final List<BlackDuckFortifyMapperGroup> groupMap = mappingParser.createMapping(propertyConstants.getMappingJsonPath());
         logger.info("blackDuckFortifyMappers :" + groupMap.toString());
 
         List<HubServices> hubServices = new ArrayList<>();
-        for (int i = 0; i < PropertyConstants.getMaximumThreadSize(); i++) {
+        for (int i = 0; i < propertyConstants.getMaximumThreadSize(); i++) {
             hubServices.add(getHubServices());
         }
 
         // Create the threads for parallel processing
-        ExecutorService exec = Executors.newFixedThreadPool(PropertyConstants.getMaximumThreadSize());
+        ExecutorService exec = Executors.newFixedThreadPool(propertyConstants.getMaximumThreadSize());
         List<Future<?>> futures = new ArrayList<>(groupMap.size());
         Random rand = new Random();
         for (BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup : groupMap) {
             futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup,
-                    hubServices.get(rand.nextInt(PropertyConstants.getMaximumThreadSize())), fortifyFileTokenApi, fortifyUploadApi)));
+                    hubServices.get(rand.nextInt(propertyConstants.getMaximumThreadSize())), fortifyFileTokenApi, fortifyUploadApi, propertyConstants)));
         }
         for (Future<?> f : futures) {
             f.get(); // wait for a processor to complete
@@ -143,7 +146,7 @@ public class Initializer implements Tasklet, StepExecutionListener {
     public ExitStatus afterStep(StepExecution stepExecution) {
         if (jobStatus) {
             try (Writer writer = new BufferedWriter(
-                    new OutputStreamWriter(new FileOutputStream(PropertyConstants.getBatchJobStatusFilePath()), "utf-8"))) {
+                    new OutputStreamWriter(new FileOutputStream(propertyConstants.getBatchJobStatusFilePath()), "utf-8"))) {
                 writer.write(startJobTimeStamp);
             } catch (UnsupportedEncodingException e) {
                 logger.error(e.getMessage(), e);

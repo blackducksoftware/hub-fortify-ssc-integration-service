@@ -40,13 +40,20 @@ public final class FortifyAttributeDefinitionApi extends FortifyService {
 
     private final static String FIELDS_ATTRIBUTE = "id,name,category,type,options,required";
 
-    private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
-            PropertyConstants.getFortifyPassword());
+    private static OkHttpClient.Builder okBuilder;
 
-    private final static Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getFortifyServerUrl())
-            .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
+    private static Retrofit retrofit;
 
-    private final static FortifyAttributeDefinitionApiService apiService = retrofit.create(FortifyAttributeDefinitionApiService.class);
+    private static FortifyAttributeDefinitionApiService apiService;
+
+    public FortifyAttributeDefinitionApi(final PropertyConstants propertyConstants) {
+        super(propertyConstants);
+        okBuilder = getHeader(propertyConstants.getFortifyUserName(),
+                propertyConstants.getFortifyPassword());
+        retrofit = new Retrofit.Builder().baseUrl(propertyConstants.getFortifyServerUrl())
+                .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
+        apiService = retrofit.create(FortifyAttributeDefinitionApiService.class);
+    }
 
     public FortifyAttributeDefinitionResponse getAttributeDefinitions() throws IOException, IntegrationException {
         Call<FortifyAttributeDefinitionResponse> apiApplicationResponseCall = apiService.getAttributeDefinitions(FIELDS_ATTRIBUTE, FILTER_REQUIRE_ATTRIBUTE);

@@ -23,12 +23,15 @@
 package com.blackducksoftware.integration.fortify.batch.job;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
+import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.batch.util.RestConnectionHelper;
 
-public final class SpringConfiguration {
+@Configuration
+public class SpringConfiguration {
     /**
      * Created the bean to get the instance of Hub Services
      *
@@ -36,7 +39,7 @@ public final class SpringConfiguration {
      */
     @Bean
     @Scope("prototype")
-    public HubServices getHubServices() {
-        return new HubServices(RestConnectionHelper.createHubServicesFactory());
+    public HubServices getHubServices(PropertyConstants propertyConstants) {
+        return new HubServices(RestConnectionHelper.createHubServicesFactory(propertyConstants));
     }
 }

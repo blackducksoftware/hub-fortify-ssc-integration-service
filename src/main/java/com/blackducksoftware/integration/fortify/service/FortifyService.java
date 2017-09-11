@@ -26,6 +26,7 @@ import java.io.IOException;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.util.FortifyExceptionUtil;
+import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
@@ -44,6 +45,16 @@ import okhttp3.logging.HttpLoggingInterceptor.Level;
  *
  */
 public abstract class FortifyService {
+    private final PropertyConstants propertyConstants;
+
+    public FortifyService(PropertyConstants propertyConstants) {
+        this.propertyConstants = propertyConstants;
+    }
+
+    public PropertyConstants getPropertyConstants() {
+        return propertyConstants;
+    }
+
     public static Builder getHeader(String userName, String password) {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(Level.BASIC);

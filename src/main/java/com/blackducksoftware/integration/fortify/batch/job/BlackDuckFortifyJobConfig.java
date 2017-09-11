@@ -44,7 +44,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.step.Initializer;
+import com.blackducksoftware.integration.fortify.batch.util.AttributeConstants;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
+import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
 import com.blackducksoftware.integration.fortify.service.FortifyAttributeDefinitionApi;
 import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
@@ -70,6 +72,12 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
+    @Autowired
+    private PropertyConstants propertyConstants;
+
+    @Autowired
+    private AttributeConstants attributeConstants;
+
     /**
      * Created the bean for Fortify Application Version Api
      *
@@ -77,7 +85,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Bean
     public FortifyApplicationVersionApi getFortifyApplicationVersionApi() {
-        return new FortifyApplicationVersionApi();
+        return new FortifyApplicationVersionApi(propertyConstants);
     }
 
     /**
@@ -87,7 +95,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Bean
     public FortifyAttributeDefinitionApi getFortifyAttributeDefinitionApi() {
-        return new FortifyAttributeDefinitionApi();
+        return new FortifyAttributeDefinitionApi(propertyConstants);
     }
 
     /**
@@ -97,7 +105,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Bean
     public FortifyFileTokenApi getFortifyFileTokenApi() {
-        return new FortifyFileTokenApi();
+        return new FortifyFileTokenApi(propertyConstants);
     }
 
     /**
@@ -107,7 +115,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Bean
     public FortifyUploadApi getFortifyUploadApi() {
-        return new FortifyUploadApi();
+        return new FortifyUploadApi(propertyConstants);
     }
 
     /**
@@ -117,7 +125,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Bean
     public MappingParser getMappingParser() {
-        return new MappingParser(getFortifyApplicationVersionApi(), getFortifyAttributeDefinitionApi());
+        return new MappingParser(getFortifyApplicationVersionApi(), getFortifyAttributeDefinitionApi(), propertyConstants, attributeConstants);
     }
 
     /**
@@ -127,7 +135,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Bean
     public Initializer getMappingParserTask() {
-        return new Initializer(getMappingParser(), getFortifyFileTokenApi(), getFortifyUploadApi());
+        return new Initializer(getMappingParser(), getFortifyFileTokenApi(), getFortifyUploadApi(), propertyConstants);
     }
 
     /**

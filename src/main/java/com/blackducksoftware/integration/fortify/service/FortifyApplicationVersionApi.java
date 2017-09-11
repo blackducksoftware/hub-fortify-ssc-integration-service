@@ -53,13 +53,20 @@ public final class FortifyApplicationVersionApi extends FortifyService {
 
     private final static Logger logger = Logger.getLogger(MappingParser.class);
 
-    private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
-            PropertyConstants.getFortifyPassword());
+    private final OkHttpClient.Builder okBuilder;
 
-    private final static Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getFortifyServerUrl())
-            .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
+    private final Retrofit retrofit;
 
-    private final static FortifyApplicationVersionApiService apiService = retrofit.create(FortifyApplicationVersionApiService.class);
+    private final FortifyApplicationVersionApiService apiService;
+
+    public FortifyApplicationVersionApi(final PropertyConstants propertyConstants) {
+        super(propertyConstants);
+        okBuilder = getHeader(propertyConstants.getFortifyUserName(),
+                propertyConstants.getFortifyPassword());
+        retrofit = new Retrofit.Builder().baseUrl(propertyConstants.getFortifyServerUrl())
+                .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
+        apiService = retrofit.create(FortifyApplicationVersionApiService.class);
+    }
 
     public FortifyApplicationResponse getApplicationVersionByName(String fields, String filter) throws IOException, IntegrationException {
         Call<FortifyApplicationResponse> apiApplicationResponseCall = apiService.getApplicationVersionByName(fields, filter);

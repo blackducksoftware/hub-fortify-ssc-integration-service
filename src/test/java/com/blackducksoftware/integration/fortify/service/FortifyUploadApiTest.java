@@ -25,35 +25,39 @@ package com.blackducksoftware.integration.fortify.service;
 import java.io.File;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
+import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
+import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TestApplication.class)
+@ContextConfiguration(classes = { SpringConfiguration.class, BlackDuckFortifyJobConfig.class, BatchSchedulerConfig.class, PropertyConstants.class })
 public class FortifyUploadApiTest extends TestCase {
-    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
 
-    @Override
-    @Before
-    public void setUp() {
-        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
-    }
+    @Autowired
+    private FortifyUploadApi fortifyUploadApi;
+
+    @Autowired
+    private FortifyFileTokenApi fortifyFileTokenApi;
 
     @Test
     public void uploadCSVFile() throws Exception {
         System.out.println("Executing uploadCSVFile");
         FileToken fileToken = new FileToken("UPLOAD");
 
-        String fileTokenResponse = blackDuckFortifyJobConfig.getFortifyFileTokenApi().getFileToken(fileToken);
+        String fileTokenResponse = fortifyFileTokenApi.getFileToken(fileToken);
         System.out.println("File Token::" + fileTokenResponse);
         Assert.assertNotNull(fileTokenResponse);
 
@@ -63,7 +67,7 @@ public class FortifyUploadApiTest extends TestCase {
         // File("/Users/smanikantan/Documents/hub-fortify-integration/report/solrWar2_4.10.4_20170510160506866.csv");
         System.out.println("file::" + file);
 
-        boolean response = blackDuckFortifyJobConfig.getFortifyUploadApi().uploadVulnerabilityByProjectVersion(fileTokenResponse, 2l, file);
+        boolean response = fortifyUploadApi.uploadVulnerabilityByProjectVersion(fileTokenResponse, 2l, file);
         System.out.println("uploadVulnerabilityResponse::" + response);
         Assert.assertTrue(response);
     }
