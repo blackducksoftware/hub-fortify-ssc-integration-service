@@ -29,7 +29,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 group 'com.blackducksoftware.integration.fortify'
-version = '2.0.2'
+version = '2.0.2b'
 
 mainClassName = 'com.blackducksoftware.integration.fortify.Application'
 
