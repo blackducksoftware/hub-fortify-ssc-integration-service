@@ -40,11 +40,11 @@ public final class FortifyAttributeDefinitionApi extends FortifyService {
 
     private final static String FIELDS_ATTRIBUTE = "id,name,category,type,options,required";
 
-    private static OkHttpClient.Builder okBuilder;
+    private final OkHttpClient.Builder okBuilder;
 
-    private static Retrofit retrofit;
+    private final Retrofit retrofit;
 
-    private static FortifyAttributeDefinitionApiService apiService;
+    private final FortifyAttributeDefinitionApiService apiService;
 
     public FortifyAttributeDefinitionApi(final PropertyConstants propertyConstants) {
         super(propertyConstants);
