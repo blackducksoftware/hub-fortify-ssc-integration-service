@@ -100,7 +100,7 @@ public final class HubServices {
      * @throws IntegrationException
      */
     public List<ProjectView> getAllProjects() throws IntegrationException {
-        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService(hubServicesFactory.getRestConnection().logger);
+        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
         return projectRequestService.getAllProjects();
     }
 
@@ -113,7 +113,7 @@ public final class HubServices {
      */
     public List<ProjectVersionView> getProjectVersionsByProject(final ProjectView project) throws IntegrationException {
         final ProjectVersionRequestService projectVersionRequestService = hubServicesFactory
-                .createProjectVersionRequestService(hubServicesFactory.getRestConnection().logger);
+                .createProjectVersionRequestService();
         return projectVersionRequestService.getAllProjectVersions(project);
     }
 
@@ -126,7 +126,7 @@ public final class HubServices {
      */
     public ProjectView getProjectByProjectName(final String projectName) throws IntegrationException {
         logger.info("Getting Hub project info for::" + projectName);
-        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService(hubServicesFactory.getRestConnection().logger);
+        final ProjectRequestService projectRequestService = hubServicesFactory.createProjectRequestService();
         return projectRequestService.getProjectByName(projectName);
     }
 
@@ -141,7 +141,7 @@ public final class HubServices {
     private ProjectVersionView getProjectVersion(final ProjectView projectItem, final String versionName) throws IntegrationException {
         logger.info("Getting Hub project version info for::" + versionName);
         final ProjectVersionRequestService projectVersionRequestService = hubServicesFactory
-                .createProjectVersionRequestService(hubServicesFactory.getRestConnection().logger);
+                .createProjectVersionRequestService();
         return projectVersionRequestService.getProjectVersion(projectItem, versionName);
     }
 
@@ -156,7 +156,7 @@ public final class HubServices {
      */
     private String getVulnerabililtyBomComponentUrl(final ProjectVersionView projectVersionItem)
             throws HubIntegrationException, IllegalArgumentException, EncryptionException {
-        final MetaService metaService = hubServicesFactory.createMetaService(hubServicesFactory.getRestConnection().logger);
+        final MetaService metaService = hubServicesFactory.createMetaService();
         return metaService.getFirstLink(projectVersionItem, MetaService.VULNERABLE_COMPONENTS_LINK);
     }
 
@@ -185,7 +185,7 @@ public final class HubServices {
      */
     private String getProjectVersionRiskProfileUrl(final ProjectVersionView projectVersionItem)
             throws HubIntegrationException, IllegalArgumentException, EncryptionException {
-        final MetaService metaService = hubServicesFactory.createMetaService(hubServicesFactory.getRestConnection().logger);
+        final MetaService metaService = hubServicesFactory.createMetaService();
         return metaService.getFirstLink(projectVersionItem, MetaService.RISK_PROFILE_LINK);
     }
 
