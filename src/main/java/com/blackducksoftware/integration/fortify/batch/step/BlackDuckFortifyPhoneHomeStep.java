@@ -39,9 +39,9 @@ public class BlackDuckFortifyPhoneHomeStep implements Tasklet, StepExecutionList
 
     private String startJobTimeStamp;
 
-    private HubServices hubServices;
+    private final HubServices hubServices;
 
-    private PropertyConstants propertyConstants;
+    private final PropertyConstants propertyConstants;
 
     /**
      * Constructor
@@ -50,7 +50,6 @@ public class BlackDuckFortifyPhoneHomeStep implements Tasklet, StepExecutionList
      *            HubServices object which provides access to the Hub
      */
     public BlackDuckFortifyPhoneHomeStep(HubServices hubServices, PropertyConstants propertyConstants) {
-        super();
         this.hubServices = hubServices;
         this.propertyConstants = propertyConstants;
     }
