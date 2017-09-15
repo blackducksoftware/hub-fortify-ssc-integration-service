@@ -224,7 +224,7 @@ public final class HubServices {
 
     public PhoneHomeDataService getPhoneHomeDataService() {
         logger.info("Getting Phone Home Data Service");
-        final PhoneHomeDataService phoneHomeDataService = hubServicesFactory.createPhoneHomeDataService(hubServicesFactory.getRestConnection().logger);
+        final PhoneHomeDataService phoneHomeDataService = hubServicesFactory.createPhoneHomeDataService();
         return phoneHomeDataService;
     }
 }
