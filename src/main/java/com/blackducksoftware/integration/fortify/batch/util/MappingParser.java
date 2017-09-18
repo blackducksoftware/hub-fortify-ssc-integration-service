@@ -81,9 +81,16 @@ public final class MappingParser {
 
     private final FortifyAttributeDefinitionApi fortifyAttributeDefinitionApi;
 
-    public MappingParser(final FortifyApplicationVersionApi fortifyApplicationVersionApi, final FortifyAttributeDefinitionApi fortifyAttributeDefinitionApi) {
+    private final PropertyConstants propertyConstants;
+
+    private final AttributeConstants attributeConstants;
+
+    public MappingParser(final FortifyApplicationVersionApi fortifyApplicationVersionApi, final FortifyAttributeDefinitionApi fortifyAttributeDefinitionApi,
+            PropertyConstants propertyConstants, AttributeConstants attributeConstants) {
         this.fortifyApplicationVersionApi = fortifyApplicationVersionApi;
         this.fortifyAttributeDefinitionApi = fortifyAttributeDefinitionApi;
+        this.propertyConstants = propertyConstants;
+        this.attributeConstants = attributeConstants;
     }
 
     /**
@@ -256,8 +263,9 @@ public final class MappingParser {
         List<UpdateFortifyApplicationAttributesRequest> updateAttributerequests = new ArrayList<>();
         logger.debug(fortifyAttributeDefinitionResponse);
         for (FortifyAttributeDefinition fortifyAttributeDefinition : fortifyAttributeDefinitionResponse.getApplicationAttributeDefinitions()) {
-            if (DYNAMIC_SCAN_REQUEST.equalsIgnoreCase(fortifyAttributeDefinition.getCategory()))
+            if (DYNAMIC_SCAN_REQUEST.equalsIgnoreCase(fortifyAttributeDefinition.getCategory())) {
                 continue;
+            }
 
             /*
              * If the values are in the ignore list, then no validation on the value
@@ -266,13 +274,13 @@ public final class MappingParser {
              */
 
             if (Collections.binarySearch(ignoreAttributes, fortifyAttributeDefinition.getName(), String.CASE_INSENSITIVE_ORDER) == 0
-                    && StringUtils.isEmpty(AttributeConstants.getProperty(fortifyAttributeDefinition.getName()))) {
+                    && StringUtils.isEmpty(attributeConstants.getProperty(fortifyAttributeDefinition.getName()))) {
                 logger.debug("Attribute name::" + fortifyAttributeDefinition.getName() + ", value::"
-                        + AttributeConstants.getProperty(fortifyAttributeDefinition.getName()));
+                        + attributeConstants.getProperty(fortifyAttributeDefinition.getName()));
                 updateAttributerequests.add(new UpdateFortifyApplicationAttributesRequest(fortifyAttributeDefinition.getId(), new ArrayList<Value>(), null));
-            } else if (StringUtils.isEmpty(AttributeConstants.getProperty(fortifyAttributeDefinition.getName()))) {
+            } else if (StringUtils.isEmpty(attributeConstants.getProperty(fortifyAttributeDefinition.getName()))) {
                 throw new IntegrationException(
-                        "Attribute value for " + fortifyAttributeDefinition.getName() + " is missing in " + PropertyConstants.getAttributeFilePath());
+                        "Attribute value for " + fortifyAttributeDefinition.getName() + " is missing in " + propertyConstants.getAttributeFilePath());
             } else {
                 updateAttributerequests.add(addCustomAttributes(fortifyAttributeDefinition));
             }
@@ -302,28 +310,28 @@ public final class MappingParser {
             case "TEXT":
             case "LONG_TEXT":
             case "SENSITIVE_TEXT":
-                value = AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim());
+                value = attributeConstants.getProperty(fortifyAttributeDefinition.getName().trim());
                 break;
             case "INTEGER":
-                value = Integer.parseInt(AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()));
+                value = Integer.parseInt(attributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()));
                 break;
             case "BOOLEAN":
-                value = Boolean.parseBoolean(AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()));
+                value = Boolean.parseBoolean(attributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()));
                 break;
             case "DATE":
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                LocalDate.parse(AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()), formatter);
-                value = AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim());
+                LocalDate.parse(attributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()), formatter);
+                value = attributeConstants.getProperty(fortifyAttributeDefinition.getName().trim());
                 break;
             default:
-                value = AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim());
+                value = attributeConstants.getProperty(fortifyAttributeDefinition.getName().trim());
             }
         } catch (NumberFormatException e) {
             throw new IntegrationException(fortifyAttributeDefinition.getName() + "'s attribute value \""
-                    + AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()) + "\" is not a valid " + dataType + "!");
+                    + attributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()) + "\" is not a valid " + dataType + "!");
         } catch (DateTimeParseException e) {
             throw new IntegrationException(fortifyAttributeDefinition.getName() + "'s attribute value \""
-                    + AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim())
+                    + attributeConstants.getProperty(fortifyAttributeDefinition.getName().trim())
                     + "\" is not a valid date! Please make sure the date format is yyyy-MM-dd");
         }
         logger.debug("Attribute name::" + fortifyAttributeDefinition.getName() + ", values::" + values + ", value::" + value);
@@ -342,10 +350,10 @@ public final class MappingParser {
         Value value;
         if ("SINGLE".equalsIgnoreCase(fortifyAttributeDefinition.getType())) {
             value = new Value(validateSingleAndMultipleDataTypeAttributeValue(fortifyAttributeDefinition,
-                    AttributeConstants.getProperty(fortifyAttributeDefinition.getName())));
+                    attributeConstants.getProperty(fortifyAttributeDefinition.getName())));
             values.add(value);
         } else {
-            String[] valueArr = AttributeConstants.getProperty(fortifyAttributeDefinition.getName()).split(",");
+            String[] valueArr = attributeConstants.getProperty(fortifyAttributeDefinition.getName()).split(",");
             for (String strValue : valueArr) {
                 value = new Value(validateSingleAndMultipleDataTypeAttributeValue(fortifyAttributeDefinition, strValue.trim()));
                 values.add(value);
@@ -369,7 +377,7 @@ public final class MappingParser {
             }
         }
         throw new IntegrationException(fortifyAttributeDefinition.getName() + "'s attribute value \""
-                + AttributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()) + "\" is not a valid option!");
+                + attributeConstants.getProperty(fortifyAttributeDefinition.getName().trim()) + "\" is not a valid option!");
     }
 
     /**

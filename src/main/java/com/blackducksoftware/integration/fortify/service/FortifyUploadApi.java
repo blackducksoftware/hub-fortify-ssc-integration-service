@@ -49,12 +49,19 @@ import okhttp3.Response;
 public final class FortifyUploadApi extends FortifyService {
     private final static Logger logger = Logger.getLogger(FortifyUploadApi.class);
 
-    private final static OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
-            PropertyConstants.getFortifyPassword());
+    private final OkHttpClient.Builder okBuilder;
 
-    private final static OkHttpClient okHttpClient = okBuilder.build();
+    private final OkHttpClient okHttpClient;
 
-    private final static String URL = PropertyConstants.getFortifyServerUrl() + "upload/resultFileUpload.html?mat=";
+    private final String URL;
+
+    public FortifyUploadApi(final PropertyConstants propertyConstants) {
+        super(propertyConstants);
+        okBuilder = getHeader(propertyConstants.getFortifyUserName(),
+                propertyConstants.getFortifyPassword());
+        okHttpClient = okBuilder.build();
+        URL = propertyConstants.getFortifyServerUrl() + "upload/resultFileUpload.html?mat=";
+    }
 
     /**
      * Upload the vulnerabilities to Fortify

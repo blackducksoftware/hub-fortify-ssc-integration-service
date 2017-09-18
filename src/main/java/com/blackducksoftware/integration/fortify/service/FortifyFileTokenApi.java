@@ -48,13 +48,20 @@ public final class FortifyFileTokenApi extends FortifyService {
 
     private final static Logger logger = Logger.getLogger(FortifyFileTokenApi.class);
 
-    private final OkHttpClient.Builder okBuilder = getHeader(PropertyConstants.getFortifyUserName(),
-            PropertyConstants.getFortifyPassword());
+    private final OkHttpClient.Builder okBuilder;
 
-    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(PropertyConstants.getFortifyServerUrl())
-            .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
+    private final Retrofit retrofit;
 
-    private final FortifyFileTokenApiService apiService = retrofit.create(FortifyFileTokenApiService.class);
+    private final FortifyFileTokenApiService apiService;
+
+    public FortifyFileTokenApi(final PropertyConstants propertyConstants) {
+        super(propertyConstants);
+        okBuilder = getHeader(propertyConstants.getFortifyUserName(),
+                propertyConstants.getFortifyPassword());
+        retrofit = new Retrofit.Builder().baseUrl(propertyConstants.getFortifyServerUrl())
+                .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
+        apiService = retrofit.create(FortifyFileTokenApiService.class);
+    }
 
     /**
      * Get the Fortify File token to upload any files

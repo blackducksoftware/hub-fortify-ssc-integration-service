@@ -84,12 +84,15 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
 
     private final FortifyUploadApi fortifyUploadApi;
 
+    private final PropertyConstants propertyConstants;
+
     public BlackDuckFortifyPushThread(final BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup, final HubServices hubServices,
-            final FortifyFileTokenApi fortifyFileTokenApi, final FortifyUploadApi fortifyUploadApi) {
+            final FortifyFileTokenApi fortifyFileTokenApi, final FortifyUploadApi fortifyUploadApi, PropertyConstants propertyConstants) {
         this.blackDuckFortifyMapperGroup = blackDuckFortifyMapperGroup;
         this.hubServices = hubServices;
         this.fortifyFileTokenApi = fortifyFileTokenApi;
         this.fortifyUploadApi = fortifyUploadApi;
+        this.propertyConstants = propertyConstants;
     }
 
     @Override
@@ -99,19 +102,19 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
         final List<HubProjectVersion> hubProjectVersions = blackDuckFortifyMapperGroup.getHubProjectVersion();
 
         // Get the last successful runtime of the job
-        final Date getLastSuccessfulJobRunTime = getLastSuccessfulJobRunTime(PropertyConstants.getBatchJobStatusFilePath());
+        final Date getLastSuccessfulJobRunTime = getLastSuccessfulJobRunTime(propertyConstants.getBatchJobStatusFilePath());
         logger.debug("Last successful job excecution:" + getLastSuccessfulJobRunTime);
 
         // Get the project version view from Hub and calculate the max BOM updated date
         final List<ProjectVersionView> projectVersionItems = getProjectVersionItemsAndMaxBomUpdatedDate(hubProjectVersions);
         logger.info("Compare Dates: "
                 + ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)
-                        || (!PropertyConstants.isBatchJobStatusCheck())));
+                        || (!propertyConstants.isBatchJobStatusCheck())));
         logger.debug("maxBomUpdatedDate:: " + maxBomUpdatedDate);
-        logger.debug("isBatchJobStatusCheck::" + PropertyConstants.isBatchJobStatusCheck());
+        logger.debug("isBatchJobStatusCheck::" + propertyConstants.isBatchJobStatusCheck());
 
         if ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)
-                || (!PropertyConstants.isBatchJobStatusCheck())) {
+                || (!propertyConstants.isBatchJobStatusCheck())) {
             // Get the vulnerabilities for all Hub project versions and merge it
             List<Vulnerability> mergedVulnerabilities = mergeVulnerabilities(hubProjectVersions, projectVersionItems);
             if (mergedVulnerabilities.size() > 0) {
@@ -119,7 +122,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
                     // Removing Duplicates within multiple Hub Project Versions.
                     mergedVulnerabilities = VulnerabilityUtil.removeDuplicates(mergedVulnerabilities);
                 }
-                final String fileDir = PropertyConstants.getReportDir();
+                final String fileDir = propertyConstants.getReportDir();
                 final String fileName = hubProjectVersions.get(0).getHubProject() + UNDERSCORE + hubProjectVersions.get(0).getHubProjectVersion()
                         + UNDERSCORE + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
 
@@ -191,7 +194,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
 
             // Convert the Hub Vulnerability component view to CSV Vulnerability object
             List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(vulnerableComponentViews, hubProjectVersion.getHubProject(),
-                    hubProjectVersion.getHubProjectVersion(), maxBomUpdatedDate);
+                    hubProjectVersion.getHubProjectVersion(), maxBomUpdatedDate, propertyConstants);
 
             // Add the vulnerabilities to the main list
             mergedVulnerabilities.addAll(vulnerabilities);

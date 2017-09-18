@@ -28,21 +28,25 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+
 /**
  * This class will hold all the key value pairs that are specified in the attributes.properties file
  *
  * @author smanikantan
  *
  */
+@Configuration
 public class AttributeConstants {
 
-    private static final Properties properties = new Properties();
+    private final Properties properties = new Properties();
 
-    private static final String attributesFileName = PropertyConstants.getAttributeFilePath();
+    private final HashMap<Object, Object> hmProps = new HashMap<>();
 
-    private static final HashMap<Object, Object> hmProps = new HashMap<>();
-
-    static {
+    @Autowired
+    public AttributeConstants(PropertyConstants propertyConstants) {
+        String attributesFileName = propertyConstants.getAttributeFilePath();
         InputStream attributeConfig = null;
         try {
             attributeConfig = new java.io.FileInputStream(attributesFileName);
@@ -70,7 +74,7 @@ public class AttributeConstants {
      *            the key
      * @return the property
      */
-    public static String getProperty(String key) {
+    public String getProperty(String key) {
         if (hmProps.containsKey(key)) {
             return (String) hmProps.get(key);
         } else {

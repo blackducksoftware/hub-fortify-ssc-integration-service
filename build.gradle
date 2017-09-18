@@ -29,7 +29,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 group 'com.blackducksoftware.integration.fortify'
-version = '2.0.2b'
+version = '2.0.3'
 
 mainClassName = 'com.blackducksoftware.integration.fortify.Application'
 
@@ -135,4 +135,10 @@ publishing{
 
 jacocoTestReport {
     reports { xml.enabled = true }
+}
+
+processResources { 
+	filesMatching("**/application*.properties") { 
+		expand(project.properties)
+	}
 }

@@ -25,15 +25,20 @@ package com.blackducksoftware.integration.fortify.service;
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
+import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
+import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
+import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
@@ -49,24 +54,23 @@ import junit.framework.TestCase;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TestApplication.class)
+@ContextConfiguration(classes = { SpringConfiguration.class, BlackDuckFortifyJobConfig.class, BatchSchedulerConfig.class, PropertyConstants.class })
 public class FortifyApplicationVersionApiTest extends TestCase {
 
     String FIELDS = "id";
 
     String QUERY = "name:1.3+and+project.name:Logistics";
 
-    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
+    @Autowired
+    private FortifyApplicationVersionApi fortifyApplicationVersionApi;
 
-    @Override
-    @Before
-    public void setUp() {
-        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
-    }
+    @Autowired
+    private MappingParser mappingParser;
 
     @Test
     public void getApplicationVersionTest() throws IOException, IntegrationException {
         System.out.println("Executing getApplicationVersionTest");
-        FortifyApplicationResponse response = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().getApplicationVersionByName(FIELDS, QUERY);
+        FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, QUERY);
         assertNotNull(response);
     }
 
@@ -74,7 +78,7 @@ public class FortifyApplicationVersionApiTest extends TestCase {
     public void createApplicationVersionTest() throws IOException, IntegrationException {
         System.out.println("Executing createApplicationVersionTest");
         CreateApplicationRequest createApplicationRequest = createApplicationVersionRequest("Fortify-Test", "1.0");
-        int id = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().createApplicationVersion(createApplicationRequest);
+        int id = fortifyApplicationVersionApi.createApplicationVersion(createApplicationRequest);
         assertNotNull(id);
         try {
             updateApplicationAttributesTest(id);
@@ -90,19 +94,19 @@ public class FortifyApplicationVersionApiTest extends TestCase {
 
     public void updateApplicationAttributesTest(int parentId) throws IOException, IntegrationException {
         System.out.println("Executing updateApplicationAttributesTest");
-        List<UpdateFortifyApplicationAttributesRequest> request = blackDuckFortifyJobConfig.getMappingParser().addCustomAttributes();
-        blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().updateApplicationAttributes(parentId, request);
+        List<UpdateFortifyApplicationAttributesRequest> request = mappingParser.addCustomAttributes();
+        fortifyApplicationVersionApi.updateApplicationAttributes(parentId, request);
     }
 
     public void commitApplicationVersion(int applicationId) throws IOException, IntegrationException {
         System.out.println("Executing commitApplicationVersion");
         CommitFortifyApplicationRequest request = new CommitFortifyApplicationRequest(true);
-        blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().commitApplicationVersion(applicationId, request);
+        fortifyApplicationVersionApi.commitApplicationVersion(applicationId, request);
     }
 
     public void deleteApplicationVersion(int applicationId) throws IOException, IntegrationException {
         System.out.println("Executing deleteApplicationVersion");
-        blackDuckFortifyJobConfig.getFortifyApplicationVersionApi().deleteApplicationVersion(applicationId);
+        fortifyApplicationVersionApi.deleteApplicationVersion(applicationId);
     }
 
     private CreateApplicationRequest createApplicationVersionRequest(String fortifyProjectName, String fortifyProjectVersion) {

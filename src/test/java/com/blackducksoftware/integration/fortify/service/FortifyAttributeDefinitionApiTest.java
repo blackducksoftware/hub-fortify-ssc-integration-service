@@ -24,33 +24,34 @@ package com.blackducksoftware.integration.fortify.service;
 
 import java.io.IOException;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
+import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
+import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.FortifyAttributeDefinitionResponse;
 
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = { TestApplication.class })
+@ContextConfiguration(classes = { SpringConfiguration.class, BlackDuckFortifyJobConfig.class, BatchSchedulerConfig.class, PropertyConstants.class })
 public class FortifyAttributeDefinitionApiTest extends TestCase {
-    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
 
-    @Override
-    @Before
-    public void setUp() {
-        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
-    }
+    @Autowired
+    private FortifyAttributeDefinitionApi fortifyAttributeDefinitionApi;
 
     @Test
     public void getApplicationAttributeDefinition() throws IOException, IntegrationException {
-        FortifyAttributeDefinitionResponse fortifyAttributeDefintionResponse = blackDuckFortifyJobConfig.getFortifyAttributeDefinitionApi()
+        FortifyAttributeDefinitionResponse fortifyAttributeDefintionResponse = fortifyAttributeDefinitionApi
                 .getAttributeDefinitions();
         System.out.println(fortifyAttributeDefintionResponse);
         assertNotNull(fortifyAttributeDefintionResponse);

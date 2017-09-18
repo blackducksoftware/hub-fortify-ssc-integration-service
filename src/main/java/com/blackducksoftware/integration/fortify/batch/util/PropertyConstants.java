@@ -34,202 +34,212 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class PropertyConstants {
 
-    private static String hubUserName;
+    private String hubUserName;
 
     @Value("${hub.username}")
     public void setHubUserName(String hubUserName) {
-        PropertyConstants.hubUserName = hubUserName;
+        this.hubUserName = hubUserName;
     }
 
-    private static String hubPassword;
+    private String hubPassword;
 
     @Value("${hub.password}")
     public void setHubPassword(String hubPassword) {
-        PropertyConstants.hubPassword = hubPassword;
+        this.hubPassword = hubPassword;
     }
 
-    private static String hubTimeout;
+    private String hubTimeout;
 
     @Value("${hub.timeout}")
     public void setHubTimeout(String hubTimeout) {
-        PropertyConstants.hubTimeout = hubTimeout;
+        this.hubTimeout = hubTimeout;
     }
 
-    private static String hubServerUrl;
+    private String hubServerUrl;
 
     @Value("${hub.server.url}")
     public void setHubServerUrl(String hubServerUrl) {
-        PropertyConstants.hubServerUrl = hubServerUrl;
+        this.hubServerUrl = hubServerUrl;
     }
 
-    private static String hubProxyHost;
+    private String hubProxyHost;
 
     @Value("${hub.proxy.host}")
     public void setHubProxyHost(String hubProxyHost) {
-        PropertyConstants.hubProxyHost = hubProxyHost;
+        this.hubProxyHost = hubProxyHost;
     }
 
-    private static String hubProxyPort;
+    private String hubProxyPort;
 
     @Value("${hub.proxy.port}")
     public void setHubProxyPort(String hubProxyPort) {
-        PropertyConstants.hubProxyPort = hubProxyPort;
+        this.hubProxyPort = hubProxyPort;
     }
 
-    private static String hubProxyUser;
+    private String hubProxyUser;
 
     @Value("${hub.proxy.user}")
     public void setHubProxyUser(String hubProxyUser) {
-        PropertyConstants.hubProxyUser = hubProxyUser;
+        this.hubProxyUser = hubProxyUser;
     }
 
-    private static String hubProxyPassword;
+    private String hubProxyPassword;
 
     @Value("${hub.proxy.password}")
     public void setHubProxyPassword(String hubProxyPassword) {
-        PropertyConstants.hubProxyPassword = hubProxyPassword;
+        this.hubProxyPassword = hubProxyPassword;
     }
 
-    private static String hubProxyNoHost;
+    private String hubProxyNoHost;
 
     @Value("${hub.proxy.nohost}")
     public void setHubProxyNoHost(String hubProxyNoHost) {
-        PropertyConstants.hubProxyNoHost = hubProxyNoHost;
+        this.hubProxyNoHost = hubProxyNoHost;
     }
 
-    private static String fortifyUserName;
+    private String fortifyUserName;
 
     @Value("${fortify.username}")
     public void setFortifyUserName(String fortifyUserName) {
-        PropertyConstants.fortifyUserName = fortifyUserName;
+        this.fortifyUserName = fortifyUserName;
     }
 
-    private static String fortifyPassword;
+    private String fortifyPassword;
 
     @Value("${fortify.password}")
     public void setFortifyPassword(String fortifyPassword) {
-        PropertyConstants.fortifyPassword = fortifyPassword;
+        this.fortifyPassword = fortifyPassword;
     }
 
-    private static String fortifyServerUrl;
+    private String fortifyServerUrl;
 
     @Value("${fortify.server.url}")
     public void setFortifyServerUrl(String fortifyServerUrl) {
-        PropertyConstants.fortifyServerUrl = fortifyServerUrl;
+        this.fortifyServerUrl = fortifyServerUrl;
     }
 
-    private static String batchJobStatusFilePath;
+    private String batchJobStatusFilePath;
 
     @Value("${hub.fortify.batch.job.status.file.path}")
     public void setBatchJobStatusFilePath(String batchJobStatusFilePath) {
-        PropertyConstants.batchJobStatusFilePath = batchJobStatusFilePath;
+        this.batchJobStatusFilePath = batchJobStatusFilePath;
     }
 
-    private static String reportDir;
+    private String reportDir;
 
     @Value("${hub.fortify.report.dir}")
     public void setReportDir(String reportDir) {
-        PropertyConstants.reportDir = reportDir;
+        this.reportDir = reportDir;
     }
 
-    private static String mappingJsonPath;
+    private String mappingJsonPath;
 
     @Value("${hub.fortify.mapping.file.path}")
     public void setMappingJsonPath(String mappingJsonPath) {
-        PropertyConstants.mappingJsonPath = mappingJsonPath;
+        this.mappingJsonPath = mappingJsonPath;
     }
 
-    private static String attributeFilePath;
+    private String attributeFilePath;
 
     @Value("${attribute.file}")
     public void setAttributeFilePath(String attributeFilePath) {
-        PropertyConstants.attributeFilePath = attributeFilePath;
+        this.attributeFilePath = attributeFilePath;
     }
 
-    private static int maximumThreadSize;
+    private int maximumThreadSize;
 
     @Value("${maximum.thread.size}")
     public void setMaximumThreadSize(int maximumThreadSize) {
-        PropertyConstants.maximumThreadSize = maximumThreadSize;
+        this.maximumThreadSize = maximumThreadSize;
     }
 
-    private static boolean batchJobStatusCheck;
+    private boolean batchJobStatusCheck;
 
     @Value("${batch.job.status.check}")
     public void setBatchJobStatusCheck(boolean batchJobStatusCheck) {
-        PropertyConstants.batchJobStatusCheck = batchJobStatusCheck;
+        this.batchJobStatusCheck = batchJobStatusCheck;
     }
 
-    public static String getHubUserName() {
+    private String pluginVersion;
+
+    @Value("${plugin.version}")
+    public void setPluginVersion(String pluginVersion) {
+        this.pluginVersion = pluginVersion;
+    }
+
+    public String getHubUserName() {
         return hubUserName;
     }
 
-    public static String getHubPassword() {
+    public String getHubPassword() {
         return hubPassword;
     }
 
-    public static String getHubTimeout() {
+    public String getHubTimeout() {
         return hubTimeout;
     }
 
-    public static String getHubServerUrl() {
+    public String getHubServerUrl() {
         return hubServerUrl;
     }
 
-    public static String getHubProxyHost() {
+    public String getHubProxyHost() {
         return hubProxyHost;
     }
 
-    public static String getHubProxyPort() {
+    public String getHubProxyPort() {
         return hubProxyPort;
     }
 
-    public static String getHubProxyUser() {
+    public String getHubProxyUser() {
         return hubProxyUser;
     }
 
-    public static String getHubProxyPassword() {
+    public String getHubProxyPassword() {
         return hubProxyPassword;
     }
 
-    public static String getHubProxyNoHost() {
+    public String getHubProxyNoHost() {
         return hubProxyNoHost;
     }
 
-    public static String getFortifyUserName() {
+    public String getFortifyUserName() {
         return fortifyUserName;
     }
 
-    public static String getFortifyPassword() {
+    public String getFortifyPassword() {
         return fortifyPassword;
     }
 
-    public static String getFortifyServerUrl() {
+    public String getFortifyServerUrl() {
         return fortifyServerUrl;
     }
 
-    public static String getBatchJobStatusFilePath() {
+    public String getBatchJobStatusFilePath() {
         return batchJobStatusFilePath;
     }
 
-    public static String getReportDir() {
+    public String getReportDir() {
         return reportDir;
     }
 
-    public static String getMappingJsonPath() {
+    public String getMappingJsonPath() {
         return mappingJsonPath;
     }
 
-    public static String getAttributeFilePath() {
+    public String getAttributeFilePath() {
         return attributeFilePath;
     }
 
-    public static int getMaximumThreadSize() {
+    public int getMaximumThreadSize() {
         return maximumThreadSize;
     }
 
-    public static boolean isBatchJobStatusCheck() {
+    public boolean isBatchJobStatusCheck() {
         return batchJobStatusCheck;
     }
 
+    public String getPluginVersion() {
+        return pluginVersion;
+    }
 }

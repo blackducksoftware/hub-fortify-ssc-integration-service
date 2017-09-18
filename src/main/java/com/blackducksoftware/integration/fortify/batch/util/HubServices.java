@@ -35,6 +35,7 @@ import com.blackducksoftware.integration.fortify.batch.model.VulnerableComponent
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.project.ProjectRequestService;
 import com.blackducksoftware.integration.hub.api.project.version.ProjectVersionRequestService;
+import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.model.view.ProjectView;
@@ -219,5 +220,11 @@ public final class HubServices {
             return riskProfile.getBomLastUpdatedAt();
         }
         return null;
+    }
+
+    public PhoneHomeDataService getPhoneHomeDataService() {
+        logger.info("Getting Phone Home Data Service");
+        final PhoneHomeDataService phoneHomeDataService = hubServicesFactory.createPhoneHomeDataService();
+        return phoneHomeDataService;
     }
 }
