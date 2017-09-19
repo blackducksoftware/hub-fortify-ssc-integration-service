@@ -4,13 +4,10 @@ Hub Fortify SSC service runs in the background as a service, and maps your Hub p
 
 # Hub Fortify SSC Integration Service Documentation
 
-Available on BlackDuck Confluence: https://blackducksoftware.atlassian.net/wiki/spaces/PARTNERS/pages/48008579/Hub+Fortify+SSC+Plugin
+Available on Black Duck Confluence: https://blackducksoftware.atlassian.net/wiki/spaces/PARTNERS/pages/48008579/Hub+Fortify+SSC+Plugin
 
-# Download the latest release for BlackDuck Parser Plugin from: 
+# Download the latest release for Black Duck Parser Plugin from: 
 https://github.com/blackducksoftware/hub-fortify-parser/releases
-
-# BlackDuck Parser Plugin Wiki: 
-https://github.com/blackducksoftware/hub-fortify-parser/wiki
  
 # Build
 
