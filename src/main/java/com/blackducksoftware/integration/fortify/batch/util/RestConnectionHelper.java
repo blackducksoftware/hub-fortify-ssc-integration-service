@@ -22,6 +22,8 @@
  */
 package com.blackducksoftware.integration.fortify.batch.util;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
@@ -33,6 +35,8 @@ import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.log.LogLevel;
 import com.blackducksoftware.integration.log.PrintStreamIntLogger;
+
+import okhttp3.ConnectionPool;
 
 /**
  * This class is used to get the Hub REST connection
@@ -147,6 +151,9 @@ public final class RestConnectionHelper {
     private static HubServicesFactory createHubServicesFactory(final IntLogger logger, final PropertyConstants propertyConstants) {
         final RestConnection restConnection = getApplicationPropertyRestConnection(propertyConstants);
         restConnection.logger = logger;
+        // Adjust the number of connections in the connection pool. The keepAlive info is the same as the default
+        // constructor
+        restConnection.builder.connectionPool(new ConnectionPool(propertyConstants.getMaximumThreadSize(), 5, TimeUnit.MINUTES));
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
     }

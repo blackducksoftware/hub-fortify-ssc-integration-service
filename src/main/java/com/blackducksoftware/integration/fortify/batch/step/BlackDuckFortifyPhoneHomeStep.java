@@ -11,8 +11,7 @@
  */
 package com.blackducksoftware.integration.fortify.batch.step;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
@@ -37,8 +36,6 @@ import com.blackducksoftware.integration.phonehome.enums.ThirdPartyName;
 public class BlackDuckFortifyPhoneHomeStep implements Tasklet, StepExecutionListener {
     private final static Logger logger = Logger.getLogger(BlackDuckFortifyPhoneHomeStep.class);
 
-    private String startJobTimeStamp;
-
     private final HubServices hubServices;
 
     private final PropertyConstants propertyConstants;
@@ -59,7 +56,6 @@ public class BlackDuckFortifyPhoneHomeStep implements Tasklet, StepExecutionList
      */
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        startJobTimeStamp = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(LocalDateTime.now());
     }
 
     /**
@@ -67,9 +63,12 @@ public class BlackDuckFortifyPhoneHomeStep implements Tasklet, StepExecutionList
      */
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        String stopJobTimeStamp = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(LocalDateTime.now());
-        logger.info("Phone Home execution step started: " + startJobTimeStamp + " and ended: " + stopJobTimeStamp);
-        return ExitStatus.COMPLETED;
+        /**
+         * See http://forum.spring.io/forum/spring-projects/batch/123268-endtime-not-set-on-stepexecution for
+         * discussion on why StepExecution.endTime is null when the listener is called.
+         */
+        logger.info("Phone Home execution step started: " + stepExecution.getStartTime() + " and ended: " + new Date());
+        return null;
     }
 
     @Override

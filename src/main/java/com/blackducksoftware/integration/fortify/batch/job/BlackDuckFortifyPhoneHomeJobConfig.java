@@ -11,8 +11,6 @@
  */
 package com.blackducksoftware.integration.fortify.batch.job;
 
-import java.util.Date;
-
 import org.apache.log4j.Logger;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -20,18 +18,15 @@ import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.step.BlackDuckFortifyPhoneHomeStep;
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
@@ -41,11 +36,10 @@ import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
  *
  */
 @Configuration
-@EnableBatchProcessing
 public class BlackDuckFortifyPhoneHomeJobConfig implements JobExecutionListener {
     private static final Logger logger = Logger.getLogger(BlackDuckFortifyPhoneHomeJobConfig.class);
 
-    private final BatchSchedulerConfig batchSchedulerConfig;
+    private final JobLauncher jobLauncher;
 
     private final JobBuilderFactory jobBuilderFactory;
 
@@ -56,25 +50,13 @@ public class BlackDuckFortifyPhoneHomeJobConfig implements JobExecutionListener 
     private final PropertyConstants propertyConstants;
 
     @Autowired
-    public BlackDuckFortifyPhoneHomeJobConfig(BatchSchedulerConfig batchSchedulerConfig, JobBuilderFactory jobBuilderFactory,
+    public BlackDuckFortifyPhoneHomeJobConfig(JobLauncher jobLauncher, JobBuilderFactory jobBuilderFactory,
             StepBuilderFactory stepBuilderFactory, HubServices hubServices, PropertyConstants propertyConstants) {
-        this.batchSchedulerConfig = batchSchedulerConfig;
+        this.jobLauncher = jobLauncher;
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
         this.hubServices = hubServices;
         this.propertyConstants = propertyConstants;
-    }
-
-    /**
-     * Create the task executor
-     *
-     * @return TaskExecutor
-     */
-    @Bean
-    public TaskExecutor taskExecutor() {
-        SimpleAsyncTaskExecutor asyncTaskExecutor = new SimpleAsyncTaskExecutor("fortifyssc-phonehome");
-        asyncTaskExecutor.setConcurrencyLimit(SimpleAsyncTaskExecutor.NO_CONCURRENCY);
-        return asyncTaskExecutor;
     }
 
     /**
@@ -85,7 +67,7 @@ public class BlackDuckFortifyPhoneHomeJobConfig implements JobExecutionListener 
     @Scheduled(cron = "${cron.expressions}") // Run on same schedule as worker
     public void execute() throws Exception {
         JobParameters jobParams = new JobParametersBuilder().addString("JobID", String.valueOf(System.currentTimeMillis())).toJobParameters();
-        batchSchedulerConfig.jobLauncher().run(sendPhoneHomeDataJob(), jobParams);
+        jobLauncher.run(sendPhoneHomeDataJob(), jobParams);
     }
 
     @Bean
@@ -110,7 +92,7 @@ public class BlackDuckFortifyPhoneHomeJobConfig implements JobExecutionListener 
      */
     @Override
     public void beforeJob(JobExecution jobExecution) {
-        logger.info("Job started at: " + new Date());
+        logger.info("Phone Home Job started at: " + jobExecution.getStartTime());
     }
 
     /**
@@ -118,7 +100,7 @@ public class BlackDuckFortifyPhoneHomeJobConfig implements JobExecutionListener 
      */
     @Override
     public void afterJob(JobExecution jobExecution) {
-        logger.info("Job completed at: " + new Date());
+        logger.info("Phone Home Job completed (" + jobExecution.getExitStatus().getExitCode() + ") at: " + jobExecution.getEndTime());
     }
 
 }
