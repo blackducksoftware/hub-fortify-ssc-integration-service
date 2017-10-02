@@ -24,6 +24,8 @@ package com.blackducksoftware.integration.fortify.batch.job;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
@@ -39,5 +41,17 @@ public class SpringConfiguration {
     @Bean
     public HubServices getHubServices(PropertyConstants propertyConstants) {
         return new HubServices(RestConnectionHelper.createHubServicesFactory(propertyConstants));
+    }
+
+    /**
+     * Create the task executor which will be used for multi-threading
+     *
+     * @return TaskExecutor
+     */
+    @Bean
+    public TaskExecutor taskExecutor() {
+        SimpleAsyncTaskExecutor asyncTaskExecutor = new SimpleAsyncTaskExecutor("spring_batch");
+        asyncTaskExecutor.setConcurrencyLimit(SimpleAsyncTaskExecutor.NO_CONCURRENCY);
+        return asyncTaskExecutor;
     }
 }

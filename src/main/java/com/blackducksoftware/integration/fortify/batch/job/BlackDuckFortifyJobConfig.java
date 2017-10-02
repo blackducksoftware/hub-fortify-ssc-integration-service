@@ -31,20 +31,18 @@ import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.step.Initializer;
 import com.blackducksoftware.integration.fortify.batch.util.AttributeConstants;
+import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
@@ -59,7 +57,6 @@ import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
  *
  */
 @Configuration
-@EnableBatchProcessing
 public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     private final static Logger logger = Logger.getLogger(BlackDuckFortifyJobConfig.class);
 
@@ -71,6 +68,9 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private HubServices hubServices;
 
     @Autowired
     private PropertyConstants propertyConstants;
@@ -135,19 +135,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Bean
     public Initializer getMappingParserTask() {
-        return new Initializer(getMappingParser(), getFortifyFileTokenApi(), getFortifyUploadApi(), propertyConstants);
-    }
-
-    /**
-     * Create the task executor which will be used for multi-threading
-     *
-     * @return TaskExecutor
-     */
-    @Bean
-    public TaskExecutor taskExecutor() {
-        SimpleAsyncTaskExecutor asyncTaskExecutor = new SimpleAsyncTaskExecutor("spring_batch");
-        asyncTaskExecutor.setConcurrencyLimit(1);
-        return asyncTaskExecutor;
+        return new Initializer(getMappingParser(), getFortifyFileTokenApi(), getFortifyUploadApi(), hubServices, propertyConstants);
     }
 
     /**

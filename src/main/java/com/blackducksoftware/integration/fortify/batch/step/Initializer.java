@@ -35,7 +35,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -53,7 +52,6 @@ import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMap
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
-import com.blackducksoftware.integration.fortify.batch.util.RestConnectionHelper;
 import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
 import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 
@@ -78,22 +76,16 @@ public class Initializer implements Tasklet, StepExecutionListener {
 
     private final FortifyUploadApi fortifyUploadApi;
 
+    private final HubServices hubServices;
+
     private final PropertyConstants propertyConstants;
 
-    /**
-     * Created the bean to get the instance of Hub Services
-     *
-     * @return
-     */
-    public HubServices getHubServices() {
-        return new HubServices(RestConnectionHelper.createHubServicesFactory(propertyConstants));
-    }
-
     public Initializer(final MappingParser mappingParser, final FortifyFileTokenApi fortifyFileTokenApi,
-            final FortifyUploadApi fortifyUploadApi, PropertyConstants propertyConstants) {
+            final FortifyUploadApi fortifyUploadApi, final HubServices hubServices, final PropertyConstants propertyConstants) {
         this.mappingParser = mappingParser;
         this.fortifyFileTokenApi = fortifyFileTokenApi;
         this.fortifyUploadApi = fortifyUploadApi;
+        this.hubServices = hubServices;
         this.propertyConstants = propertyConstants;
     }
 
@@ -108,18 +100,12 @@ public class Initializer implements Tasklet, StepExecutionListener {
         final List<BlackDuckFortifyMapperGroup> groupMap = mappingParser.createMapping(propertyConstants.getMappingJsonPath());
         logger.info("blackDuckFortifyMappers :" + groupMap.toString());
 
-        List<HubServices> hubServices = new ArrayList<>();
-        for (int i = 0; i < propertyConstants.getMaximumThreadSize(); i++) {
-            hubServices.add(getHubServices());
-        }
-
         // Create the threads for parallel processing
         ExecutorService exec = Executors.newFixedThreadPool(propertyConstants.getMaximumThreadSize());
         List<Future<?>> futures = new ArrayList<>(groupMap.size());
-        Random rand = new Random();
         for (BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup : groupMap) {
             futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup,
-                    hubServices.get(rand.nextInt(propertyConstants.getMaximumThreadSize())), fortifyFileTokenApi, fortifyUploadApi, propertyConstants)));
+                    hubServices, fortifyFileTokenApi, fortifyUploadApi, propertyConstants)));
         }
         for (Future<?> f : futures) {
             f.get(); // wait for a processor to complete
