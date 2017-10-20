@@ -47,9 +47,16 @@ ext {
 	okhttp3Version = '3.3.1'
 	powerMockitoVersion = '1.6.6'
 	uploadDefs = new File("${rootDir}/uploadArtifacts.gradle")
+	HUB_USERNAME=System.getenv('HUB_USERNAME')
+	HUB_PASSWORD=System.getenv('HUB_PASSWORD')
+	HUB_TIMEOUT=System.getenv('HUB_TIMEOUT')
+	HUB_SERVER_URL=System.getenv('HUB_SERVER_URL')
+	FORTIFY_SERVER_URL=System.getenv('FORTIFY_SERVER_URL')
+	FORTIFY_USERNAME=System.getenv('FORTIFY_USERNAME')
+	FORTIFY_PASSWORD=System.getenv('FORTIFY_PASSWORD')
 	
-        buildName = 'hub-fortify-ssc-integration-service'
-        uploadRepoKey = System.properties['uploadRepoKey'] ?: 'bds-alliance-snapshot'
+    buildName = 'hub-fortify-ssc-integration-service'
+    uploadRepoKey = System.properties['uploadRepoKey'] ?: 'bds-alliance-snapshot'
 }
 
 repositories {
@@ -124,13 +131,13 @@ distributions {
 }
 
 publishing{
-        publications{
-                maven(MavenPublication){
-                        from components.java
-                        artifact distZip
+	publications{
+		maven(MavenPublication) {
+			from components.java
+			artifact distZip
 			artifact distTar 
-                }
         }
+    }
 }
 
 jacocoTestReport {
