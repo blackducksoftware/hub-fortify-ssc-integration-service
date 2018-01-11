@@ -30,7 +30,6 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.fortify.batch.model.RiskProfile;
 import com.blackducksoftware.integration.hub.api.project.ProjectService;
 import com.blackducksoftware.integration.hub.api.project.version.ProjectVersionService;
 import com.blackducksoftware.integration.hub.api.view.MetaHandler;
@@ -38,6 +37,7 @@ import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeData
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.model.view.ProjectView;
+import com.blackducksoftware.integration.hub.model.view.RiskProfileView;
 import com.blackducksoftware.integration.hub.model.view.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.request.HubPagedRequest;
 import com.blackducksoftware.integration.hub.request.HubRequest;
@@ -197,10 +197,10 @@ public final class HubServices {
      * @return
      * @throws IntegrationException
      */
-    private RiskProfile getBomLastUpdatedAt(final String projectVersionRiskProfileLink) throws IntegrationException {
+    private RiskProfileView getBomLastUpdatedAt(final String projectVersionRiskProfileLink) throws IntegrationException {
         final HubService hubResponseService = hubServicesFactory.createHubService();
         HubRequest hubRequest = hubResponseService.getHubRequestFactory().createRequest(projectVersionRiskProfileLink);
-        return hubResponseService.getView(hubRequest, RiskProfile.class);
+        return hubResponseService.getView(hubRequest, RiskProfileView.class);
     }
 
     /**
@@ -216,9 +216,9 @@ public final class HubServices {
         logger.info("Getting Hub last BOM updated at");
         if (projectVersionItem != null) {
             final String projectVersionRiskProfileUrl = getProjectVersionRiskProfileUrl(projectVersionItem);
-            RiskProfile riskProfile = getBomLastUpdatedAt(projectVersionRiskProfileUrl);
+            RiskProfileView riskProfile = getBomLastUpdatedAt(projectVersionRiskProfileUrl);
 
-            return riskProfile.getBomLastUpdatedAt();
+            return riskProfile.bomLastUpdatedAt;
         }
         return null;
     }
