@@ -24,11 +24,14 @@ package com.blackducksoftware.integration.fortify.batch.util;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
+import com.blackducksoftware.integration.hub.Credentials;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
@@ -54,6 +57,8 @@ public final class RestConnectionHelper {
      * @return
      */
     private static HubServerConfig getHubServerConfig(PropertyConstants propertyConstants) {
+        logger.info("Inside settings::" + propertyConstants.getHubServerUrl() + ", " + propertyConstants.getHubUserName() + ", "
+                + propertyConstants.getHubPassword());
         HubServerConfigBuilder builder = new HubServerConfigBuilder();
         builder.setHubUrl(propertyConstants.getHubServerUrl());
         builder.setUsername(propertyConstants.getHubUserName());
@@ -102,15 +107,17 @@ public final class RestConnectionHelper {
 
         CredentialsRestConnection restConnection;
         try {
+            ProxyInfo proxyInfo = null;
+            if (!StringUtils.isEmpty(serverConfig.getProxyInfo().getHost())) {
+                proxyInfo = new ProxyInfo(serverConfig.getProxyInfo().getHost(), serverConfig.getProxyInfo().getPort(),
+                        new Credentials(serverConfig.getProxyInfo().getUsername(), serverConfig.getProxyInfo().getDecryptedPassword()),
+                        serverConfig.getProxyInfo().getIgnoredProxyHosts());
+            } else {
+                proxyInfo = new ProxyInfo(null, 0, null, null);
+            }
             restConnection = new CredentialsRestConnection(new PrintStreamIntLogger(System.out, logLevel),
                     serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(),
-                    serverConfig.getTimeout());
-
-            restConnection.proxyHost = serverConfig.getProxyInfo().getHost();
-            restConnection.proxyPort = serverConfig.getProxyInfo().getPort();
-            restConnection.proxyNoHosts = serverConfig.getProxyInfo().getIgnoredProxyHosts();
-            restConnection.proxyUsername = serverConfig.getProxyInfo().getUsername();
-            restConnection.proxyPassword = serverConfig.getProxyInfo().getDecryptedPassword();
+                    serverConfig.getTimeout(), proxyInfo);
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
