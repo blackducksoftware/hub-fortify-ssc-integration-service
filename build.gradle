@@ -71,7 +71,7 @@ dependencies {
 	compile("org.springframework:spring-context-support")
 	compile("org.springframework:spring-core")
 	compile("org.springframework:spring-expression")
-	compile("com.blackducksoftware.integration:hub-common:[1,)")
+	compile("com.blackducksoftware.integration:hub-common:18.4.1")
 	compile("javax.servlet:javax.servlet-api")
 	compile("com.squareup.retrofit2:retrofit:2.1.0")
 	compile("com.fasterxml.jackson.core:jackson-annotations:2.8.8")
@@ -102,7 +102,6 @@ jar {
         main {
             resources {
                 exclude 'mapping.json'
-                exclude 'batch_job_status.txt'
             }
         }
     }
@@ -111,20 +110,20 @@ jar {
 distributions {
     main {
         contents {
-            from('src/main/resources/application_prod.properties') {
+            from("${buildDir}/resources/main/application_prod.properties") {
             	into 'config/'
             	rename {'application.properties'}
             }
-            from('src/main/resources/attributes_prod.properties') {
+            from("${buildDir}/resources/main/attributes_prod.properties") {
             	into 'config/'
             	rename {'attributes.properties'}
             }
-            from('src/main/resources/mapping_prod.json') {
+            from("${buildDir}/resources/main/mapping_prod.json") {
             	into 'config/'
             	rename {'mapping.json'}
             }
-            from('src/main/resources/batch_job_status.txt') {into 'config/'}
-            from('src/main/resources/hub-fortify.log') {into 'log/'}
+            from("${buildDir}/resources/main/batch_job_status.txt") {into 'config/'}
+            from("${project.buildDir}/resources/main/hub-fortify.log") {into 'log/'}
             from('sample.csv') { into 'report/'}
         }
     }
