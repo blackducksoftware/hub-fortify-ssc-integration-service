@@ -57,8 +57,6 @@ public final class RestConnectionHelper {
      * @return
      */
     private static HubServerConfig getHubServerConfig(PropertyConstants propertyConstants) {
-        logger.info("Inside settings::" + propertyConstants.getHubServerUrl() + ", " + propertyConstants.getHubUserName() + ", "
-                + propertyConstants.getHubPassword());
         HubServerConfigBuilder builder = new HubServerConfigBuilder();
         builder.setHubUrl(propertyConstants.getHubServerUrl());
         builder.setUsername(propertyConstants.getHubUserName());
@@ -66,7 +64,7 @@ public final class RestConnectionHelper {
         builder.setTimeout(propertyConstants.getHubTimeout());
 
         if (propertyConstants.getHubProxyHost() != null && !"".equalsIgnoreCase(propertyConstants.getHubProxyHost())) {
-            logger.info("Inside Proxy settings::" + propertyConstants.getHubProxyHost() + "::");
+            logger.info("Inside Proxy settings");
             builder.setProxyHost(propertyConstants.getHubProxyHost());
             builder.setProxyPort(propertyConstants.getHubProxyPort());
             builder.setProxyUsername(propertyConstants.getHubProxyUser());
@@ -107,14 +105,8 @@ public final class RestConnectionHelper {
 
         CredentialsRestConnection restConnection;
         try {
-            ProxyInfo proxyInfo = null;
-            if (!StringUtils.isEmpty(serverConfig.getProxyInfo().getHost())) {
-                proxyInfo = new ProxyInfo(serverConfig.getProxyInfo().getHost(), serverConfig.getProxyInfo().getPort(),
-                        new Credentials(serverConfig.getProxyInfo().getUsername(), serverConfig.getProxyInfo().getDecryptedPassword()),
-                        serverConfig.getProxyInfo().getIgnoredProxyHosts());
-            } else {
-                proxyInfo = new ProxyInfo(null, 0, null, null);
-            }
+            ProxyInfo proxyInfo = getProxyInfo(serverConfig);
+
             restConnection = new CredentialsRestConnection(new PrintStreamIntLogger(System.out, logLevel),
                     serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(),
                     serverConfig.getTimeout(), proxyInfo);
@@ -128,6 +120,24 @@ public final class RestConnectionHelper {
         }
 
         return restConnection;
+    }
+
+    /**
+     * Return the proxy info based on the configuration
+     * 
+     * @param serverConfig
+     * @return
+     * @throws EncryptionException
+     * @throws IllegalArgumentException
+     */
+    private static ProxyInfo getProxyInfo(final HubServerConfig serverConfig) throws EncryptionException, IllegalArgumentException {
+        if (!StringUtils.isEmpty(serverConfig.getProxyInfo().getHost())) {
+            return new ProxyInfo(serverConfig.getProxyInfo().getHost(), serverConfig.getProxyInfo().getPort(),
+                    new Credentials(serverConfig.getProxyInfo().getUsername(), serverConfig.getProxyInfo().getDecryptedPassword()),
+                    serverConfig.getProxyInfo().getIgnoredProxyHosts());
+        } else {
+            return new ProxyInfo(null, 0, null, null);
+        }
     }
 
     /**
