@@ -7,5 +7,5 @@ script:
   - ./gradlew clean build -x test
   
 after_success:
-  - ./gradlew test jacocoTestReport coveralls
+  - FORTIFY_SERVER_URL=$FORTIFY_SERVER_URL FORTIFY_USERNAME=$FORTIFY_USERNAME FORTIFY_PASSWORD=$FORTIFY_PASSWORD HUB_USERNAME=$HUB_USERNAME HUB_PASSWORD=$HUB_PASSWORD HUB_SERVER_URL=$HUB_SERVER_URL HUB_TIMEOUT=$HUB_TIMEOUT ./gradlew test jacocoTestReport coveralls
   - bash <(curl -s https://copilot.blackducksoftware.com/ci/travis/scripts/upload)

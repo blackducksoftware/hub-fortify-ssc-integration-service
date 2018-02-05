@@ -29,7 +29,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 group 'com.blackducksoftware.integration.fortify'
-version = '2.0.3'
+version = '2.0.4'
 
 mainClassName = 'com.blackducksoftware.integration.fortify.Application'
 
@@ -71,7 +71,7 @@ dependencies {
 	compile("org.springframework:spring-context-support")
 	compile("org.springframework:spring-core")
 	compile("org.springframework:spring-expression")
-	compile("com.blackducksoftware.integration:hub-common:18.4.1")
+	compile("com.blackducksoftware.integration:hub-common:26.0.0")
 	compile("javax.servlet:javax.servlet-api")
 	compile("com.squareup.retrofit2:retrofit:2.1.0")
 	compile("com.fasterxml.jackson.core:jackson-annotations:2.8.8")
