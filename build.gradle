@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '1.5.3.RELEASE'
+		springBootVersion = '1.5.4.RELEASE'
 	}
 	repositories {
 		mavenCentral()
@@ -14,11 +14,12 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '1.5.3.RELEASE'
+    id 'org.springframework.boot' version '1.5.4.RELEASE'
     id 'application'
     id 'jacoco'
     id 'com.github.kt3k.coveralls' version '2.8.1'
 }
+
 allprojects{ 
 	apply plugin: 'maven-publish' 
 	apply plugin: "com.jfrog.artifactory"
@@ -27,6 +28,10 @@ allprojects{
 sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+ }
 
 group 'com.blackducksoftware.integration.fortify'
 version = '2.0.4'
@@ -42,10 +47,12 @@ startScripts {
 }
 
 ext {
-	springVersion = '4.3.5.RELEASE'
+    hubCommonVersion = '26.0.0'
 	retrofit2Version = '2.1.0'
 	okhttp3Version = '3.3.1'
 	powerMockitoVersion = '1.6.6'
+    jacksonDataFormatVersion = '2.8.8'
+    jUnitVersion = '4.+'
 	uploadDefs = new File("${rootDir}/uploadArtifacts.gradle")
 	HUB_USERNAME=System.getenv('HUB_USERNAME')
 	HUB_PASSWORD=System.getenv('HUB_PASSWORD')
@@ -71,20 +78,20 @@ dependencies {
 	compile("org.springframework:spring-context-support")
 	compile("org.springframework:spring-core")
 	compile("org.springframework:spring-expression")
-	compile("com.blackducksoftware.integration:hub-common:26.0.0")
+	compile("com.blackducksoftware.integration:hub-common:${hubCommonVersion}")
 	compile("javax.servlet:javax.servlet-api")
-	compile("com.squareup.retrofit2:retrofit:2.1.0")
-	compile("com.fasterxml.jackson.core:jackson-annotations:2.8.8")
-	compile("com.squareup.retrofit2:converter-gson:2.1.0")
+	compile("com.squareup.retrofit2:retrofit:${retrofit2Version}")
+	compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonDataFormatVersion}")
+	compile("com.squareup.retrofit2:converter-gson:${retrofit2Version}")
 	compile("com.google.code.gson:gson")
-	compile("com.squareup.okhttp3:okhttp:3.3.1")
-	compile("com.squareup.okhttp3:logging-interceptor:3.3.1")
-	compile("com.squareup.okhttp3:okhttp-urlconnection:3.3.1")
-	compile("com.squareup.retrofit2:converter-simplexml:2.1.0")
+	compile("com.squareup.okhttp3:okhttp:${okhttp3Version}")
+	compile("com.squareup.okhttp3:logging-interceptor:${okhttp3Version}")
+	compile("com.squareup.okhttp3:okhttp-urlconnection:${okhttp3Version}")
+	compile("com.squareup.retrofit2:converter-simplexml:${retrofit2Version}")
 	compile("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
-	testCompile("org.powermock:powermock-api-mockito:1.6.6")
-	testCompile("org.powermock:powermock-module-junit4:1.6.6")
-	testCompile("junit:junit:4.+")
+	testCompile("org.powermock:powermock-api-mockito:${powerMockitoVersion}")
+	testCompile("org.powermock:powermock-module-junit4:${powerMockitoVersion}")
+	testCompile("junit:junit:${jUnitVersion}")
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 
@@ -140,7 +147,10 @@ publishing{
 }
 
 jacocoTestReport {
-    reports { xml.enabled = true }
+    reports { 
+        xml.enabled = true 
+        html.enabled = true
+    }
 }
 
 processResources { 
