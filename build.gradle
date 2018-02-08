@@ -46,13 +46,15 @@ startScripts {
     }
 }
 
-ext {
+ext {   
     hubCommonVersion = '26.0.0'
 	retrofit2Version = '2.1.0'
 	okhttp3Version = '3.3.1'
 	powerMockitoVersion = '1.6.6'
-    jacksonDataFormatVersion = '2.8.8'
+    jacksonDataFormatVersion = '2.8.11'
+    //simpleXmlFrameworkVersion = '2.7'
     jUnitVersion = '4.+'
+    //xstreamVersion = '1.4.7'
 	uploadDefs = new File("${rootDir}/uploadArtifacts.gradle")
 	HUB_USERNAME=System.getenv('HUB_USERNAME')
 	HUB_PASSWORD=System.getenv('HUB_PASSWORD')
@@ -73,13 +75,15 @@ repositories {
 dependencies {
 	compile("org.springframework.boot:spring-boot-starter")
 	compile("org.springframework.boot:spring-boot-starter-batch")
-	compile("org.springframework:spring-beans")
+	/*compile("org.springframework:spring-beans")
 	compile("org.springframework:spring-context")
 	compile("org.springframework:spring-context-support")
 	compile("org.springframework:spring-core")
 	compile("org.springframework:spring-expression")
+    compile("org.simpleframework:simple-xml:${simpleXmlFrameworkVersion}")
+    compile("com.thoughtworks.xstream:xstream:${xstreamVersion}")*/
 	compile("com.blackducksoftware.integration:hub-common:${hubCommonVersion}")
-	compile("javax.servlet:javax.servlet-api")
+	//compile("javax.servlet:javax.servlet-api")
 	compile("com.squareup.retrofit2:retrofit:${retrofit2Version}")
 	compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonDataFormatVersion}")
 	compile("com.squareup.retrofit2:converter-gson:${retrofit2Version}")
