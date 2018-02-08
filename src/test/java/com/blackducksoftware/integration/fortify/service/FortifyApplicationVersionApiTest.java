@@ -77,7 +77,7 @@ public class FortifyApplicationVersionApiTest extends TestCase {
     @Test
     public void createApplicationVersionTest() throws IOException, IntegrationException {
         System.out.println("Executing createApplicationVersionTest");
-        CreateApplicationRequest createApplicationRequest = createApplicationVersionRequest("Fortify-Test", "1.0");
+        CreateApplicationRequest createApplicationRequest = createApplicationVersionRequest("Fortify-Test1", "1.0");
         int id = fortifyApplicationVersionApi.createApplicationVersion(createApplicationRequest);
         assertNotNull(id);
         try {
