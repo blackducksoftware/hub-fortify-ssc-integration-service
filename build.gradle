@@ -13,11 +13,11 @@ buildscript {
 }
 
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '1.5.8.RELEASE'
-    id 'application'
-    id 'jacoco'
-    id 'com.github.kt3k.coveralls' version '2.8.1'
+	id 'java'
+	id 'org.springframework.boot' version '1.5.8.RELEASE'
+	id 'application'
+	id 'jacoco'
+	id 'com.github.kt3k.coveralls' version '2.8.1'
 }
 
 allprojects{
@@ -30,8 +30,8 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
- }
+	options.encoding = 'UTF-8'
+}
 
 group 'com.blackducksoftware.integration.fortify'
 version = '2.0.4'
@@ -41,9 +41,9 @@ mainClassName = 'com.blackducksoftware.integration.fortify.Application'
 applicationDefaultJvmArgs = ["-Dspring.config.location=../config/"]
 
 startScripts {
-    doLast {
-        windowsScript.text = windowsScript.text.replace("%CMD_LINE_ARGS%", "--spring.config.location=../config/")
-    }
+	doLast {
+		windowsScript.text = windowsScript.text.replace("%CMD_LINE_ARGS%", "--spring.config.location=../config/")
+	}
 }
 
 ext {
@@ -97,44 +97,44 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.1'
+	gradleVersion = '3.1'
 }
 
 jar {
 	manifest {
-        attributes( 'Main-Class': 'com.blackducksoftware.integration.fortify.Application',
-        'Class-Path': configurations.compile.collect { it.getName() }.join(' '))
-    }
+		attributes( 'Main-Class': 'com.blackducksoftware.integration.fortify.Application',
+		'Class-Path': configurations.compile.collect { it.getName() }.join(' '))
+	}
 
-    sourceSets {
-        main {
-            resources {
-                exclude 'mapping.json'
-            }
-        }
-    }
+	sourceSets {
+		main {
+			resources {
+				exclude 'mapping.json'
+			}
+		}
+	}
 }
 
 distributions {
-    main {
-        contents {
-            from("${buildDir}/resources/main/application_prod.properties") {
-            	into 'config/'
-            	rename {'application.properties'}
-            }
-            from("${buildDir}/resources/main/attributes_prod.properties") {
-            	into 'config/'
-            	rename {'attributes.properties'}
-            }
-            from("${buildDir}/resources/main/mapping_prod.json") {
-            	into 'config/'
-            	rename {'mapping.json'}
-            }
-            from("${buildDir}/resources/main/batch_job_status.txt") {into 'config/'}
-            from("${project.buildDir}/resources/main/hub-fortify.log") {into 'log/'}
-            from('sample.csv') { into 'report/'}
-        }
+	main {
+		contents {
+			from("${buildDir}/resources/main/application_prod.properties") {
+				into 'config/'
+				rename {'application.properties'}
+			}
+			from("${buildDir}/resources/main/attributes_prod.properties") {
+				into 'config/'
+				rename {'attributes.properties'}
+			}
+			from("${buildDir}/resources/main/mapping_prod.json") {
+      	into 'config/'
+      	rename {'mapping.json'}
+      }
+      from("${buildDir}/resources/main/batch_job_status.txt") {into 'config/'}
+      from("${project.buildDir}/resources/main/hub-fortify.log") {into 'log/'}
+      from('sample.csv') { into 'report/'}
     }
+  }
 }
 
 publishing{
@@ -143,15 +143,15 @@ publishing{
 			from components.java
 			artifact distZip
 			artifact distTar
-        }
     }
+  }
 }
 
 jacocoTestReport {
-    reports {
-        xml.enabled = true
-        html.enabled = true
-    }
+	reports {
+		xml.enabled = true
+		html.enabled = true
+	}
 }
 
 processResources {
