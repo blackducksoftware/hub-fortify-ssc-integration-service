@@ -74,7 +74,9 @@ repositories {
 
 dependencies {
 	compile("org.springframework.boot:spring-boot-starter")
-	compile("org.springframework.boot:spring-boot-starter-batch")
+	compile("org.springframework.boot:spring-boot-starter-batch") {
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
 	/*compile("org.springframework:spring-beans")
 	compile("org.springframework:spring-context")
 	compile("org.springframework:spring-context-support")
@@ -82,6 +84,7 @@ dependencies {
 	compile("org.springframework:spring-expression")
     compile("org.simpleframework:simple-xml:${simpleXmlFrameworkVersion}")
     compile("com.thoughtworks.xstream:xstream:${xstreamVersion}")*/
+    compile("com.fasterxml.jackson.core:jackson-databind:${jacksonDataFormatVersion}")
 	compile("com.blackducksoftware.integration:hub-common:${hubCommonVersion}")
 	//compile("javax.servlet:javax.servlet-api")
 	compile("com.squareup.retrofit2:retrofit:${retrofit2Version}")
