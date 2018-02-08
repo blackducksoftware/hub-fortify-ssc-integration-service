@@ -133,8 +133,8 @@ distributions {
 			from("${buildDir}/resources/main/batch_job_status.txt") {into 'config/'}
 			from("${project.buildDir}/resources/main/hub-fortify.log") {into 'log/'}
 			from('sample.csv') { into 'report/'}
-    }
-  }
+		}
+	}
 }
 
 publishing{
