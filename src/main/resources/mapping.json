@@ -1,25 +1,25 @@
 [
     {
-      "hubProject": "C Demo Project",
-      "hubProjectVersion": "3.4",
+      "hubProject": "Hello Spring Cloud",
+      "hubProjectVersion": "2.1",
       "fortifyApplication": "Hub-Fortify-Test1",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "duckyhub",
-      "hubProjectVersion": "3.0",
+      "hubProject": "Black Ducky Demo",
+      "hubProjectVersion": "Build 51",
       "fortifyApplication": "Hub-Fortify-Test1",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "C Demo Project",
-      "hubProjectVersion": "3.4",
+      "hubProject": "Hello Spring Cloud",
+      "hubProjectVersion": "2.1",
       "fortifyApplication": "Hub-Fortify-Test2",
       "fortifyApplicationVersion": "3.0"
     },
     {
-      "hubProject": "duckyhub",
-      "hubProjectVersion": "3.0",
+      "hubProject": "Black Ducky Demo",
+      "hubProjectVersion": "Build 51",
       "fortifyApplication": "Hub-Fortify-Test2",
       "fortifyApplicationVersion": "1.0"
     }
