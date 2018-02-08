@@ -75,11 +75,11 @@ repositories {
 dependencies {
 	compile("org.springframework.boot:spring-boot-starter")
 	compile("org.springframework.boot:spring-boot-starter-batch") {
-        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
-    }
-  compile("org.simpleframework:simple-xml:${simpleXmlFrameworkVersion}")
-  compile("com.thoughtworks.xstream:xstream:${xstreamVersion}")
-  compile("com.fasterxml.jackson.core:jackson-databind:${jacksonDataFormatVersion}")
+		exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+	}
+	compile("org.simpleframework:simple-xml:${simpleXmlFrameworkVersion}")
+	compile("com.thoughtworks.xstream:xstream:${xstreamVersion}")
+	compile("com.fasterxml.jackson.core:jackson-databind:${jacksonDataFormatVersion}")
 	compile("com.blackducksoftware.integration:hub-common:${hubCommonVersion}")
 	compile("com.squareup.retrofit2:retrofit:${retrofit2Version}")
 	compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonDataFormatVersion}")
@@ -93,7 +93,7 @@ dependencies {
 	testCompile("org.powermock:powermock-api-mockito:${powerMockitoVersion}")
 	testCompile("org.powermock:powermock-module-junit4:${powerMockitoVersion}")
 	testCompile("junit:junit:${jUnitVersion}")
-  testCompile("org.springframework.boot:spring-boot-starter-test")
+	testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 
 task wrapper(type: Wrapper) {
@@ -127,12 +127,12 @@ distributions {
 				rename {'attributes.properties'}
 			}
 			from("${buildDir}/resources/main/mapping_prod.json") {
-      	into 'config/'
-      	rename {'mapping.json'}
-      }
-      from("${buildDir}/resources/main/batch_job_status.txt") {into 'config/'}
-      from("${project.buildDir}/resources/main/hub-fortify.log") {into 'log/'}
-      from('sample.csv') { into 'report/'}
+				into 'config/'
+				rename {'mapping.json'}
+			}
+			from("${buildDir}/resources/main/batch_job_status.txt") {into 'config/'}
+			from("${project.buildDir}/resources/main/hub-fortify.log") {into 'log/'}
+			from('sample.csv') { into 'report/'}
     }
   }
 }
@@ -143,8 +143,8 @@ publishing{
 			from components.java
 			artifact distZip
 			artifact distTar
-    }
-  }
+		}
+	}
 }
 
 jacocoTestReport {
