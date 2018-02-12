@@ -68,7 +68,7 @@ public final class RestConnectionHelper {
             builder.setProxyHost(propertyConstants.getHubProxyHost());
             builder.setProxyPort(propertyConstants.getHubProxyPort());
             builder.setProxyUsername(propertyConstants.getHubProxyUser());
-            builder.setProxyPassword(propertyConstants.getHubPassword());
+            builder.setProxyPassword(propertyConstants.getHubProxyPassword());
             builder.setIgnoredProxyHosts(propertyConstants.getHubProxyNoHost());
         }
 
