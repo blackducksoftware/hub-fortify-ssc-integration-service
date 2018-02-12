@@ -61,7 +61,7 @@ public final class RestConnectionHelper {
         builder.setTimeout(propertyConstants.getHubTimeout());
 
         if (propertyConstants.getHubProxyHost() != null && !"".equalsIgnoreCase(propertyConstants.getHubProxyHost())) {
-            logger.info("Inside Proxy settings::" + propertyConstants.getHubProxyHost() + "::");
+            logger.info("Inside Proxy settings");
             builder.setProxyHost(propertyConstants.getHubProxyHost());
             builder.setProxyPort(propertyConstants.getHubProxyPort());
             builder.setProxyUsername(propertyConstants.getHubProxyUser());
