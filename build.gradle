@@ -47,7 +47,7 @@ startScripts {
 }
 
 ext {
-	hubCommonVersion = '26.0.0'
+	hubCommonVersion = '18.4.1'
 	retrofit2Version = '2.1.0'
 	okhttp3Version = '3.3.1'
 	powerMockitoVersion = '1.6.6'
