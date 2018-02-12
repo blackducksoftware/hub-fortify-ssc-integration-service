@@ -28,10 +28,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.Credentials;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
+import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
@@ -124,7 +124,7 @@ public final class RestConnectionHelper {
 
     /**
      * Return the proxy info based on the configuration
-     * 
+     *
      * @param serverConfig
      * @return
      * @throws EncryptionException
@@ -132,9 +132,13 @@ public final class RestConnectionHelper {
      */
     private static ProxyInfo getProxyInfo(final HubServerConfig serverConfig) throws EncryptionException, IllegalArgumentException {
         if (!StringUtils.isEmpty(serverConfig.getProxyInfo().getHost())) {
-            return new ProxyInfo(serverConfig.getProxyInfo().getHost(), serverConfig.getProxyInfo().getPort(),
-                    new Credentials(serverConfig.getProxyInfo().getUsername(), serverConfig.getProxyInfo().getDecryptedPassword()),
-                    serverConfig.getProxyInfo().getIgnoredProxyHosts());
+            ProxyInfoBuilder proxyInfoBuilder = new ProxyInfoBuilder();
+            proxyInfoBuilder.setHost(serverConfig.getProxyInfo().getHost());
+            proxyInfoBuilder.setPort(serverConfig.getProxyInfo().getPort());
+            proxyInfoBuilder.setUsername(serverConfig.getProxyInfo().getUsername());
+            proxyInfoBuilder.setPassword(serverConfig.getProxyInfo().getDecryptedPassword());
+            proxyInfoBuilder.setIgnoredProxyHosts(serverConfig.getProxyInfo().getIgnoredProxyHosts());
+            return proxyInfoBuilder.build();
         } else {
             return new ProxyInfo(null, 0, null, null);
         }
