@@ -132,7 +132,6 @@ public final class RestConnectionHelper {
      */
     private static ProxyInfo getProxyInfo(final HubServerConfig serverConfig) throws EncryptionException, IllegalArgumentException {
         if (!StringUtils.isEmpty(serverConfig.getProxyInfo().getHost())) {
-            logger.info("Inside Proxy settings::" + serverConfig.getProxyInfo().getUsername() + "pass::" + serverConfig.getProxyInfo().getDecryptedPassword());
             ProxyInfoBuilder proxyInfoBuilder = new ProxyInfoBuilder();
             proxyInfoBuilder.setHost(serverConfig.getProxyInfo().getHost());
             proxyInfoBuilder.setPort(serverConfig.getProxyInfo().getPort());
