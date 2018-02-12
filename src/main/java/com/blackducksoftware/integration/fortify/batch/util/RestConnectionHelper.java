@@ -24,14 +24,11 @@ package com.blackducksoftware.integration.fortify.batch.util;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.Credentials;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
@@ -105,11 +102,18 @@ public final class RestConnectionHelper {
 
         CredentialsRestConnection restConnection;
         try {
-            ProxyInfo proxyInfo = getProxyInfo(serverConfig);
 
             restConnection = new CredentialsRestConnection(new PrintStreamIntLogger(System.out, logLevel),
-                    serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(),
-                    serverConfig.getTimeout(), proxyInfo);
+                    serverConfig.getHubUrl(),
+                    serverConfig.getGlobalCredentials().getUsername(),
+                    serverConfig.getGlobalCredentials().getDecryptedPassword(),
+                    serverConfig.getTimeout());
+
+            restConnection.proxyHost = serverConfig.getProxyInfo().getHost();
+            restConnection.proxyPort = serverConfig.getProxyInfo().getPort();
+            restConnection.proxyNoHosts = serverConfig.getProxyInfo().getIgnoredProxyHosts();
+            restConnection.proxyUsername = serverConfig.getProxyInfo().getUsername();
+            restConnection.proxyPassword = serverConfig.getProxyInfo().getDecryptedPassword();
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -124,13 +128,13 @@ public final class RestConnectionHelper {
 
     /**
      * Return the proxy info based on the configuration
-     * 
+     *
      * @param serverConfig
      * @return
      * @throws EncryptionException
      * @throws IllegalArgumentException
      */
-    private static ProxyInfo getProxyInfo(final HubServerConfig serverConfig) throws EncryptionException, IllegalArgumentException {
+    /*private static ProxyInfo getProxyInfo(final HubServerConfig serverConfig) throws EncryptionException, IllegalArgumentException {
         if (!StringUtils.isEmpty(serverConfig.getProxyInfo().getHost())) {
             return new ProxyInfo(serverConfig.getProxyInfo().getHost(), serverConfig.getProxyInfo().getPort(),
                     new Credentials(serverConfig.getProxyInfo().getUsername(), serverConfig.getProxyInfo().getDecryptedPassword()),
@@ -138,7 +142,7 @@ public final class RestConnectionHelper {
         } else {
             return new ProxyInfo(null, 0, null, null);
         }
-    }
+    }*/
 
     /**
      * Create the Hub Services factory
