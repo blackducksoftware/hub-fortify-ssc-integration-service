@@ -41,8 +41,8 @@ import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobCo
 import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
-import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
-import com.blackducksoftware.integration.hub.model.view.VulnerableComponentView;
+import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
+import com.blackducksoftware.integration.hub.api.generated.view.VulnerableComponentView;
 import com.google.gson.JsonIOException;
 
 import junit.framework.TestCase;

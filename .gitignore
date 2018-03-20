@@ -10,4 +10,6 @@ src/main/resources/batch_job_status.txt
 
 src/main/resources/hub-fortify.log
 
-.classpath
+.DS_Store
+report/sample.csv
+sample.csv

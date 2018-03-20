@@ -23,7 +23,6 @@
 package com.blackducksoftware.integration.fortify.batch.util;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -41,9 +40,8 @@ import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
-import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
-import com.blackducksoftware.integration.hub.model.view.ProjectView;
-import com.blackducksoftware.integration.hub.model.view.VulnerableComponentView;
+import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
+import com.blackducksoftware.integration.hub.api.generated.view.VulnerableComponentView;
 import com.google.gson.JsonIOException;
 
 import junit.framework.TestCase;
@@ -72,22 +70,6 @@ public class HubServicesTest extends TestCase {
                 .createMapping(propertyConstants.getMappingJsonPath());
         PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProject();
         VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProjectVersion();
-    }
-
-    @Test
-    public void getProjectVersionsByProject() {
-        System.out.println("Executing getProjectVersionsByProject");
-        ProjectView project = null;
-        List<ProjectVersionView> projectVersionViews = new ArrayList<>();
-        try {
-            project = hubServices.getProjectByProjectName(PROJECT_NAME);
-            projectVersionViews = hubServices.getProjectVersionsByProject(project);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IntegrationException e) {
-            e.printStackTrace();
-        }
-        assertTrue(!projectVersionViews.isEmpty());
     }
 
     @Test
