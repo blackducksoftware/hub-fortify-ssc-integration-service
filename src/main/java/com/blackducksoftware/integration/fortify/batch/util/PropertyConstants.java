@@ -90,6 +90,20 @@ public class PropertyConstants {
         this.hubProxyPassword = hubProxyPassword;
     }
 
+    private String hubProxyNtlmDomain;
+
+    @Value("${hub.proxy.Ntlm.Domain}")
+    public void setHubProxyNtlmDomain(String hubProxyNtlmDomain) {
+        this.hubProxyNtlmDomain = hubProxyNtlmDomain;
+    }
+
+    private String hubProxyNtlmWorkstation;
+
+    @Value("${hub.proxy.Ntlm.Workstation}")
+    public void setHubProxyNtlmWorkstation(String hubProxyNtlmWorkstation) {
+        this.hubProxyNtlmWorkstation = hubProxyNtlmWorkstation;
+    }
+
     private String hubProxyNoHost;
 
     @Value("${hub.proxy.nohost}")
@@ -197,6 +211,14 @@ public class PropertyConstants {
 
     public String getHubProxyPassword() {
         return hubProxyPassword;
+    }
+
+    public String getHubProxyNtlmDomain() {
+        return hubProxyNtlmDomain;
+    }
+
+    public String getHubProxyNtlmWorkstation() {
+        return hubProxyNtlmWorkstation;
     }
 
     public String getHubProxyNoHost() {

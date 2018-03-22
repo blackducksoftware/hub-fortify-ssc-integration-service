@@ -28,8 +28,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
-import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
+import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
@@ -38,8 +38,6 @@ import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.log.LogLevel;
 import com.blackducksoftware.integration.log.PrintStreamIntLogger;
-
-import okhttp3.ConnectionPool;
 
 /**
  * This class is used to get the Hub REST connection
@@ -69,6 +67,8 @@ public final class RestConnectionHelper {
             builder.setProxyPort(propertyConstants.getHubProxyPort());
             builder.setProxyUsername(propertyConstants.getHubProxyUser());
             builder.setProxyPassword(propertyConstants.getHubProxyPassword());
+            builder.setProxyNtlmDomain(propertyConstants.getHubProxyNtlmDomain());
+            builder.setProxyNtlmWorkstation(propertyConstants.getHubProxyNtlmWorkstation());
             builder.setIgnoredProxyHosts(propertyConstants.getHubProxyNoHost());
         }
 
@@ -137,10 +137,12 @@ public final class RestConnectionHelper {
             proxyInfoBuilder.setPort(serverConfig.getProxyInfo().getPort());
             proxyInfoBuilder.setUsername(serverConfig.getProxyInfo().getUsername());
             proxyInfoBuilder.setPassword(serverConfig.getProxyInfo().getDecryptedPassword());
+            proxyInfoBuilder.setNtlmDomain(serverConfig.getProxyInfo().getNtlmDomain());
+            proxyInfoBuilder.setNtlmWorkstation(serverConfig.getProxyInfo().getNtlmWorkstation());
             proxyInfoBuilder.setIgnoredProxyHosts(serverConfig.getProxyInfo().getIgnoredProxyHosts());
             return proxyInfoBuilder.build();
         } else {
-            return new ProxyInfo(null, 0, null, null);
+            return new ProxyInfo(null, 0, null, null, null, null);
         }
     }
 
@@ -174,7 +176,13 @@ public final class RestConnectionHelper {
         restConnection.logger = logger;
         // Adjust the number of connections in the connection pool. The keepAlive info is the same as the default
         // constructor
-        restConnection.builder.connectionPool(new ConnectionPool(propertyConstants.getMaximumThreadSize(), 5, TimeUnit.MINUTES));
+        /*final PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+        connManager.setDefaultMaxPerRoute(propertyConstants.getMaximumThreadSize());
+        connManager.setMaxTotal(propertyConstants.getMaximumThreadSize());
+        restConnection.getClientBuilder().setConnectionManager(connManager);*/
+        restConnection.getClientBuilder().setMaxConnPerRoute(propertyConstants.getMaximumThreadSize())
+                .setMaxConnTotal(propertyConstants.getMaximumThreadSize())
+                .setConnectionTimeToLive(5, TimeUnit.MINUTES);
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
     }

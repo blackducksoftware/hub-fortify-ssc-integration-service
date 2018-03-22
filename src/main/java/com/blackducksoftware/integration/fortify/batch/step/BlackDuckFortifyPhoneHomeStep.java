@@ -24,7 +24,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
-import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
+import com.blackducksoftware.integration.hub.service.PhoneHomeService;
 import com.blackducksoftware.integration.phonehome.PhoneHomeRequestBodyBuilder;
 import com.blackducksoftware.integration.phonehome.enums.PhoneHomeSource;
 import com.blackducksoftware.integration.phonehome.enums.ThirdPartyName;
@@ -75,7 +75,7 @@ public class BlackDuckFortifyPhoneHomeStep implements Tasklet, StepExecutionList
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         logger.info("Started Phone Home step");
 
-        PhoneHomeDataService phoneHome = hubServices.getPhoneHomeDataService();
+        PhoneHomeService phoneHome = hubServices.getPhoneHomeDataService();
         PhoneHomeRequestBodyBuilder phoneHomeReq = phoneHome.createInitialPhoneHomeRequestBodyBuilder();
         phoneHomeReq.setSource(PhoneHomeSource.ALLIANCES);
         phoneHomeReq.setThirdPartyName(ThirdPartyName.FORTIFY_SSC);

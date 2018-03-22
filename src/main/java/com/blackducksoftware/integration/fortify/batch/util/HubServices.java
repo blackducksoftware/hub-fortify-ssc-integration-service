@@ -30,19 +30,18 @@ import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.project.ProjectService;
-import com.blackducksoftware.integration.hub.api.project.version.ProjectVersionService;
+import com.blackducksoftware.integration.fortify.batch.model.VersionRiskProfileView;
+import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
+import com.blackducksoftware.integration.hub.api.generated.view.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.api.view.MetaHandler;
-import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.model.view.ProjectVersionView;
-import com.blackducksoftware.integration.hub.model.view.ProjectView;
-import com.blackducksoftware.integration.hub.model.view.RiskProfileView;
-import com.blackducksoftware.integration.hub.model.view.VulnerableComponentView;
-import com.blackducksoftware.integration.hub.request.HubPagedRequest;
-import com.blackducksoftware.integration.hub.request.HubRequest;
+import com.blackducksoftware.integration.hub.request.Request;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.hub.service.PhoneHomeService;
+import com.blackducksoftware.integration.hub.service.ProjectService;
+import com.blackducksoftware.integration.hub.service.model.ProjectVersionWrapper;
+import com.blackducksoftware.integration.hub.service.model.RequestFactory;
 import com.blackducksoftware.integration.log.IntBufferedLogger;
 
 /**
@@ -62,23 +61,6 @@ public final class HubServices {
     }
 
     /**
-     * Get the Vulnerability component views
-     *
-     * @param projectVersionItem
-     * @return
-     * @throws IllegalArgumentException
-     * @throws IntegrationException
-     */
-    public List<VulnerableComponentView> getVulnerabilityComponentViews(final ProjectVersionView projectVersionItem)
-            throws IllegalArgumentException, IntegrationException {
-        if (projectVersionItem != null) {
-            final String vulnerabililtyBomComponentUrl = getVulnerabililtyBomComponentUrl(projectVersionItem);
-            return getVulnerabililtyComponentViews(vulnerabililtyBomComponentUrl);
-        }
-        return new ArrayList<>();
-    }
-
-    /**
      * Get the Hub project version information
      *
      * @param projectName
@@ -87,92 +69,35 @@ public final class HubServices {
      * @throws IllegalArgumentException
      * @throws IntegrationException
      */
-    public ProjectVersionView getProjectVersion(final String projectName, final String versionName)
+    public ProjectVersionView getProjectVersion(final String projectName, final String projectVersionName)
             throws IllegalArgumentException, IntegrationException {
-        logger.info("Getting Hub project and project version info for::" + projectName + ", " + versionName);
-        final ProjectView projectItem = getProjectByProjectName(projectName);
-        return getProjectVersion(projectItem, versionName);
+        logger.info("Getting Hub project and project version info for::" + projectName + ", " + projectVersionName);
+        final ProjectService projectVersionRequestService = hubServicesFactory.createProjectService();
+        final ProjectVersionWrapper projectVersionWrapper = projectVersionRequestService.getProjectVersion(projectName, projectVersionName);
+        if (projectVersionWrapper != null && projectVersionWrapper.getProjectVersionView() != null) {
+            logger.debug("ProjectVersionView::" + projectVersionWrapper.getProjectVersionView().json);
+            return projectVersionWrapper.getProjectVersionView();
+        } else {
+            throw new IntegrationException("Project Version does not Exists!");
+        }
     }
 
     /**
-     * Get all Hub Projects information
-     *
-     * @return
-     * @throws IntegrationException
-     */
-    public List<ProjectView> getAllProjects() throws IntegrationException {
-        final ProjectService projectRequestService = hubServicesFactory.createProjectService();
-        return projectRequestService.getAllProjects();
-    }
-
-    /**
-     * Get the Hub Project version information based on project view
-     *
-     * @param project
-     * @return
-     * @throws IntegrationException
-     */
-    public List<ProjectVersionView> getProjectVersionsByProject(final ProjectView project) throws IntegrationException {
-        final ProjectVersionService projectVersionRequestService = hubServicesFactory
-                .createProjectVersionService();
-        return projectVersionRequestService.getAllProjectVersions(project);
-    }
-
-    /**
-     * Get the Hub Project information based on input project name
-     *
-     * @param projectName
-     * @return
-     * @throws IntegrationException
-     */
-    public ProjectView getProjectByProjectName(final String projectName) throws IntegrationException {
-        logger.info("Getting Hub project info for::" + projectName);
-        final ProjectService projectRequestService = hubServicesFactory.createProjectService();
-        return projectRequestService.getProjectByName(projectName);
-    }
-
-    /**
-     * Get the Hub project version view based on Project view and version name
-     *
-     * @param projectItem
-     * @param versionName
-     * @return
-     * @throws IntegrationException
-     */
-    private ProjectVersionView getProjectVersion(final ProjectView projectItem, final String versionName) throws IntegrationException {
-        logger.info("Getting Hub project version info for::" + versionName);
-        final ProjectVersionService projectVersionRequestService = hubServicesFactory
-                .createProjectVersionService();
-        return projectVersionRequestService.getProjectVersion(projectItem, versionName);
-    }
-
-    /**
-     * Get the Hub Vulnerability BOM component Url
+     * Get the Vulnerability component views
      *
      * @param projectVersionItem
      * @return
-     * @throws HubIntegrationException
-     * @throws IllegalArgumentException
-     * @throws EncryptionException
-     */
-    private String getVulnerabililtyBomComponentUrl(final ProjectVersionView projectVersionItem)
-            throws HubIntegrationException, IllegalArgumentException, EncryptionException {
-        final MetaHandler metaService = new MetaHandler(new IntBufferedLogger());
-        return metaService.getFirstLink(projectVersionItem, MetaHandler.VULNERABLE_COMPONENTS_LINK);
-    }
-
-    /**
-     * Get the Hub Vulnerability Component views based on Vulnerability BOM component Url
-     *
-     * @param vulnerabililtyBomComponentUrl
-     * @return
      * @throws IntegrationException
      */
-    private List<VulnerableComponentView> getVulnerabililtyComponentViews(final String vulnerabililtyBomComponentUrl) throws IntegrationException {
+    public List<VulnerableComponentView> getVulnerabilityComponentViews(final ProjectVersionView projectVersionItem) throws IntegrationException {
         logger.info("Getting Hub Vulnerability info");
-        final HubService hubResponseService = hubServicesFactory.createHubService();
-        HubPagedRequest hubPagedRequest = hubResponseService.getHubRequestFactory().createPagedRequest(500, vulnerabililtyBomComponentUrl);
-        return hubResponseService.getAllViews(hubPagedRequest, VulnerableComponentView.class, "application/vnd.blackducksoftware.list-1+json");
+        if (projectVersionItem != null) {
+            final HubService hubResponseService = hubServicesFactory.createHubService();
+            final Request.Builder requestBuilder = RequestFactory.createCommonGetRequestBuilder().addQueryParameter("limit", String.valueOf(500))
+                    .mimeType("application/vnd.blackducksoftware.list-1+json");
+            return hubResponseService.getResponses(projectVersionItem, ProjectVersionView.VULNERABLE_COMPONENTS_LINK_RESPONSE, requestBuilder, false);
+        }
+        return new ArrayList<>();
     }
 
     /**
@@ -187,45 +112,32 @@ public final class HubServices {
     private String getProjectVersionRiskProfileUrl(final ProjectVersionView projectVersionItem)
             throws HubIntegrationException, IllegalArgumentException, EncryptionException {
         final MetaHandler metaService = new MetaHandler(new IntBufferedLogger());
-        return metaService.getFirstLink(projectVersionItem, MetaHandler.RISK_PROFILE_LINK);
+        return metaService.getFirstLink(projectVersionItem, ProjectVersionView.RISKPROFILE_LINK);
     }
 
     /**
-     * Get the Hub project version last BOM updated date based on project version risk-profile url
-     *
-     * @param projectVersionRiskProfileLink
-     * @return
-     * @throws IntegrationException
-     */
-    private RiskProfileView getBomLastUpdatedAt(final String projectVersionRiskProfileLink) throws IntegrationException {
-        final HubService hubResponseService = hubServicesFactory.createHubService();
-        HubRequest hubRequest = hubResponseService.getHubRequestFactory().createRequest(projectVersionRiskProfileLink);
-        return hubResponseService.getView(hubRequest, RiskProfileView.class);
-    }
-
-    /**
-     * Get the Hub project version last BOM updated date based on Hub project version view
+     * Get the Hub project version last BOM updated date for the given project version
      *
      * @param projectVersionItem
      * @return
-     * @throws IllegalArgumentException
      * @throws IntegrationException
      */
-    public Date getBomLastUpdatedAt(final ProjectVersionView projectVersionItem)
-            throws IllegalArgumentException, IntegrationException {
-        logger.info("Getting Hub last BOM updated at");
+    public Date getBomLastUpdatedAt(final ProjectVersionView projectVersionItem) throws IntegrationException {
+        logger.info("Getting Hub project version last BOM updated date");
         if (projectVersionItem != null) {
-            final String projectVersionRiskProfileUrl = getProjectVersionRiskProfileUrl(projectVersionItem);
-            RiskProfileView riskProfile = getBomLastUpdatedAt(projectVersionRiskProfileUrl);
-
-            return riskProfile.bomLastUpdatedAt;
+            String riskProfileLink = getProjectVersionRiskProfileUrl(projectVersionItem);
+            logger.debug("riskProfileLink::" + riskProfileLink);
+            final HubService hubResponseService = hubServicesFactory.createHubService();
+            final VersionRiskProfileView versionRiskProfileView = hubResponseService.getResponse(riskProfileLink, VersionRiskProfileView.class);
+            logger.debug("versionRiskProfileView::" + versionRiskProfileView.json);
+            return versionRiskProfileView.getBomLastUpdatedAt();
         }
         return null;
     }
 
-    public PhoneHomeDataService getPhoneHomeDataService() {
+    public PhoneHomeService getPhoneHomeDataService() {
         logger.info("Getting Phone Home Data Service");
-        final PhoneHomeDataService phoneHomeDataService = hubServicesFactory.createPhoneHomeDataService();
+        final PhoneHomeService phoneHomeDataService = hubServicesFactory.createPhoneHomeService();
         return phoneHomeDataService;
     }
 }
