@@ -56,7 +56,7 @@ public final class HubServices {
 
     private final HubServicesFactory hubServicesFactory;
 
-    public HubServices(HubServicesFactory hubServicesFactory) {
+    public HubServices(final HubServicesFactory hubServicesFactory) {
         this.hubServicesFactory = hubServicesFactory;
     }
 
@@ -95,7 +95,7 @@ public final class HubServices {
             final HubService hubResponseService = hubServicesFactory.createHubService();
             final Request.Builder requestBuilder = RequestFactory.createCommonGetRequestBuilder().addQueryParameter("limit", String.valueOf(500))
                     .mimeType("application/vnd.blackducksoftware.list-1+json");
-            return hubResponseService.getResponses(projectVersionItem, ProjectVersionView.VULNERABLE_COMPONENTS_LINK_RESPONSE, requestBuilder, false);
+            return hubResponseService.getResponses(projectVersionItem, ProjectVersionView.VULNERABLE_COMPONENTS_LINK_RESPONSE, requestBuilder, true);
         }
         return new ArrayList<>();
     }
@@ -125,11 +125,11 @@ public final class HubServices {
     public Date getBomLastUpdatedAt(final ProjectVersionView projectVersionItem) throws IntegrationException {
         logger.info("Getting Hub project version last BOM updated date");
         if (projectVersionItem != null) {
-            String riskProfileLink = getProjectVersionRiskProfileUrl(projectVersionItem);
+            final String riskProfileLink = getProjectVersionRiskProfileUrl(projectVersionItem);
             logger.debug("riskProfileLink::" + riskProfileLink);
             final HubService hubResponseService = hubServicesFactory.createHubService();
             final VersionRiskProfileView versionRiskProfileView = hubResponseService.getResponse(riskProfileLink, VersionRiskProfileView.class);
-            logger.debug("versionRiskProfileView::" + versionRiskProfileView.json);
+            // logger.debug("versionRiskProfileView::" + versionRiskProfileView.json);
             return versionRiskProfileView.getBomLastUpdatedAt();
         }
         return null;

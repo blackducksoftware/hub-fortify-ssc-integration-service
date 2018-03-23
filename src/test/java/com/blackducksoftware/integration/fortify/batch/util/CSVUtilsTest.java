@@ -84,22 +84,24 @@ public class CSVUtilsTest extends TestCase {
             projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
             vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItem);
             bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
-        } catch (IllegalArgumentException e1) {
+        } catch (final IllegalArgumentException e1) {
             e1.printStackTrace();
             throw new RuntimeException(e1);
-        } catch (IntegrationException e1) {
+        } catch (final IntegrationException e1) {
             e1.printStackTrace();
             throw new RuntimeException(e1);
         }
+        System.out.println("vulnerableComponentViews size::" + vulnerableComponentViews.size());
         assertNotNull(vulnerableComponentViews);
         assertNotNull(bomUpdatedValueAt);
 
-        List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(vulnerableComponentViews, PROJECT_NAME, VERSION_NAME,
+        final List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(vulnerableComponentViews, PROJECT_NAME, VERSION_NAME,
                 bomUpdatedValueAt, propertyConstants);
+        System.out.println("vulnerabilities size::" + vulnerabilities.size());
         try {
             // csvUtils.writeToCSV(vulnerabilities, PROJECT_NAME + "_" + VERSION_NAME + new Date(), ',');
             CSVUtils.writeToCSV(vulnerabilities, "sample.csv", ',');
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
     }
