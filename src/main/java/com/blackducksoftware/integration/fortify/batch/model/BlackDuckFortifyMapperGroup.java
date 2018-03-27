@@ -32,6 +32,11 @@ import java.util.List;
  *
  */
 public final class BlackDuckFortifyMapperGroup implements Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
     private final String fortifyApplication;
 
     private final String fortifyApplicationVersion;
@@ -46,8 +51,8 @@ public final class BlackDuckFortifyMapperGroup implements Serializable {
      * @param hubProjectVersion
      * @param fortifyApplicationId
      */
-    public BlackDuckFortifyMapperGroup(String fortifyApplication, String fortifyApplicationVersion, List<HubProjectVersion> hubProjectVersion,
-            int fortifyApplicationId) {
+    public BlackDuckFortifyMapperGroup(final String fortifyApplication, final String fortifyApplicationVersion, final List<HubProjectVersion> hubProjectVersion,
+            final int fortifyApplicationId) {
         this.fortifyApplication = fortifyApplication;
         this.fortifyApplicationVersion = fortifyApplicationVersion;
         this.hubProjectVersion = hubProjectVersion;

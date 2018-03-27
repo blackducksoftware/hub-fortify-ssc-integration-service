@@ -35,6 +35,11 @@ import org.simpleframework.xml.Root;
  */
 @Root
 public final class JobStatusResponse implements Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
     @Element(name = "code")
     private int code;
 
@@ -57,7 +62,7 @@ public final class JobStatusResponse implements Serializable {
 
     }
 
-    public JobStatusResponse(int code, String message, String id, String invokingUserName, int jobType, int jobState) {
+    public JobStatusResponse(final int code, final String message, final String id, final String invokingUserName, final int jobType, final int jobState) {
         this.code = code;
         this.message = message;
         this.id = id;

@@ -31,6 +31,11 @@ import java.io.Serializable;
  *
  */
 public final class BlackDuckFortifyMapper implements Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
     private final String hubProject;
 
     private final String hubProjectVersion;
@@ -39,7 +44,7 @@ public final class BlackDuckFortifyMapper implements Serializable {
 
     private final String fortifyApplicationVersion;
 
-    public BlackDuckFortifyMapper(String hubProject, String hubProjectVersion, String fortifyApplication, String fortifyApplicationVersion) {
+    public BlackDuckFortifyMapper(final String hubProject, final String hubProjectVersion, final String fortifyApplication, final String fortifyApplicationVersion) {
         this.hubProject = hubProject;
         this.hubProjectVersion = hubProjectVersion;
         this.fortifyApplication = fortifyApplication;
