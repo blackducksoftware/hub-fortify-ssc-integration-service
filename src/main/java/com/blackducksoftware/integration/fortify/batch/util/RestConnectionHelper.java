@@ -25,6 +25,7 @@ package com.blackducksoftware.integration.fortify.batch.util;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
@@ -34,6 +35,7 @@ import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.rest.UriCombiner;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.log.LogLevel;
@@ -54,8 +56,8 @@ public final class RestConnectionHelper {
      *
      * @return
      */
-    private static HubServerConfig getHubServerConfig(PropertyConstants propertyConstants) {
-        HubServerConfigBuilder builder = new HubServerConfigBuilder();
+    private static HubServerConfig getHubServerConfig(final PropertyConstants propertyConstants) {
+        final HubServerConfigBuilder builder = new HubServerConfigBuilder();
         builder.setHubUrl(propertyConstants.getHubServerUrl());
         builder.setUsername(propertyConstants.getHubUserName());
         builder.setPassword(propertyConstants.getHubPassword());
@@ -105,16 +107,16 @@ public final class RestConnectionHelper {
 
         CredentialsRestConnection restConnection;
         try {
-            ProxyInfo proxyInfo = getProxyInfo(serverConfig);
+            final ProxyInfo proxyInfo = getProxyInfo(serverConfig);
 
             restConnection = new CredentialsRestConnection(new PrintStreamIntLogger(System.out, logLevel),
                     serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(),
-                    serverConfig.getTimeout(), proxyInfo);
+                    serverConfig.getTimeout(), proxyInfo, new UriCombiner());
 
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
-        } catch (EncryptionException e) {
+        } catch (final EncryptionException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -132,7 +134,7 @@ public final class RestConnectionHelper {
      */
     private static ProxyInfo getProxyInfo(final HubServerConfig serverConfig) throws EncryptionException, IllegalArgumentException {
         if (!StringUtils.isEmpty(serverConfig.getProxyInfo().getHost())) {
-            ProxyInfoBuilder proxyInfoBuilder = new ProxyInfoBuilder();
+            final ProxyInfoBuilder proxyInfoBuilder = new ProxyInfoBuilder();
             proxyInfoBuilder.setHost(serverConfig.getProxyInfo().getHost());
             proxyInfoBuilder.setPort(serverConfig.getProxyInfo().getPort());
             proxyInfoBuilder.setUsername(serverConfig.getProxyInfo().getUsername());
@@ -151,7 +153,7 @@ public final class RestConnectionHelper {
      *
      * @return
      */
-    public static HubServicesFactory createHubServicesFactory(PropertyConstants propertyConstants) {
+    public static HubServicesFactory createHubServicesFactory(final PropertyConstants propertyConstants) {
         return createHubServicesFactory(LogLevel.DEBUG, propertyConstants);
     }
 
@@ -176,13 +178,14 @@ public final class RestConnectionHelper {
         restConnection.logger = logger;
         // Adjust the number of connections in the connection pool. The keepAlive info is the same as the default
         // constructor
-        /*final PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+        final PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(5, TimeUnit.MINUTES);
         connManager.setDefaultMaxPerRoute(propertyConstants.getMaximumThreadSize());
         connManager.setMaxTotal(propertyConstants.getMaximumThreadSize());
-        restConnection.getClientBuilder().setConnectionManager(connManager);*/
-        restConnection.getClientBuilder().setMaxConnPerRoute(propertyConstants.getMaximumThreadSize())
-                .setMaxConnTotal(propertyConstants.getMaximumThreadSize())
-                .setConnectionTimeToLive(5, TimeUnit.MINUTES);
+        restConnection.getClientBuilder().setConnectionManager(connManager);
+
+        // restConnection.getClientBuilder().setMaxConnPerRoute(propertyConstants.getMaximumThreadSize())
+        // .setMaxConnTotal(propertyConstants.getMaximumThreadSize())
+        // .setConnectionTimeToLive(5, TimeUnit.MINUTES);
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
     }

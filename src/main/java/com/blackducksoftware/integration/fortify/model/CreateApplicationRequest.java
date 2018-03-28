@@ -26,6 +26,11 @@ import java.io.Serializable;
 
 public final class CreateApplicationRequest implements Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
     private final String name;
 
     private final String description;
@@ -38,7 +43,7 @@ public final class CreateApplicationRequest implements Serializable {
 
     private final String issueTemplateId;
 
-    public CreateApplicationRequest(String name, String description, Boolean active, Boolean committed, Project project, String issueTemplateId) {
+    public CreateApplicationRequest(final String name, final String description, final Boolean active, final Boolean committed, final Project project, final String issueTemplateId) {
         this.name = name;
         this.description = description;
         this.active = active;
@@ -97,7 +102,7 @@ public final class CreateApplicationRequest implements Serializable {
             return issueTemplateId;
         }
 
-        public Project(String id, String name, String description, String issueTemplateId) {
+        public Project(final String id, final String name, final String description, final String issueTemplateId) {
             this.id = id;
             this.name = name;
             this.description = description;

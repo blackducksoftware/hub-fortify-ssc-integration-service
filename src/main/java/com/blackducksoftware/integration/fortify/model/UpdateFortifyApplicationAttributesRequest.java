@@ -26,13 +26,18 @@ import java.io.Serializable;
 import java.util.List;
 
 public final class UpdateFortifyApplicationAttributesRequest implements Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
     private final Integer attributeDefinitionId;
 
     private final List<Value> values;
 
     private final Object value;
 
-    public UpdateFortifyApplicationAttributesRequest(Integer attributeDefinitionId, List<Value> values, Object value) {
+    public UpdateFortifyApplicationAttributesRequest(final Integer attributeDefinitionId, final List<Value> values, final Object value) {
         this.attributeDefinitionId = attributeDefinitionId;
         this.values = values;
         this.value = value;
@@ -54,7 +59,7 @@ public final class UpdateFortifyApplicationAttributesRequest implements Serializ
 
         private final String guid;
 
-        public Value(String guid) {
+        public Value(final String guid) {
             super();
             this.guid = guid;
         }
