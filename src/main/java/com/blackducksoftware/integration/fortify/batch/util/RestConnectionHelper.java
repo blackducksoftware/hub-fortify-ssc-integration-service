@@ -35,6 +35,7 @@ import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
 import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.rest.UriCombiner;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.log.LogLevel;
@@ -110,7 +111,7 @@ public final class RestConnectionHelper {
 
             restConnection = new CredentialsRestConnection(new PrintStreamIntLogger(System.out, logLevel),
                     serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(),
-                    serverConfig.getTimeout(), proxyInfo, null);
+                    serverConfig.getTimeout(), proxyInfo, new UriCombiner());
 
         } catch (final IllegalArgumentException e) {
             e.printStackTrace();
