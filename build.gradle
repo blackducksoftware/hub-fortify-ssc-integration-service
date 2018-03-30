@@ -77,7 +77,6 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter-batch") {
 		exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
 	}
-	compile("org.apache.tomcat:tomcat-juli:8.5.28")
 	compile("org.simpleframework:simple-xml:${simpleXmlFrameworkVersion}")
 	compile("com.thoughtworks.xstream:xstream:${xstreamVersion}")
 	compile("com.fasterxml.jackson.core:jackson-databind:${jacksonDataFormatVersion}")
