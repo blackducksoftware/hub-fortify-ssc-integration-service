@@ -98,6 +98,7 @@ public class CSVUtilsTest extends TestCase {
         final List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(vulnerableComponentViews, PROJECT_NAME, VERSION_NAME,
                 bomUpdatedValueAt, propertyConstants);
         System.out.println("vulnerabilities size::" + vulnerabilities.size());
+        assertEquals(vulnerableComponentViews.size(), vulnerabilities.size());
         try {
             // csvUtils.writeToCSV(vulnerabilities, PROJECT_NAME + "_" + VERSION_NAME + new Date(), ',');
             CSVUtils.writeToCSV(vulnerabilities, "sample.csv", ',');
