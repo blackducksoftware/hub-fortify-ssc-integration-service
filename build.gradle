@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '1.5.8.RELEASE'
+		springBootVersion = '1.5.9.RELEASE'
 	}
 	repositories {
 		mavenCentral()
@@ -14,7 +14,7 @@ buildscript {
 
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '1.5.8.RELEASE'
+	id 'org.springframework.boot' version '1.5.9.RELEASE'
 	id 'application'
 	id 'jacoco'
 	id 'com.github.kt3k.coveralls' version '2.8.1'
@@ -51,7 +51,7 @@ ext {
 	retrofit2Version = '2.1.0'
 	okhttp3Version = '3.3.1'
 	powerMockitoVersion = '1.6.6'
-	jacksonDataFormatVersion = '2.8.11'
+	jacksonDataFormatVersion = '2.9.4'
 	simpleXmlFrameworkVersion = '2.7'
 	jUnitVersion = '4.+'
 	xstreamVersion = '1.4.10'
