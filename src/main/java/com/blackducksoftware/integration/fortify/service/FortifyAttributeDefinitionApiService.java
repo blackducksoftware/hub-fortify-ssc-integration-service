@@ -32,5 +32,5 @@ import retrofit2.http.Query;
 public interface FortifyAttributeDefinitionApiService {
     @Headers({ "Accept: application/json", "Content-Type:application/json" })
     @GET("api/v1/attributeDefinitions")
-    Call<FortifyAttributeDefinitionResponse> getAttributeDefinitions(@Query("fields") String fields, @Query("q") String filter);
+    Call<FortifyAttributeDefinitionResponse> getAttributeDefinitions(@Query("fields") String fields, @Query(encoded = true, value = "q") String filter);
 }

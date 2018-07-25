@@ -47,7 +47,7 @@ import okhttp3.logging.HttpLoggingInterceptor.Level;
 public abstract class FortifyService {
     private final PropertyConstants propertyConstants;
 
-    public FortifyService(PropertyConstants propertyConstants) {
+    public FortifyService(final PropertyConstants propertyConstants) {
         this.propertyConstants = propertyConstants;
     }
 
@@ -55,19 +55,19 @@ public abstract class FortifyService {
         return propertyConstants;
     }
 
-    public static Builder getHeader(String userName, String password) {
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+    public static Builder getHeader(final String userName, final String password) {
+        final HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(Level.BASIC);
-        OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
+        final OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
         okBuilder.authenticator(new Authenticator() {
 
             @Override
-            public Request authenticate(Route route, Response response) throws IOException {
-                String credential = Credentials.basic(userName, password);
+            public Request authenticate(final Route route, final Response response) throws IOException {
+                final String credential = Credentials.basic(userName, password);
                 if (credential.equals(response.request().header("Authorization"))) {
                     try {
                         FortifyExceptionUtil.verifyFortifyResponseCode(response.code(), "Unauthorized access of Fortify Api");
-                    } catch (IntegrationException e) {
+                    } catch (final IntegrationException e) {
                         throw new IOException(e);
                     }
                     return null;

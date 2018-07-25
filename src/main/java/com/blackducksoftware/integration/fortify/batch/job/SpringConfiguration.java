@@ -39,7 +39,7 @@ public class SpringConfiguration {
      * @return
      */
     @Bean
-    public HubServices getHubServices(PropertyConstants propertyConstants) {
+    public HubServices getHubServices(final PropertyConstants propertyConstants) {
         return new HubServices(RestConnectionHelper.createHubServicesFactory(propertyConstants));
     }
 
@@ -50,7 +50,7 @@ public class SpringConfiguration {
      */
     @Bean
     public TaskExecutor taskExecutor() {
-        SimpleAsyncTaskExecutor asyncTaskExecutor = new SimpleAsyncTaskExecutor("spring_batch");
+        final SimpleAsyncTaskExecutor asyncTaskExecutor = new SimpleAsyncTaskExecutor("spring_batch");
         asyncTaskExecutor.setConcurrencyLimit(SimpleAsyncTaskExecutor.NO_CONCURRENCY);
         return asyncTaskExecutor;
     }

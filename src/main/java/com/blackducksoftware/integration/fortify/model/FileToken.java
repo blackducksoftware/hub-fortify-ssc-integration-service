@@ -29,9 +29,10 @@ package com.blackducksoftware.integration.fortify.model;
  *
  */
 public final class FileToken {
+
     private final String fileTokenType;
 
-    public FileToken(String fileTokenType) {
+    public FileToken(final String fileTokenType) {
         this.fileTokenType = fileTokenType;
     }
 

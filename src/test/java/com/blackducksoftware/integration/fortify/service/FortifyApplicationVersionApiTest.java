@@ -59,7 +59,7 @@ public class FortifyApplicationVersionApiTest extends TestCase {
 
     String FIELDS = "id";
 
-    String QUERY = "name:1.3+and+project.name:Logistics";
+    String QUERY = "name:1.3%2Band%2Bproject.name:Logistics";
 
     @Autowired
     private FortifyApplicationVersionApi fortifyApplicationVersionApi;
@@ -70,47 +70,47 @@ public class FortifyApplicationVersionApiTest extends TestCase {
     @Test
     public void getApplicationVersionTest() throws IOException, IntegrationException {
         System.out.println("Executing getApplicationVersionTest");
-        FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, QUERY);
-        assertNotNull(response);
+        final FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, QUERY);
+        assertTrue(response.getData().size() > 0);
     }
 
     @Test
     public void createApplicationVersionTest() throws IOException, IntegrationException {
         System.out.println("Executing createApplicationVersionTest");
-        CreateApplicationRequest createApplicationRequest = createApplicationVersionRequest("Fortify-Test1", "1.0");
-        int id = fortifyApplicationVersionApi.createApplicationVersion(createApplicationRequest);
+        final CreateApplicationRequest createApplicationRequest = createApplicationVersionRequest("Fortify-Test1", "1|2");
+        final int id = fortifyApplicationVersionApi.createApplicationVersion(createApplicationRequest);
         assertNotNull(id);
         try {
             updateApplicationAttributesTest(id);
             commitApplicationVersion(id);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new IOException(e);
-        } catch (IntegrationException e) {
+        } catch (final IntegrationException e) {
             throw new IntegrationException(e);
         } finally {
             deleteApplicationVersion(id);
         }
     }
 
-    public void updateApplicationAttributesTest(int parentId) throws IOException, IntegrationException {
+    public void updateApplicationAttributesTest(final int parentId) throws IOException, IntegrationException {
         System.out.println("Executing updateApplicationAttributesTest");
-        List<UpdateFortifyApplicationAttributesRequest> request = mappingParser.addCustomAttributes();
+        final List<UpdateFortifyApplicationAttributesRequest> request = mappingParser.addCustomAttributes();
         fortifyApplicationVersionApi.updateApplicationAttributes(parentId, request);
     }
 
-    public void commitApplicationVersion(int applicationId) throws IOException, IntegrationException {
+    public void commitApplicationVersion(final int applicationId) throws IOException, IntegrationException {
         System.out.println("Executing commitApplicationVersion");
-        CommitFortifyApplicationRequest request = new CommitFortifyApplicationRequest(true);
+        final CommitFortifyApplicationRequest request = new CommitFortifyApplicationRequest(true);
         fortifyApplicationVersionApi.commitApplicationVersion(applicationId, request);
     }
 
-    public void deleteApplicationVersion(int applicationId) throws IOException, IntegrationException {
+    public void deleteApplicationVersion(final int applicationId) throws IOException, IntegrationException {
         System.out.println("Executing deleteApplicationVersion");
         fortifyApplicationVersionApi.deleteApplicationVersion(applicationId);
     }
 
-    private CreateApplicationRequest createApplicationVersionRequest(String fortifyProjectName, String fortifyProjectVersion) {
-        String TEMPLATE = "Prioritized-HighRisk-Project-Template";
+    private CreateApplicationRequest createApplicationVersionRequest(final String fortifyProjectName, final String fortifyProjectVersion) {
+        final String TEMPLATE = "Prioritized-HighRisk-Project-Template";
         return new CreateApplicationRequest(fortifyProjectVersion, "Built using API", true, false,
                 new CreateApplicationRequest.Project("", fortifyProjectName, "Built using API", TEMPLATE), TEMPLATE);
     }

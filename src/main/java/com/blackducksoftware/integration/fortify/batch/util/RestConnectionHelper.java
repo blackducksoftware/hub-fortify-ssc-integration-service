@@ -24,22 +24,17 @@ package com.blackducksoftware.integration.fortify.batch.util;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.proxy.ProxyInfo;
-import com.blackducksoftware.integration.hub.proxy.ProxyInfoBuilder;
-import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
-import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.hub.rest.UriCombiner;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.log.LogLevel;
 import com.blackducksoftware.integration.log.PrintStreamIntLogger;
+import com.blackducksoftware.integration.rest.connection.RestConnection;
 
 /**
  * This class is used to get the Hub REST connection
@@ -58,9 +53,11 @@ public final class RestConnectionHelper {
      */
     private static HubServerConfig getHubServerConfig(final PropertyConstants propertyConstants) {
         final HubServerConfigBuilder builder = new HubServerConfigBuilder();
-        builder.setHubUrl(propertyConstants.getHubServerUrl());
+        builder.setUrl(propertyConstants.getHubServerUrl());
         builder.setUsername(propertyConstants.getHubUserName());
         builder.setPassword(propertyConstants.getHubPassword());
+        builder.setApiToken(propertyConstants.getHubApiToken());
+        builder.setTrustCert(propertyConstants.isHubAlwaysTrustCert());
         builder.setTimeout(propertyConstants.getHubTimeout());
 
         if (propertyConstants.getHubProxyHost() != null && !"".equalsIgnoreCase(propertyConstants.getHubProxyHost())) {
@@ -71,7 +68,7 @@ public final class RestConnectionHelper {
             builder.setProxyPassword(propertyConstants.getHubProxyPassword());
             builder.setProxyNtlmDomain(propertyConstants.getHubProxyNtlmDomain());
             builder.setProxyNtlmWorkstation(propertyConstants.getHubProxyNtlmWorkstation());
-            builder.setIgnoredProxyHosts(propertyConstants.getHubProxyNoHost());
+            // builder.setIgnoredProxyHosts(propertyConstants.getHubProxyNoHost());
         }
 
         return builder.build();
@@ -82,7 +79,7 @@ public final class RestConnectionHelper {
      *
      * @return
      */
-    private static CredentialsRestConnection getApplicationPropertyRestConnection(final PropertyConstants propertyConstants) {
+    private static RestConnection getApplicationPropertyRestConnection(final PropertyConstants propertyConstants) {
         return getRestConnection(getHubServerConfig(propertyConstants));
     }
 
@@ -92,7 +89,7 @@ public final class RestConnectionHelper {
      * @param serverConfig
      * @return
      */
-    private static CredentialsRestConnection getRestConnection(final HubServerConfig serverConfig) {
+    private static RestConnection getRestConnection(final HubServerConfig serverConfig) {
         return getRestConnection(serverConfig, LogLevel.DEBUG);
     }
 
@@ -103,16 +100,11 @@ public final class RestConnectionHelper {
      * @param logLevel
      * @return
      */
-    private static CredentialsRestConnection getRestConnection(final HubServerConfig serverConfig, final LogLevel logLevel) {
+    private static RestConnection getRestConnection(final HubServerConfig serverConfig, final LogLevel logLevel) {
 
-        CredentialsRestConnection restConnection;
+        final RestConnection restConnection;
         try {
-            final ProxyInfo proxyInfo = getProxyInfo(serverConfig);
-
-            restConnection = new CredentialsRestConnection(new PrintStreamIntLogger(System.out, logLevel),
-                    serverConfig.getHubUrl(), serverConfig.getGlobalCredentials().getUsername(), serverConfig.getGlobalCredentials().getDecryptedPassword(),
-                    serverConfig.getTimeout(), proxyInfo, new UriCombiner());
-
+            restConnection = serverConfig.createRestConnection(new PrintStreamIntLogger(System.out, logLevel));
         } catch (final IllegalArgumentException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -125,36 +117,24 @@ public final class RestConnectionHelper {
     }
 
     /**
-     * Return the proxy info based on the configuration
-     *
-     * @param serverConfig
-     * @return
-     * @throws EncryptionException
-     * @throws IllegalArgumentException
-     */
-    private static ProxyInfo getProxyInfo(final HubServerConfig serverConfig) throws EncryptionException, IllegalArgumentException {
-        if (!StringUtils.isEmpty(serverConfig.getProxyInfo().getHost())) {
-            final ProxyInfoBuilder proxyInfoBuilder = new ProxyInfoBuilder();
-            proxyInfoBuilder.setHost(serverConfig.getProxyInfo().getHost());
-            proxyInfoBuilder.setPort(serverConfig.getProxyInfo().getPort());
-            proxyInfoBuilder.setUsername(serverConfig.getProxyInfo().getUsername());
-            proxyInfoBuilder.setPassword(serverConfig.getProxyInfo().getDecryptedPassword());
-            proxyInfoBuilder.setNtlmDomain(serverConfig.getProxyInfo().getNtlmDomain());
-            proxyInfoBuilder.setNtlmWorkstation(serverConfig.getProxyInfo().getNtlmWorkstation());
-            proxyInfoBuilder.setIgnoredProxyHosts(serverConfig.getProxyInfo().getIgnoredProxyHosts());
-            return proxyInfoBuilder.build();
-        } else {
-            return new ProxyInfo(null, 0, null, null, null, null);
-        }
-    }
-
-    /**
      * Create the Hub Services factory
      *
      * @return
      */
     public static HubServicesFactory createHubServicesFactory(final PropertyConstants propertyConstants) {
-        return createHubServicesFactory(LogLevel.DEBUG, propertyConstants);
+        switch (propertyConstants.getLogLevel()) {
+        case "DEBUG":
+            return createHubServicesFactory(LogLevel.DEBUG, propertyConstants);
+        case "ERROR":
+            return createHubServicesFactory(LogLevel.ERROR, propertyConstants);
+        case "WARN":
+            return createHubServicesFactory(LogLevel.WARN, propertyConstants);
+        case "TRACE":
+            return createHubServicesFactory(LogLevel.TRACE, propertyConstants);
+        default:
+            return createHubServicesFactory(LogLevel.INFO, propertyConstants);
+        }
+
     }
 
     /**
@@ -181,7 +161,7 @@ public final class RestConnectionHelper {
         final PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(5, TimeUnit.MINUTES);
         connManager.setDefaultMaxPerRoute(propertyConstants.getMaximumThreadSize());
         connManager.setMaxTotal(propertyConstants.getMaximumThreadSize());
-        restConnection.getClientBuilder().setConnectionManager(connManager);
+        restConnection.getClientBuilder().setConnectionManager(connManager).setConnectionManagerShared(true);
 
         // restConnection.getClientBuilder().setMaxConnPerRoute(propertyConstants.getMaximumThreadSize())
         // .setMaxConnTotal(propertyConstants.getMaximumThreadSize())

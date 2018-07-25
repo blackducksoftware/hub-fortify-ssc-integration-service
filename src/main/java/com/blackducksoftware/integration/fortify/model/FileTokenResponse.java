@@ -33,7 +33,7 @@ public final class FileTokenResponse {
 
     private final int responseCode;
 
-    public FileTokenResponse(Data data, int responseCode) {
+    public FileTokenResponse(final Data data, final int responseCode) {
         this.data = data;
         this.responseCode = responseCode;
     }
@@ -56,7 +56,7 @@ public final class FileTokenResponse {
 
         private final String fileTokenType;
 
-        public Data(String token, String fileTokenType) {
+        public Data(final String token, final String fileTokenType) {
             super();
             this.token = token;
             this.fileTokenType = fileTokenType;

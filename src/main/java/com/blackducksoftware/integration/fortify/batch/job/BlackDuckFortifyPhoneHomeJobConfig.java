@@ -50,8 +50,8 @@ public class BlackDuckFortifyPhoneHomeJobConfig implements JobExecutionListener 
     private final PropertyConstants propertyConstants;
 
     @Autowired
-    public BlackDuckFortifyPhoneHomeJobConfig(JobLauncher jobLauncher, JobBuilderFactory jobBuilderFactory,
-            StepBuilderFactory stepBuilderFactory, HubServices hubServices, PropertyConstants propertyConstants) {
+    public BlackDuckFortifyPhoneHomeJobConfig(final JobLauncher jobLauncher, final JobBuilderFactory jobBuilderFactory,
+            final StepBuilderFactory stepBuilderFactory, final HubServices hubServices, final PropertyConstants propertyConstants) {
         this.jobLauncher = jobLauncher;
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
@@ -66,7 +66,7 @@ public class BlackDuckFortifyPhoneHomeJobConfig implements JobExecutionListener 
      */
     @Scheduled(cron = "${cron.expressions}") // Run on same schedule as worker
     public void execute() throws Exception {
-        JobParameters jobParams = new JobParametersBuilder().addString("JobID", String.valueOf(System.currentTimeMillis())).toJobParameters();
+        final JobParameters jobParams = new JobParametersBuilder().addString("JobID", String.valueOf(System.currentTimeMillis())).toJobParameters();
         jobLauncher.run(sendPhoneHomeDataJob(), jobParams);
     }
 
@@ -91,7 +91,7 @@ public class BlackDuckFortifyPhoneHomeJobConfig implements JobExecutionListener 
      * Executed before the job begins
      */
     @Override
-    public void beforeJob(JobExecution jobExecution) {
+    public void beforeJob(final JobExecution jobExecution) {
         logger.info("Phone Home Job started at: " + jobExecution.getStartTime());
     }
 
@@ -99,7 +99,7 @@ public class BlackDuckFortifyPhoneHomeJobConfig implements JobExecutionListener 
      * Executed after the job completes
      */
     @Override
-    public void afterJob(JobExecution jobExecution) {
+    public void afterJob(final JobExecution jobExecution) {
         logger.info("Phone Home Job completed (" + jobExecution.getExitStatus().getExitCode() + ") at: " + jobExecution.getEndTime());
     }
 

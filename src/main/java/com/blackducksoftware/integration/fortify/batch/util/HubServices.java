@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
@@ -35,7 +36,7 @@ import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionVi
 import com.blackducksoftware.integration.hub.api.generated.view.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.api.view.MetaHandler;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.request.Request;
+import com.blackducksoftware.integration.hub.service.HubRegistrationService;
 import com.blackducksoftware.integration.hub.service.HubService;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.hub.service.PhoneHomeService;
@@ -43,6 +44,11 @@ import com.blackducksoftware.integration.hub.service.ProjectService;
 import com.blackducksoftware.integration.hub.service.model.ProjectVersionWrapper;
 import com.blackducksoftware.integration.hub.service.model.RequestFactory;
 import com.blackducksoftware.integration.log.IntBufferedLogger;
+import com.blackducksoftware.integration.phonehome.PhoneHomeClient;
+import com.blackducksoftware.integration.rest.connection.RestConnection;
+import com.blackducksoftware.integration.rest.request.Request;
+import com.blackducksoftware.integration.util.IntEnvironmentVariables;
+import com.google.gson.Gson;
 
 /**
  * This class will be used as REST client to access the Hub API's
@@ -53,6 +59,8 @@ import com.blackducksoftware.integration.log.IntBufferedLogger;
 public final class HubServices {
 
     private final static Logger logger = Logger.getLogger(HubServices.class);
+
+    public static final String ALLIANCES_TRACKING_ID = "UA-116682967-3";
 
     private final HubServicesFactory hubServicesFactory;
 
@@ -135,9 +143,26 @@ public final class HubServices {
         return null;
     }
 
-    public PhoneHomeService getPhoneHomeDataService() {
-        logger.info("Getting Phone Home Data Service");
-        final PhoneHomeService phoneHomeDataService = hubServicesFactory.createPhoneHomeService();
-        return phoneHomeDataService;
+    public HubService createHubService() {
+        logger.info("Creating Hub service");
+        return hubServicesFactory.createHubService();
+    }
+
+    public HubRegistrationService createHubRegistrationService() {
+        logger.info("Creating Hub registration service");
+        return hubServicesFactory.createHubRegistrationService();
+    }
+
+    public PhoneHomeService createPhoneHomeDataService() {
+        logger.info("Creating Phone home data service");
+        return new PhoneHomeService(createHubService(), createPhoneHomeClient(), createHubRegistrationService(), new IntEnvironmentVariables(true));
+    }
+
+    public PhoneHomeClient createPhoneHomeClient() {
+        logger.info("Creating Phone home client");
+        final RestConnection restConnection = hubServicesFactory.getRestConnection();
+        final HttpClientBuilder httpClientBuilder = restConnection.getClientBuilder();
+        final Gson gson = restConnection.gson;
+        return new PhoneHomeClient(ALLIANCES_TRACKING_ID, httpClientBuilder, gson);
     }
 }

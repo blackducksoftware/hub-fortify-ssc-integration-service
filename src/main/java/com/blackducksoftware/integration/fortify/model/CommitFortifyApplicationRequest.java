@@ -29,7 +29,7 @@ public final class CommitFortifyApplicationRequest {
         return committed;
     }
 
-    public CommitFortifyApplicationRequest(boolean committed) {
+    public CommitFortifyApplicationRequest(final boolean committed) {
         this.committed = committed;
     }
 }

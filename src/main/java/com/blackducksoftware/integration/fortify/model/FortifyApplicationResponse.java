@@ -35,7 +35,7 @@ public final class FortifyApplicationResponse {
 
     private final int responseCode;
 
-    public FortifyApplicationResponse(List<Data> data, int responseCode) {
+    public FortifyApplicationResponse(final List<Data> data, final int responseCode) {
         this.data = data;
         this.responseCode = responseCode;
     }
@@ -50,7 +50,7 @@ public final class FortifyApplicationResponse {
 
     @Override
     public String toString() {
-        return "FortifyApplicationResponse [data=" + data + ", responseCode=" + responseCode + "]";
+        return "FortifyApplicationResponse [data=" + data.toString() + ", responseCode=" + responseCode + "]";
     }
 
 }

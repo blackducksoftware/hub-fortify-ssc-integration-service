@@ -35,7 +35,7 @@ public final class Data {
 
     private final Project project;
 
-    public Data(Integer id, String name, Project project) {
+    public Data(final Integer id, final String name, final Project project) {
         this.id = id;
         this.name = name;
         this.project = project;
@@ -55,7 +55,7 @@ public final class Data {
 
     @Override
     public String toString() {
-        return "Data [id=" + id + "]";
+        return "Data [id=" + id + ", name=" + name + ", project=" + project + "]";
     }
 
     public final static class Project {
@@ -68,7 +68,7 @@ public final class Data {
 
         private final String issueTemplateId;
 
-        public Project(int id, String name, String description, String issueTemplateId) {
+        public Project(final int id, final String name, final String description, final String issueTemplateId) {
             super();
             this.id = id;
             this.name = name;
@@ -91,6 +91,12 @@ public final class Data {
         public String getIssueTemplateId() {
             return issueTemplateId;
         }
+
+        @Override
+        public String toString() {
+            return "Project [id=" + id + ", name=" + name + ", description=" + description + ", issueTemplateId=" + issueTemplateId + "]";
+        }
+
     }
 
 }

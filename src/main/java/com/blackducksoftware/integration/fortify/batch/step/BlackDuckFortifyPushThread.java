@@ -87,7 +87,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
     private final PropertyConstants propertyConstants;
 
     public BlackDuckFortifyPushThread(final BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup, final HubServices hubServices,
-            final FortifyFileTokenApi fortifyFileTokenApi, final FortifyUploadApi fortifyUploadApi, PropertyConstants propertyConstants) {
+            final FortifyFileTokenApi fortifyFileTokenApi, final FortifyUploadApi fortifyUploadApi, final PropertyConstants propertyConstants) {
         this.blackDuckFortifyMapperGroup = blackDuckFortifyMapperGroup;
         this.hubServices = hubServices;
         this.fortifyFileTokenApi = fortifyFileTokenApi;
@@ -130,7 +130,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
                 CSVUtils.writeToCSV(mergedVulnerabilities, fileDir + fileName, ',');
 
                 // Get the file token for upload
-                String token = getFileToken();
+                final String token = getFileToken();
 
                 // Upload the vulnerabilities CSV to Fortify
                 uploadCSV(token, fileDir + fileName, blackDuckFortifyMapperGroup.getFortifyApplicationId());
@@ -153,15 +153,15 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
      */
     private List<ProjectVersionView> getProjectVersionItemsAndMaxBomUpdatedDate(final List<HubProjectVersion> hubProjectVersions)
             throws IllegalArgumentException, IntegrationException {
-        List<ProjectVersionView> projectVersionItems = new ArrayList<>();
-        for (HubProjectVersion hubProjectVersion : hubProjectVersions) {
-            String projectName = hubProjectVersion.getHubProject();
-            String projectVersion = hubProjectVersion.getHubProjectVersion();
+        final List<ProjectVersionView> projectVersionItems = new ArrayList<>();
+        for (final HubProjectVersion hubProjectVersion : hubProjectVersions) {
+            final String projectName = hubProjectVersion.getHubProject();
+            final String projectVersion = hubProjectVersion.getHubProjectVersion();
 
             // Get the project version
             final ProjectVersionView projectVersionItem = hubServices.getProjectVersion(projectName, projectVersion);
             projectVersionItems.add(projectVersionItem);
-            Date bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
+            final Date bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
 
             if (maxBomUpdatedDate == null || bomUpdatedValueAt.after(maxBomUpdatedDate)) {
                 maxBomUpdatedDate = bomUpdatedValueAt;
@@ -184,16 +184,16 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
     private List<Vulnerability> mergeVulnerabilities(final List<HubProjectVersion> hubProjectVersions, final List<ProjectVersionView> projectVersionItems)
             throws IllegalArgumentException, IntegrationException {
         int index = 0;
-        List<Vulnerability> mergedVulnerabilities = new ArrayList<>();
+        final List<Vulnerability> mergedVulnerabilities = new ArrayList<>();
 
-        for (HubProjectVersion hubProjectVersion : hubProjectVersions) {
+        for (final HubProjectVersion hubProjectVersion : hubProjectVersions) {
 
             // Get the Vulnerability information
             final List<VulnerableComponentView> vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItems.get(index));
             index++;
 
             // Convert the Hub Vulnerability component view to CSV Vulnerability object
-            List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(vulnerableComponentViews, hubProjectVersion.getHubProject(),
+            final List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(vulnerableComponentViews, hubProjectVersion.getHubProject(),
                     hubProjectVersion.getHubProjectVersion(), maxBomUpdatedDate, propertyConstants);
 
             // Add the vulnerabilities to the main list
@@ -210,7 +210,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
      * @throws IOException
      * @throws DateTimeParseException
      */
-    private Date getLastSuccessfulJobRunTime(String fileName) throws IOException, DateTimeParseException {
+    private Date getLastSuccessfulJobRunTime(final String fileName) throws IOException, DateTimeParseException {
         BufferedReader br = null;
         FileReader fr = null;
         try {
@@ -222,10 +222,10 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
                 final LocalDateTime localDateTime = LocalDateTime.parse(sCurrentLine, DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS"));
                 return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             logger.error(e.getMessage(), e);
             throw new IOException("Unable to find the batch_job_status.txt file", e);
-        } catch (DateTimeParseException e) {
+        } catch (final DateTimeParseException e) {
             logger.error(e.getMessage(), e);
             throw new DateTimeParseException("Error while parsing the date. Please make sure date time format is yyyy/MM/dd HH:mm:ss.SSS", e.getParsedString(),
                     e.getErrorIndex(), e);
@@ -248,7 +248,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
      * @throws IntegrationException
      */
     private String getFileToken() throws IOException, IntegrationException {
-        FileToken fileToken = new FileToken("UPLOAD");
+        final FileToken fileToken = new FileToken("UPLOAD");
         return fortifyFileTokenApi.getFileToken(fileToken);
     }
 
@@ -261,8 +261,8 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
      * @throws IOException
      * @throws IntegrationException
      */
-    private void uploadCSV(String token, String fileName, int fortifyApplicationId) throws IOException, IntegrationException {
-        File file = new File(fileName);
+    private void uploadCSV(final String token, final String fileName, final int fortifyApplicationId) throws IOException, IntegrationException {
+        final File file = new File(fileName);
         logger.debug("Uploading " + file.getName() + " to fortify");
         // Call Fortify upload
         final boolean response = fortifyUploadApi.uploadVulnerabilityByProjectVersion(token, fortifyApplicationId, file);

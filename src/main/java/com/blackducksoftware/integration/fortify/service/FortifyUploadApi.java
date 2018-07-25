@@ -72,20 +72,20 @@ public final class FortifyUploadApi extends FortifyService {
      * @return
      * @throws Exception
      */
-    public boolean uploadVulnerabilityByProjectVersion(String fileToken, long entityIdVal, File file) throws IOException {
-        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+    public boolean uploadVulnerabilityByProjectVersion(final String fileToken, final long entityIdVal, final File file) throws IOException {
+        final MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         builder.addFormDataPart("entityId", String.valueOf(entityIdVal));
         builder.addFormDataPart("engineType", "BLACKDUCK");
         builder.addFormDataPart("files[]", file.getName(), RequestBody.create(MediaType.parse("text/csv"), file));
 
-        RequestBody requestBody = builder.build();
+        final RequestBody requestBody = builder.build();
 
-        Request request = new Request.Builder().url(URL + fileToken).post(requestBody).build();
+        final Request request = new Request.Builder().url(URL + fileToken).post(requestBody).build();
         Response response;
         JobStatusResponse jobStatusResponse = null;
         try {
             response = okHttpClient.newCall(request).execute();
-            Serializer serializer = new Persister();
+            final Serializer serializer = new Persister();
             try {
                 jobStatusResponse = serializer.read(JobStatusResponse.class, response.body().string());
                 if (jobStatusResponse != null && jobStatusResponse.getCode() == -10001
@@ -95,10 +95,10 @@ public final class FortifyUploadApi extends FortifyService {
                     FortifyExceptionUtil.throwFortifyCustomException(jobStatusResponse.getCode(), "Fortify Upload Api",
                             jobStatusResponse.getMessage());
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 logger.error("Error while reading the fortify upload response", e);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             logger.error("Error while uploading the vulnerability to Fortify", e);
             throw new IOException("Error while uploading the vulnerability to Fortify", e);
         }
