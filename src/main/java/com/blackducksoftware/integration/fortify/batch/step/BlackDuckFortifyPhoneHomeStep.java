@@ -76,10 +76,6 @@ public class BlackDuckFortifyPhoneHomeStep implements Tasklet, StepExecutionList
         final PhoneHomeService phoneHome = hubServices.createPhoneHomeDataService();
         final Builder phoneHomeReq = phoneHome.createInitialPhoneHomeRequestBodyBuilder("fortify-ssc", propertyConstants.getPluginVersion());
         phoneHomeReq.addToMetaData("Source", "Alliance Integrations");
-        // phoneHomeReq.setSource(PhoneHomeSource.ALLIANCES);
-        // phoneHomeReq.setThirdPartyName(ThirdPartyName.FORTIFY_SSC);
-        // phoneHomeReq.setThirdPartyVersion("N/A");
-        // phoneHomeReq.setPluginVersion(propertyConstants.getPluginVersion());
         phoneHome.phoneHome(phoneHomeReq.build());
         return RepeatStatus.FINISHED;
     }
