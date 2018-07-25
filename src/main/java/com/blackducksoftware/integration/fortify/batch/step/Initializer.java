@@ -90,7 +90,7 @@ public class Initializer implements Tasklet, StepExecutionListener {
     }
 
     @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+    public RepeatStatus execute(final StepContribution contribution, final ChunkContext chunkContext) throws Exception {
         logger.info("Started MappingParserTask");
         // Delete the files that are error out in previous run
         Arrays.stream(new File(propertyConstants.getReportDir()).listFiles()).forEach(File::delete);
@@ -101,13 +101,13 @@ public class Initializer implements Tasklet, StepExecutionListener {
         logger.info("blackDuckFortifyMappers :" + groupMap.toString());
 
         // Create the threads for parallel processing
-        ExecutorService exec = Executors.newFixedThreadPool(propertyConstants.getMaximumThreadSize());
-        List<Future<?>> futures = new ArrayList<>(groupMap.size());
-        for (BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup : groupMap) {
+        final ExecutorService exec = Executors.newFixedThreadPool(propertyConstants.getMaximumThreadSize());
+        final List<Future<?>> futures = new ArrayList<>(groupMap.size());
+        for (final BlackDuckFortifyMapperGroup blackDuckFortifyMapperGroup : groupMap) {
             futures.add(exec.submit(new BlackDuckFortifyPushThread(blackDuckFortifyMapperGroup,
                     hubServices, fortifyFileTokenApi, fortifyUploadApi, propertyConstants)));
         }
-        for (Future<?> f : futures) {
+        for (final Future<?> f : futures) {
             f.get(); // wait for a processor to complete
         }
 
@@ -120,7 +120,7 @@ public class Initializer implements Tasklet, StepExecutionListener {
      * This method will be executed before this step is started and it will store the start job run time
      */
     @Override
-    public void beforeStep(StepExecution stepExecution) {
+    public void beforeStep(final StepExecution stepExecution) {
         startJobTimeStamp = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(LocalDateTime.now());
     }
 
@@ -129,18 +129,18 @@ public class Initializer implements Tasklet, StepExecutionListener {
      * batch_job_status.txt
      */
     @Override
-    public ExitStatus afterStep(StepExecution stepExecution) {
+    public ExitStatus afterStep(final StepExecution stepExecution) {
         if (jobStatus) {
             try (Writer writer = new BufferedWriter(
                     new OutputStreamWriter(new FileOutputStream(propertyConstants.getBatchJobStatusFilePath()), "utf-8"))) {
                 writer.write(startJobTimeStamp);
-            } catch (UnsupportedEncodingException e) {
+            } catch (final UnsupportedEncodingException e) {
                 logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
-            } catch (FileNotFoundException e) {
+            } catch (final FileNotFoundException e) {
                 logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             }

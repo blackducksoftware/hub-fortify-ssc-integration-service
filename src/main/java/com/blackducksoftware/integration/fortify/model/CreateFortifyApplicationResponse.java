@@ -25,7 +25,7 @@ package com.blackducksoftware.integration.fortify.model;
 public final class CreateFortifyApplicationResponse {
     private final Data data;
 
-    public CreateFortifyApplicationResponse(Data data) {
+    public CreateFortifyApplicationResponse(final Data data) {
         this.data = data;
     }
 

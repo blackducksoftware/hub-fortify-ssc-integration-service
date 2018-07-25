@@ -145,7 +145,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Scheduled(cron = "${cron.expressions}")
     public void execute() throws Exception {
-        JobParameters param = new JobParametersBuilder().addString("JobID",
+        final JobParameters param = new JobParametersBuilder().addString("JobID",
                 String.valueOf(System.currentTimeMillis())).toJobParameters();
         batchScheduler.jobLauncher().run(pushBlackDuckScanToFortifyJob(), param);
     }
@@ -181,7 +181,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      * This function will execute after each job is completed
      */
     @Override
-    public void afterJob(JobExecution jobExecution) {
+    public void afterJob(final JobExecution jobExecution) {
         logger.info("Job completed at::" + new Date());
     }
 
@@ -189,7 +189,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      * This function will execute before each job is started
      */
     @Override
-    public void beforeJob(JobExecution jobExecution) {
+    public void beforeJob(final JobExecution jobExecution) {
         logger.info("Job started at::" + new Date());
     }
 }

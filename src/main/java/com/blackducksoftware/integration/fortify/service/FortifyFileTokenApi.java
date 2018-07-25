@@ -45,7 +45,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
  *
  */
 public final class FortifyFileTokenApi extends FortifyService {
-
     private final static Logger logger = Logger.getLogger(FortifyFileTokenApi.class);
 
     private final OkHttpClient.Builder okBuilder;
@@ -71,13 +70,13 @@ public final class FortifyFileTokenApi extends FortifyService {
      * @throws IOException
      * @throws IntegrationException
      */
-    public String getFileToken(FileToken fileToken) throws IOException, IntegrationException {
-        Call<FileTokenResponse> fileTokenResponseCall = apiService.getFileToken(fileToken);
+    public String getFileToken(final FileToken fileToken) throws IOException, IntegrationException {
+        final Call<FileTokenResponse> fileTokenResponseCall = apiService.getFileToken(fileToken);
         FileTokenResponse fileTokenResponse;
         try {
             fileTokenResponse = fileTokenResponseCall.execute().body();
             FortifyExceptionUtil.verifyFortifyResponseCode(fileTokenResponse.getResponseCode(), "Fortify Upload Get File Token Api");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             logger.error("Error while retrieving the file token for upload", e);
             throw new IOException("Error while retrieving the file token for upload", e);
         }
@@ -92,12 +91,12 @@ public final class FortifyFileTokenApi extends FortifyService {
      * @throws IntegrationException
      */
     public void deleteFileToken() throws IOException, IntegrationException {
-        Call<ResponseBody> deleteTokenResponseCall = apiService.deleteFileToken();
+        final Call<ResponseBody> deleteTokenResponseCall = apiService.deleteFileToken();
         int responseCode;
         try {
             responseCode = deleteTokenResponseCall.execute().code();
             FortifyExceptionUtil.verifyFortifyResponseCode(responseCode, "Fortify Upload Delete File Token Api");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             logger.error("Error while deleting the file token for upload", e);
             throw new IOException("Error while deleting the file token for upload", e);
         }

@@ -25,9 +25,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.hub.service.PhoneHomeService;
-import com.blackducksoftware.integration.phonehome.PhoneHomeRequestBodyBuilder;
-import com.blackducksoftware.integration.phonehome.enums.PhoneHomeSource;
-import com.blackducksoftware.integration.phonehome.enums.ThirdPartyName;
+import com.blackducksoftware.integration.phonehome.PhoneHomeRequestBody.Builder;
 
 /**
  * @author jfisher
@@ -46,7 +44,7 @@ public class BlackDuckFortifyPhoneHomeStep implements Tasklet, StepExecutionList
      * @param hubServices
      *            HubServices object which provides access to the Hub
      */
-    public BlackDuckFortifyPhoneHomeStep(HubServices hubServices, PropertyConstants propertyConstants) {
+    public BlackDuckFortifyPhoneHomeStep(final HubServices hubServices, final PropertyConstants propertyConstants) {
         this.hubServices = hubServices;
         this.propertyConstants = propertyConstants;
     }
@@ -55,14 +53,14 @@ public class BlackDuckFortifyPhoneHomeStep implements Tasklet, StepExecutionList
      * This executes before the step and stores the start time of the step
      */
     @Override
-    public void beforeStep(StepExecution stepExecution) {
+    public void beforeStep(final StepExecution stepExecution) {
     }
 
     /**
      * This executes after the step and will log the start and end time of the step
      */
     @Override
-    public ExitStatus afterStep(StepExecution stepExecution) {
+    public ExitStatus afterStep(final StepExecution stepExecution) {
         /**
          * See http://forum.spring.io/forum/spring-projects/batch/123268-endtime-not-set-on-stepexecution for
          * discussion on why StepExecution.endTime is null when the listener is called.
@@ -72,18 +70,17 @@ public class BlackDuckFortifyPhoneHomeStep implements Tasklet, StepExecutionList
     }
 
     @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+    public RepeatStatus execute(final StepContribution contribution, final ChunkContext chunkContext) throws Exception {
         logger.info("Started Phone Home step");
 
-        PhoneHomeService phoneHome = hubServices.getPhoneHomeDataService();
-        PhoneHomeRequestBodyBuilder phoneHomeReq = phoneHome.createInitialPhoneHomeRequestBodyBuilder();
-        phoneHomeReq.setSource(PhoneHomeSource.ALLIANCES);
-        phoneHomeReq.setThirdPartyName(ThirdPartyName.FORTIFY_SSC);
-        phoneHomeReq.setThirdPartyVersion("N/A");
-        phoneHomeReq.setPluginVersion(propertyConstants.getPluginVersion());
-
+        final PhoneHomeService phoneHome = hubServices.createPhoneHomeDataService();
+        final Builder phoneHomeReq = phoneHome.createInitialPhoneHomeRequestBodyBuilder("fortify-ssc", propertyConstants.getPluginVersion());
+        phoneHomeReq.addToMetaData("Source", "Alliance Integrations");
+        // phoneHomeReq.setSource(PhoneHomeSource.ALLIANCES);
+        // phoneHomeReq.setThirdPartyName(ThirdPartyName.FORTIFY_SSC);
+        // phoneHomeReq.setThirdPartyVersion("N/A");
+        // phoneHomeReq.setPluginVersion(propertyConstants.getPluginVersion());
         phoneHome.phoneHome(phoneHomeReq.build());
-
         return RepeatStatus.FINISHED;
     }
 

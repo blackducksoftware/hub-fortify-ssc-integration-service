@@ -56,8 +56,9 @@ public final class FortifyAttributeDefinitionApi extends FortifyService {
     }
 
     public FortifyAttributeDefinitionResponse getAttributeDefinitions() throws IOException, IntegrationException {
-        Call<FortifyAttributeDefinitionResponse> apiApplicationResponseCall = apiService.getAttributeDefinitions(FIELDS_ATTRIBUTE, FILTER_REQUIRE_ATTRIBUTE);
-        Response<FortifyAttributeDefinitionResponse> applicationAPIResponse = apiApplicationResponseCall.execute();
+        final Call<FortifyAttributeDefinitionResponse> apiApplicationResponseCall = apiService.getAttributeDefinitions(FIELDS_ATTRIBUTE,
+                FILTER_REQUIRE_ATTRIBUTE);
+        final Response<FortifyAttributeDefinitionResponse> applicationAPIResponse = apiApplicationResponseCall.execute();
         FortifyExceptionUtil.verifyFortifyResponseCode(applicationAPIResponse.code(), "Fortify Get Application Attributes Api");
         return applicationAPIResponse.body();
     }

@@ -73,7 +73,7 @@ public class BatchSchedulerConfig {
      */
     @Bean
     public JobLauncher jobLauncher() throws Exception {
-        SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
+        final SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
         jobLauncher.setJobRepository(jobRepository());
         return jobLauncher;
     }

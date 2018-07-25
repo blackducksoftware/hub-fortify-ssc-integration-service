@@ -50,7 +50,7 @@ import retrofit2.http.Query;
 public interface FortifyApplicationVersionApiService {
     @Headers({ "Accept: application/json", "Content-Type:application/json" })
     @GET("api/v1/projectVersions")
-    Call<FortifyApplicationResponse> getApplicationVersionByName(@Query("fields") String fields, @Query("q") String filter);
+    Call<FortifyApplicationResponse> getApplicationVersionByName(@Query("fields") String fields, @Query(encoded = true, value = "q") String filter);
 
     @Headers({ "Accept: application/json", "Content-Type:application/json" })
     @POST("api/v1/projectVersions")

@@ -30,7 +30,7 @@ public final class FortifyAttributeDefinitionResponse {
     @SerializedName("data")
     private final List<FortifyAttributeDefinition> fortifyAttributeDefinitions;
 
-    public FortifyAttributeDefinitionResponse(List<FortifyAttributeDefinition> fortifyAttributeDefinitions) {
+    public FortifyAttributeDefinitionResponse(final List<FortifyAttributeDefinition> fortifyAttributeDefinitions) {
         this.fortifyAttributeDefinitions = fortifyAttributeDefinitions;
     }
 
@@ -47,7 +47,8 @@ public final class FortifyAttributeDefinitionResponse {
 
         private final List<Option> options;
 
-        public FortifyAttributeDefinition(Integer id, String name, String category, String type, boolean required, List<Option> options) {
+        public FortifyAttributeDefinition(final Integer id, final String name, final String category, final String type, final boolean required,
+                final List<Option> options) {
             this.id = id;
             this.name = name;
             this.category = category;
@@ -61,7 +62,7 @@ public final class FortifyAttributeDefinitionResponse {
 
             private final String name;
 
-            public Option(String guid, String name) {
+            public Option(final String guid, final String name) {
                 this.guid = guid;
                 this.name = name;
             }

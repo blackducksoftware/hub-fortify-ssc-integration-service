@@ -45,23 +45,23 @@ public class AttributeConstants {
     private final HashMap<Object, Object> hmProps = new HashMap<>();
 
     @Autowired
-    public AttributeConstants(PropertyConstants propertyConstants) {
-        String attributesFileName = propertyConstants.getAttributeFilePath();
+    public AttributeConstants(final PropertyConstants propertyConstants) {
+        final String attributesFileName = propertyConstants.getAttributeFilePath();
         InputStream attributeConfig = null;
         try {
             attributeConfig = new java.io.FileInputStream(attributesFileName);
             properties.load(attributeConfig);
             hmProps.putAll(properties);
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             throw new RuntimeException("Attribute file \"" + attributesFileName + "\" is not present", e);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException("Error while loading the attributes file", e);
         } finally {
             try {
                 if (attributeConfig != null) {
                     attributeConfig.close();
                 }
-            } catch (IOException e) {
+            } catch (final IOException e) {
 
             }
         }
@@ -74,7 +74,7 @@ public class AttributeConstants {
      *            the key
      * @return the property
      */
-    public String getProperty(String key) {
+    public String getProperty(final String key) {
         if (hmProps.containsKey(key)) {
             return (String) hmProps.get(key);
         } else {

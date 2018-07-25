@@ -43,7 +43,8 @@ public final class CreateApplicationRequest implements Serializable {
 
     private final String issueTemplateId;
 
-    public CreateApplicationRequest(final String name, final String description, final Boolean active, final Boolean committed, final Project project, final String issueTemplateId) {
+    public CreateApplicationRequest(final String name, final String description, final Boolean active, final Boolean committed, final Project project,
+            final String issueTemplateId) {
         this.name = name;
         this.description = description;
         this.active = active;

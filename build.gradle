@@ -34,7 +34,7 @@ tasks.withType(JavaCompile) {
 }
 
 group 'com.blackducksoftware.integration.fortify'
-version = '2.0.5'
+version = '2.0.6'
 
 mainClassName = 'com.blackducksoftware.integration.fortify.Application'
 
@@ -47,7 +47,7 @@ startScripts {
 }
 
 ext {
-	hubCommonVersion = '29.1.0'
+	hubCommonVersion = '35.0.0'
 	retrofit2Version = '2.1.0'
 	okhttp3Version = '3.3.1'
 	powerMockitoVersion = '1.6.6'
@@ -60,6 +60,7 @@ ext {
 	HUB_PASSWORD=System.getenv('HUB_PASSWORD')
 	HUB_TIMEOUT=System.getenv('HUB_TIMEOUT')
 	HUB_SERVER_URL=System.getenv('HUB_SERVER_URL')
+	HUB_API_TOKEN=System.getenv('HUB_API_TOKEN')
 	FORTIFY_SERVER_URL=System.getenv('FORTIFY_SERVER_URL')
 	FORTIFY_USERNAME=System.getenv('FORTIFY_USERNAME')
 	FORTIFY_PASSWORD=System.getenv('FORTIFY_PASSWORD')

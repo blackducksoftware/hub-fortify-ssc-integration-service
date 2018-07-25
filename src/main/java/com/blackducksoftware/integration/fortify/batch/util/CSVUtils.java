@@ -60,34 +60,34 @@ public final class CSVUtils {
      * @throws IOException
      */
     @SuppressWarnings("resource")
-    public static void writeToCSV(List<Vulnerability> vulnerabilities, String fileName, char delimiter)
+    public static void writeToCSV(final List<Vulnerability> vulnerabilities, final String fileName, final char delimiter)
             throws JsonGenerationException, JsonMappingException, FileNotFoundException, UnsupportedEncodingException, IOException {
         // create mapper and schema
-        CsvMapper mapper = new CsvMapper();
+        final CsvMapper mapper = new CsvMapper();
         // Create the schema with the header
         CsvSchema schema = mapper.schemaFor(Vulnerability.class).withHeader();
         schema = schema.withColumnSeparator(delimiter);
 
         // output writer
-        ObjectWriter objectWriter = mapper.writer(schema);
-        File file = new File(fileName);
+        final ObjectWriter objectWriter = mapper.writer(schema);
+        final File file = new File(fileName);
         FileOutputStream fileOutputStream;
         try {
             fileOutputStream = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             throw new FileSystemNotFoundException(fileName + " CSV file is not created successfully");
         }
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream, 1024);
+        final BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream, 1024);
         OutputStreamWriter writerOutputStream;
         try {
             writerOutputStream = new OutputStreamWriter(bufferedOutputStream, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new UnsupportedEncodingException(e.getMessage());
         }
         // write to CSV file
         try {
             objectWriter.writeValue(writerOutputStream, vulnerabilities);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new IOException("Error while rendering the vulnerabilities in CSV file::" + fileName, e);
         }
     }

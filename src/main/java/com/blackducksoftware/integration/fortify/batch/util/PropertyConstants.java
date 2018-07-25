@@ -37,148 +37,169 @@ public class PropertyConstants {
     private String hubUserName;
 
     @Value("${hub.username}")
-    public void setHubUserName(String hubUserName) {
+    public void setHubUserName(final String hubUserName) {
         this.hubUserName = hubUserName;
     }
 
     private String hubPassword;
 
     @Value("${hub.password}")
-    public void setHubPassword(String hubPassword) {
+    public void setHubPassword(final String hubPassword) {
         this.hubPassword = hubPassword;
+    }
+
+    private String hubApiToken;
+
+    @Value("${hub.api.token}")
+    public void setHubApiToken(final String hubApiToken) {
+        this.hubApiToken = hubApiToken;
+    }
+
+    private boolean hubAlwaysTrustCert;
+
+    @Value("${hub.always.trust.cert}")
+    public void setHubAlwaysTrustCert(final boolean hubAlwaysTrustCert) {
+        this.hubAlwaysTrustCert = hubAlwaysTrustCert;
     }
 
     private String hubTimeout;
 
     @Value("${hub.timeout}")
-    public void setHubTimeout(String hubTimeout) {
+    public void setHubTimeout(final String hubTimeout) {
         this.hubTimeout = hubTimeout;
     }
 
     private String hubServerUrl;
 
     @Value("${hub.server.url}")
-    public void setHubServerUrl(String hubServerUrl) {
+    public void setHubServerUrl(final String hubServerUrl) {
         this.hubServerUrl = hubServerUrl;
     }
 
     private String hubProxyHost;
 
     @Value("${hub.proxy.host}")
-    public void setHubProxyHost(String hubProxyHost) {
+    public void setHubProxyHost(final String hubProxyHost) {
         this.hubProxyHost = hubProxyHost;
     }
 
     private String hubProxyPort;
 
     @Value("${hub.proxy.port}")
-    public void setHubProxyPort(String hubProxyPort) {
+    public void setHubProxyPort(final String hubProxyPort) {
         this.hubProxyPort = hubProxyPort;
     }
 
     private String hubProxyUser;
 
     @Value("${hub.proxy.user}")
-    public void setHubProxyUser(String hubProxyUser) {
+    public void setHubProxyUser(final String hubProxyUser) {
         this.hubProxyUser = hubProxyUser;
     }
 
     private String hubProxyPassword;
 
     @Value("${hub.proxy.password}")
-    public void setHubProxyPassword(String hubProxyPassword) {
+    public void setHubProxyPassword(final String hubProxyPassword) {
         this.hubProxyPassword = hubProxyPassword;
     }
 
     private String hubProxyNtlmDomain;
 
     @Value("${hub.proxy.Ntlm.Domain}")
-    public void setHubProxyNtlmDomain(String hubProxyNtlmDomain) {
+    public void setHubProxyNtlmDomain(final String hubProxyNtlmDomain) {
         this.hubProxyNtlmDomain = hubProxyNtlmDomain;
     }
 
     private String hubProxyNtlmWorkstation;
 
     @Value("${hub.proxy.Ntlm.Workstation}")
-    public void setHubProxyNtlmWorkstation(String hubProxyNtlmWorkstation) {
+    public void setHubProxyNtlmWorkstation(final String hubProxyNtlmWorkstation) {
         this.hubProxyNtlmWorkstation = hubProxyNtlmWorkstation;
     }
 
     private String hubProxyNoHost;
 
     @Value("${hub.proxy.nohost}")
-    public void setHubProxyNoHost(String hubProxyNoHost) {
+    public void setHubProxyNoHost(final String hubProxyNoHost) {
         this.hubProxyNoHost = hubProxyNoHost;
     }
 
     private String fortifyUserName;
 
     @Value("${fortify.username}")
-    public void setFortifyUserName(String fortifyUserName) {
+    public void setFortifyUserName(final String fortifyUserName) {
         this.fortifyUserName = fortifyUserName;
     }
 
     private String fortifyPassword;
 
     @Value("${fortify.password}")
-    public void setFortifyPassword(String fortifyPassword) {
+    public void setFortifyPassword(final String fortifyPassword) {
         this.fortifyPassword = fortifyPassword;
     }
 
     private String fortifyServerUrl;
 
     @Value("${fortify.server.url}")
-    public void setFortifyServerUrl(String fortifyServerUrl) {
+    public void setFortifyServerUrl(final String fortifyServerUrl) {
         this.fortifyServerUrl = fortifyServerUrl;
     }
 
     private String batchJobStatusFilePath;
 
     @Value("${hub.fortify.batch.job.status.file.path}")
-    public void setBatchJobStatusFilePath(String batchJobStatusFilePath) {
+    public void setBatchJobStatusFilePath(final String batchJobStatusFilePath) {
         this.batchJobStatusFilePath = batchJobStatusFilePath;
     }
 
     private String reportDir;
 
     @Value("${hub.fortify.report.dir}")
-    public void setReportDir(String reportDir) {
+    public void setReportDir(final String reportDir) {
         this.reportDir = reportDir;
     }
 
     private String mappingJsonPath;
 
     @Value("${hub.fortify.mapping.file.path}")
-    public void setMappingJsonPath(String mappingJsonPath) {
+    public void setMappingJsonPath(final String mappingJsonPath) {
         this.mappingJsonPath = mappingJsonPath;
     }
 
     private String attributeFilePath;
 
     @Value("${attribute.file}")
-    public void setAttributeFilePath(String attributeFilePath) {
+    public void setAttributeFilePath(final String attributeFilePath) {
         this.attributeFilePath = attributeFilePath;
     }
 
     private int maximumThreadSize;
 
     @Value("${maximum.thread.size}")
-    public void setMaximumThreadSize(int maximumThreadSize) {
+    public void setMaximumThreadSize(final int maximumThreadSize) {
         this.maximumThreadSize = maximumThreadSize;
     }
 
     private boolean batchJobStatusCheck;
 
     @Value("${batch.job.status.check}")
-    public void setBatchJobStatusCheck(boolean batchJobStatusCheck) {
+    public void setBatchJobStatusCheck(final boolean batchJobStatusCheck) {
         this.batchJobStatusCheck = batchJobStatusCheck;
     }
 
     private String pluginVersion;
 
     @Value("${plugin.version}")
-    public void setPluginVersion(String pluginVersion) {
+    public void setPluginVersion(final String pluginVersion) {
         this.pluginVersion = pluginVersion;
+    }
+
+    private String logLevel;
+
+    @Value("${logging.level.com.blackducksoftware}")
+    public void setLogLevel(final String logLevel) {
+        this.logLevel = logLevel;
     }
 
     public String getHubUserName() {
@@ -187,6 +208,14 @@ public class PropertyConstants {
 
     public String getHubPassword() {
         return hubPassword;
+    }
+
+    public String getHubApiToken() {
+        return hubApiToken;
+    }
+
+    public boolean isHubAlwaysTrustCert() {
+        return hubAlwaysTrustCert;
     }
 
     public String getHubTimeout() {
@@ -263,5 +292,9 @@ public class PropertyConstants {
 
     public String getPluginVersion() {
         return pluginVersion;
+    }
+
+    public String getLogLevel() {
+        return logLevel;
     }
 }

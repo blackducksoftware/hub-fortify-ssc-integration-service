@@ -45,7 +45,7 @@ public final class VersionRiskProfileView extends HubResponse {
 
     private final Date bomLastUpdatedAt;
 
-    public VersionRiskProfileView(Date bomLastUpdatedAt) {
+    public VersionRiskProfileView(final Date bomLastUpdatedAt) {
         this.bomLastUpdatedAt = bomLastUpdatedAt;
     }
 
