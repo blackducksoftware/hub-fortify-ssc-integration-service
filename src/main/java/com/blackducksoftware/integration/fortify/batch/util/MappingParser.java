@@ -25,9 +25,7 @@ package com.blackducksoftware.integration.fortify.batch.util;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
-import java.net.URLDecoder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -190,7 +188,7 @@ public final class MappingParser {
         final String fortifyApplicationVersion = mapping.getFortifyApplicationVersion();
         int applicationId;
         try {
-            final String Q = Q_version + fortifyApplicationVersion + Q_connector + Q_project + fortifyApplicationName;
+            final String Q = Q_version + VulnerabilityUtil.encodeString(fortifyApplicationVersion) + Q_connector + Q_project + fortifyApplicationName;
             logger.info("Querying fortify " + Q);
             final FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, Q);
             if (response.getData().size() != 0) {
@@ -205,10 +203,10 @@ public final class MappingParser {
                 if (applicationResponse.getData().size() != 0) {
                     // Create only version
                     final int parentApplicationId = applicationResponse.getData().get(0).getProject().getId();
-                    createRequest = createVersionRequest(parentApplicationId, decodeString(fortifyApplicationVersion));
+                    createRequest = createVersionRequest(parentApplicationId, fortifyApplicationVersion);
                 } else {
                     // Create both new Application and Version
-                    createRequest = createApplicationVersionRequest(fortifyApplicationName, decodeString(fortifyApplicationVersion));
+                    createRequest = createApplicationVersionRequest(fortifyApplicationName, fortifyApplicationVersion);
                 }
                 applicationId = createApplicationVersion(createRequest);
                 // element.setFortifyApplicationId(applicationId);
@@ -218,19 +216,6 @@ public final class MappingParser {
             throw new IOException(e);
         }
         return applicationId;
-    }
-
-    private String decodeString(final String URL) throws IOException {
-
-        String urlString = "";
-        try {
-            urlString = URLDecoder.decode(URL, "UTF-8");
-        } catch (final UnsupportedEncodingException e) {
-            throw new IOException(e);
-        }
-
-        return urlString;
-
     }
 
     /**
