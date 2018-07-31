@@ -117,11 +117,13 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
                 || (!propertyConstants.isBatchJobStatusCheck())) {
             // Get the vulnerabilities for all Hub project versions and merge it
             List<Vulnerability> mergedVulnerabilities = mergeVulnerabilities(hubProjectVersions, projectVersionItems);
+            logger.debug("mergedVulnerabilities count::" + mergedVulnerabilities.size());
             if (mergedVulnerabilities.size() > 0) {
-                if (hubProjectVersions.size() > 1) {
-                    // Removing Duplicates within multiple Hub Project Versions.
-                    mergedVulnerabilities = VulnerabilityUtil.removeDuplicates(mergedVulnerabilities);
-                }
+                // if (hubProjectVersions.size() > 1) {
+                // Removing Duplicates within multiple Hub Project Versions.
+                mergedVulnerabilities = VulnerabilityUtil.removeDuplicates(mergedVulnerabilities);
+                logger.debug("removed duplicates mergedVulnerabilities count::" + mergedVulnerabilities.size());
+                // }
                 final String fileDir = propertyConstants.getReportDir();
                 final String fileName = hubProjectVersions.get(0).getHubProject() + UNDERSCORE + hubProjectVersions.get(0).getHubProjectVersion()
                         + UNDERSCORE + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
