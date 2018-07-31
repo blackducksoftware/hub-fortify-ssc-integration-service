@@ -94,8 +94,10 @@ public class CSVUtilsTest extends TestCase {
         // assertNotNull(vulnerableComponentViews);
         // assertNotNull(bomUpdatedValueAt);
 
-        final List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(vulnerableComponentViews, PROJECT_NAME, VERSION_NAME,
+        List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(vulnerableComponentViews, PROJECT_NAME, VERSION_NAME,
                 bomUpdatedValueAt, propertyConstants);
+        System.out.println("vulnerabilities size::" + vulnerabilities.size());
+        vulnerabilities = VulnerabilityUtil.removeDuplicates(vulnerabilities);
         System.out.println("vulnerabilities size::" + vulnerabilities.size());
         // assertEquals(vulnerableComponentViews.size(), vulnerabilities.size());
         try {
