@@ -23,6 +23,7 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,6 +37,7 @@ import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
  *
  */
 @Configuration
+@ConditionalOnProperty(name = "phone.home.enabled", havingValue = "true", matchIfMissing = true)
 public class BlackDuckFortifyPhoneHomeJobConfig implements JobExecutionListener {
     private static final Logger logger = Logger.getLogger(BlackDuckFortifyPhoneHomeJobConfig.class);
 
