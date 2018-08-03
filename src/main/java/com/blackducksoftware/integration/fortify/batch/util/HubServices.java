@@ -83,7 +83,7 @@ public final class HubServices {
         final ProjectService projectVersionRequestService = hubServicesFactory.createProjectService();
         final ProjectVersionWrapper projectVersionWrapper = projectVersionRequestService.getProjectVersion(projectName, projectVersionName);
         if (projectVersionWrapper != null && projectVersionWrapper.getProjectVersionView() != null) {
-            logger.debug("ProjectVersionView::" + projectVersionWrapper.getProjectVersionView().json);
+            logger.trace("ProjectVersionView::" + projectVersionWrapper.getProjectVersionView().json);
             return projectVersionWrapper.getProjectVersionView();
         } else {
             throw new IntegrationException("Project Version does not Exists!");
