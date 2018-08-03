@@ -57,7 +57,7 @@ public final class RestConnectionHelper {
         builder.setUsername(propertyConstants.getHubUserName());
         builder.setPassword(propertyConstants.getHubPassword());
         builder.setApiToken(propertyConstants.getHubApiToken());
-        builder.setTrustCert(propertyConstants.isHubAlwaysTrustCert());
+        // builder.setTrustCert(propertyConstants.isHubAlwaysTrustCert());
         builder.setTimeout(propertyConstants.getHubTimeout());
 
         if (propertyConstants.getHubProxyHost() != null && !"".equalsIgnoreCase(propertyConstants.getHubProxyHost())) {
