@@ -55,12 +55,12 @@ public class PropertyConstants {
         this.hubApiToken = hubApiToken;
     }
 
-    // private boolean hubAlwaysTrustCert;
-    //
-    // @Value("${hub.always.trust.cert}")
-    // public void setHubAlwaysTrustCert(final boolean hubAlwaysTrustCert) {
-    // this.hubAlwaysTrustCert = hubAlwaysTrustCert;
-    // }
+    private boolean hubAlwaysTrustCert;
+
+    @Value("${hub.always.trust.cert}")
+    public void setHubAlwaysTrustCert(final boolean hubAlwaysTrustCert) {
+        this.hubAlwaysTrustCert = hubAlwaysTrustCert;
+    }
 
     private String hubTimeout;
 
@@ -214,9 +214,9 @@ public class PropertyConstants {
         return hubApiToken;
     }
 
-    // public boolean isHubAlwaysTrustCert() {
-    // return hubAlwaysTrustCert;
-    // }
+    public boolean isHubAlwaysTrustCert() {
+        return hubAlwaysTrustCert;
+    }
 
     public String getHubTimeout() {
         return hubTimeout;

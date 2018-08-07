@@ -24,7 +24,6 @@ package com.blackducksoftware.integration.fortify.batch.util;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.log4j.Logger;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
@@ -57,7 +56,7 @@ public final class RestConnectionHelper {
         builder.setUsername(propertyConstants.getHubUserName());
         builder.setPassword(propertyConstants.getHubPassword());
         builder.setApiToken(propertyConstants.getHubApiToken());
-        // builder.setTrustCert(propertyConstants.isHubAlwaysTrustCert());
+        builder.setTrustCert(propertyConstants.isHubAlwaysTrustCert());
         builder.setTimeout(propertyConstants.getHubTimeout());
 
         if (propertyConstants.getHubProxyHost() != null && !"".equalsIgnoreCase(propertyConstants.getHubProxyHost())) {
@@ -158,14 +157,19 @@ public final class RestConnectionHelper {
         restConnection.logger = logger;
         // Adjust the number of connections in the connection pool. The keepAlive info is the same as the default
         // constructor
-        final PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(5, TimeUnit.MINUTES);
-        connManager.setDefaultMaxPerRoute(propertyConstants.getMaximumThreadSize());
-        connManager.setMaxTotal(propertyConstants.getMaximumThreadSize());
-        restConnection.getClientBuilder().setConnectionManager(connManager).setConnectionManagerShared(true);
 
-        // restConnection.getClientBuilder().setMaxConnPerRoute(propertyConstants.getMaximumThreadSize())
-        // .setMaxConnTotal(propertyConstants.getMaximumThreadSize())
-        // .setConnectionTimeToLive(5, TimeUnit.MINUTES);
+        // Commented based on INTCMN-287
+        /*
+         * final PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(5,
+         * TimeUnit.MINUTES);
+         * connManager.setDefaultMaxPerRoute(propertyConstants.getMaximumThreadSize());
+         * connManager.setMaxTotal(propertyConstants.getMaximumThreadSize());
+         * restConnection.getClientBuilder().setConnectionManager(connManager).setConnectionManagerShared(true);
+         */
+
+        restConnection.getClientBuilder().setMaxConnPerRoute(propertyConstants.getMaximumThreadSize()).setMaxConnTotal(propertyConstants.getMaximumThreadSize())
+                .setConnectionTimeToLive(5, TimeUnit.MINUTES).setConnectionManagerShared(true);
+
         final HubServicesFactory hubServicesFactory = new HubServicesFactory(restConnection);
         return hubServicesFactory;
     }
