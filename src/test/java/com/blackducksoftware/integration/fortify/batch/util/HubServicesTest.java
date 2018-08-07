@@ -131,7 +131,7 @@ public class HubServicesTest extends TestCase {
             e.printStackTrace();
         }
         final List<VulnerableComponentView> vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItem);
-        System.out.println("vulnerableComponentViews size::" + vulnerableComponentViews.size() + ", vulnerableComponentViews::" + vulnerableComponentViews);
+        System.out.println("vulnerableComponentViews size::" + vulnerableComponentViews.size());
         // assertNotNull(vulnerableComponentViews);
     }
 

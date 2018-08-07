@@ -1,11 +1,5 @@
 [
     {
-      "hubProject": "Hub-Android-Test",
-      "hubProjectVersion": "1.0",
-      "fortifyApplication": "Hub-Fortify-Test1",
-      "fortifyApplicationVersion": "1.0"
-    },
-    {
       "hubProject": "Hub-Alpine-Test",
       "hubProjectVersion": "1.0",
       "fortifyApplication": "Hub-Fortify-Test1",
@@ -14,14 +8,20 @@
     {
       "hubProject": "Hub-Android-Test",
       "hubProjectVersion": "1.0",
-      "fortifyApplication": "Hub-Fortify-Test2",
-      "fortifyApplicationVersion": "3.0"
+      "fortifyApplication": "Hub-Fortify-Test1",
+      "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "Hub-Alpine-Test",
+      "hubProject": "Hub-Android-Test",
       "hubProjectVersion": "1.0",
       "fortifyApplication": "Hub-Fortify-Test2",
       "fortifyApplicationVersion": "1.0"
+    },
+    {
+      "hubProject": "Hub-Fortify-Test",
+      "hubProjectVersion": "1.0",
+      "fortifyApplication": "Hub-Fortify-Test2",
+      "fortifyApplicationVersion": "2|0"
     }
 ]
 
