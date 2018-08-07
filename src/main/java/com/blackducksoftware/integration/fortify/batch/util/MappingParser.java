@@ -188,7 +188,8 @@ public final class MappingParser {
         final String fortifyApplicationVersion = mapping.getFortifyApplicationVersion();
         int applicationId;
         try {
-            final String Q = Q_version + VulnerabilityUtil.encodeString(fortifyApplicationVersion) + Q_connector + Q_project + fortifyApplicationName;
+            final String Q = Q_version + VulnerabilityUtil.encodeString(fortifyApplicationVersion) + Q_connector + Q_project
+                    + VulnerabilityUtil.encodeString(fortifyApplicationName);
             logger.info("Querying fortify " + Q);
             final FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, Q);
             if (response.getData().size() != 0) {
@@ -196,7 +197,7 @@ public final class MappingParser {
                 applicationId = response.getData().get(0).getId();
             } else {
                 logger.info("Unable to find the Application on fortify application " + fortifyApplicationName + ", creating a new application");
-                final String queryParams = Q_project + fortifyApplicationName;
+                final String queryParams = Q_project + VulnerabilityUtil.encodeString(fortifyApplicationName);
                 final String fieldParams = "id,project";
                 final FortifyApplicationResponse applicationResponse = fortifyApplicationVersionApi.getApplicationVersionByName(fieldParams, queryParams);
                 CreateApplicationRequest createRequest;

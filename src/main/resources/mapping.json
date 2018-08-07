@@ -20,7 +20,7 @@
     {
       "hubProject": "Hub-Fortify-Test",
       "hubProjectVersion": "1.0",
-      "fortifyApplication": "Hub-Fortify-Test2",
+      "fortifyApplication": "Hub-Fortify|Test2",
       "fortifyApplicationVersion": "2|0"
     }
 ]
