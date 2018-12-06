@@ -55,15 +55,19 @@ public abstract class FortifyService {
         return propertyConstants;
     }
 
-    public static Builder getHeader(final String userName, final String password) {
+    public static Builder getHeader(final PropertyConstants propertyConstants) {
         final HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(Level.BASIC);
+        if (propertyConstants.getLogLevel().equalsIgnoreCase("INFO")) {
+            logging.setLevel(Level.BASIC);
+        } else {
+            logging.setLevel(Level.BODY);
+        }
         final OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
         okBuilder.authenticator(new Authenticator() {
 
             @Override
             public Request authenticate(final Route route, final Response response) throws IOException {
-                final String credential = Credentials.basic(userName, password);
+                final String credential = Credentials.basic(propertyConstants.getFortifyUserName(), propertyConstants.getFortifyPassword());
                 if (credential.equals(response.request().header("Authorization"))) {
                     try {
                         FortifyExceptionUtil.verifyFortifyResponseCode(response.code(), "Unauthorized access of Fortify Api");
