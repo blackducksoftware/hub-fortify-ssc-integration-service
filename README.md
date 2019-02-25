@@ -4,13 +4,18 @@
 
 # Overview
 
-Hub Fortify SSC service runs in the background as a service, and maps your Hub project to one or more Fortify SSC projects. It pushes open source security risk information from Black Duck Hub into your connected Fortify SSC application. The implementation also makes it possible to monitor open source risk and provision the information concurrently into Fortify SSC. This enables you to view and manage see all security risks pertaining to an application in a single view.
+Black Duck Fortify SSC service runs in the background as a service, and maps your Black Duck project to one or more Fortify SSC projects. It pushes open source security risk information from Black Duck into your connected Fortify SSC application. The implementation also makes it possible to monitor open source risk and provision the information concurrently into Fortify SSC. This enables you to view and manage see all security risks pertaining to an application in a single view.
 
-# Hub Fortify SSC Integration Service Documentation
+# Black Duck Fortify SSC Integration Service Documentation
 
-Available on Black Duck Confluence: https://blackducksoftware.atlassian.net/wiki/spaces/PARTNERS/pages/48008579/Hub+Fortify+SSC+Plugin
+Official documentation can be found here:
+https://synopsys.atlassian.net/wiki/spaces/PARTNERS/pages/7471177/Black+Duck+Fortify+SSC+Plugin
 
-# Download the latest release for Black Duck Parser Plugin from: 
+# Release Locations
+The latest release of the Black Duck Fortify background service can be found here:
+https://github.com/blackducksoftware/hub-fortify-ssc-integration-service/releases
+
+Note: The Black Duck Fortify background service requires a separate Fortify parser, which can be found here:
 https://github.com/blackducksoftware/hub-fortify-parser/releases
  
 # Build
