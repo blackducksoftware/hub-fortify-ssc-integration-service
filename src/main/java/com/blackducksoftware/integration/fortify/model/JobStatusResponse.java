@@ -46,29 +46,12 @@ public final class JobStatusResponse implements Serializable {
     @Element(name = "msg")
     private String message;
 
-    @Element(name = "id", required = false)
-    private String id;
-
-    @Element(name = "invokingUserName", required = false)
-    private String invokingUserName;
-
-    @Element(name = "jobType", required = false)
-    private int jobType;
-
-    @Element(name = "jobState", required = false)
-    private int jobState;
-
     public JobStatusResponse() {
-
     }
 
-    public JobStatusResponse(final int code, final String message, final String id, final String invokingUserName, final int jobType, final int jobState) {
+    public JobStatusResponse(final int code, final String message) {
         this.code = code;
         this.message = message;
-        this.id = id;
-        this.invokingUserName = invokingUserName;
-        this.jobType = jobType;
-        this.jobState = jobState;
     }
 
     public int getCode() {
@@ -79,25 +62,8 @@ public final class JobStatusResponse implements Serializable {
         return message;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getInvokingUserName() {
-        return invokingUserName;
-    }
-
-    public int getJobType() {
-        return jobType;
-    }
-
-    public int getJobState() {
-        return jobState;
-    }
-
     @Override
     public String toString() {
-        return "JobStatusResponse [code=" + code + ", message=" + message + ", id=" + id + ", invokingUserName=" + invokingUserName + ", jobType=" + jobType
-                + ", jobState=" + jobState + "]";
+        return "JobStatusResponse [code=" + code + ", message=" + message + "]";
     }
 }

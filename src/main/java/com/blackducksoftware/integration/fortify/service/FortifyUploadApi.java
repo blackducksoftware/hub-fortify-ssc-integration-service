@@ -87,6 +87,7 @@ public final class FortifyUploadApi extends FortifyService {
             final Serializer serializer = new Persister();
             try {
                 jobStatusResponse = serializer.read(JobStatusResponse.class, response.body().string());
+                logger.info("jobStatusResponse::" + response.body().string());
                 if (jobStatusResponse != null && jobStatusResponse.getCode() == -10001
                         && "Background submission succeeded.".equalsIgnoreCase(jobStatusResponse.getMessage())) {
                     return true;
