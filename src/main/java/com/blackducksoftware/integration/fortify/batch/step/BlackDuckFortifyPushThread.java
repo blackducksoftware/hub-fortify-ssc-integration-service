@@ -272,6 +272,9 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
         // Check if the upload is submitted successfully, if not don't delete the CSV files. It can be used for
         // debugging
         if (response) {
+            if (file.exists()) {
+                file.delete();
+            }
             logger.info(file.getName() + " File uploaded successfully");
         }
     }
