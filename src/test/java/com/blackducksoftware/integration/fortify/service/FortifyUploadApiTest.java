@@ -24,7 +24,6 @@ package com.blackducksoftware.integration.fortify.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,12 +38,8 @@ import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
-import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
-import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
-import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.FileToken;
-import com.blackducksoftware.integration.fortify.model.UpdateFortifyApplicationAttributesRequest;
 
 import junit.framework.TestCase;
 
@@ -59,21 +54,10 @@ public class FortifyUploadApiTest extends TestCase {
     @Autowired
     private FortifyFileTokenApi fortifyFileTokenApi;
 
-    @Autowired
-    private FortifyApplicationVersionApi fortifyApplicationVersionApi;
-
-    @Autowired
-    private MappingParser mappingParser;
-
     @Test
     public void uploadCSVFile() throws Exception {
         int id = 0;
         try {
-            CreateApplicationRequest createApplicationRequest = createApplicationVersionRequest("Fortify-Test", "1.0");
-            id = fortifyApplicationVersionApi.createApplicationVersion(createApplicationRequest);
-            assertNotNull(id);
-            updateApplicationAttributesTest(id);
-            commitApplicationVersion(id);
 
             System.out.println("Executing uploadCSVFile");
             FileToken fileToken = new FileToken("UPLOAD");
@@ -95,31 +79,6 @@ public class FortifyUploadApiTest extends TestCase {
             throw new IOException(e);
         } catch (IntegrationException e) {
             throw new IntegrationException(e);
-        } finally {
-            deleteApplicationVersion(id);
         }
-    }
-
-    public void updateApplicationAttributesTest(int parentId) throws IOException, IntegrationException {
-        System.out.println("Executing updateApplicationAttributesTest");
-        List<UpdateFortifyApplicationAttributesRequest> request = mappingParser.addCustomAttributes();
-        fortifyApplicationVersionApi.updateApplicationAttributes(parentId, request);
-    }
-
-    public void commitApplicationVersion(int applicationId) throws IOException, IntegrationException {
-        System.out.println("Executing commitApplicationVersion");
-        CommitFortifyApplicationRequest request = new CommitFortifyApplicationRequest(true);
-        fortifyApplicationVersionApi.commitApplicationVersion(applicationId, request);
-    }
-
-    public void deleteApplicationVersion(int applicationId) throws IOException, IntegrationException {
-        System.out.println("Executing deleteApplicationVersion");
-        fortifyApplicationVersionApi.deleteApplicationVersion(applicationId);
-    }
-
-    private CreateApplicationRequest createApplicationVersionRequest(String fortifyProjectName, String fortifyProjectVersion) {
-        String TEMPLATE = "Prioritized-HighRisk-Project-Template";
-        return new CreateApplicationRequest(fortifyProjectVersion, "Built using API", true, false,
-                new CreateApplicationRequest.Project("", fortifyProjectName, "Built using API", TEMPLATE), TEMPLATE);
     }
 }

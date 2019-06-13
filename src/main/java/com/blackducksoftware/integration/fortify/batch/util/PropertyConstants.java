@@ -34,267 +34,80 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class PropertyConstants {
 
-    private String hubUserName;
+	private String fortifyUserName;
 
-    @Value("${hub.username}")
-    public void setHubUserName(final String hubUserName) {
-        this.hubUserName = hubUserName;
-    }
+	@Value("${fortify.username}")
+	public void setFortifyUserName(final String fortifyUserName) {
+		this.fortifyUserName = fortifyUserName;
+	}
 
-    private String hubPassword;
+	private String fortifyPassword;
 
-    @Value("${hub.password}")
-    public void setHubPassword(final String hubPassword) {
-        this.hubPassword = hubPassword;
-    }
+	@Value("${fortify.password}")
+	public void setFortifyPassword(final String fortifyPassword) {
+		this.fortifyPassword = fortifyPassword;
+	}
 
-    private String hubApiToken;
+	private String fortifyServerUrl;
 
-    @Value("${hub.api.token}")
-    public void setHubApiToken(final String hubApiToken) {
-        this.hubApiToken = hubApiToken;
-    }
+	@Value("${fortify.server.url}")
+	public void setFortifyServerUrl(final String fortifyServerUrl) {
+		this.fortifyServerUrl = fortifyServerUrl;
+	}
 
-    private boolean hubAlwaysTrustCert;
+	private int fortifyApplicationId;
 
-    @Value("${hub.always.trust.cert}")
-    public void setHubAlwaysTrustCert(final boolean hubAlwaysTrustCert) {
-        this.hubAlwaysTrustCert = hubAlwaysTrustCert;
-    }
+	@Value("${fortify.application.id}")
+	public void setFortifyApplicationId(final int fortifyApplicationId) {
+		this.fortifyApplicationId = fortifyApplicationId;
+	}
 
-    private String hubTimeout;
+	private String reportDir;
 
-    @Value("${hub.timeout}")
-    public void setHubTimeout(final String hubTimeout) {
-        this.hubTimeout = hubTimeout;
-    }
+	@Value("${fortify.report.dir}")
+	public void setReportDir(final String reportDir) {
+		this.reportDir = reportDir;
+	}
 
-    private String hubServerUrl;
+	private String vulnerabilityFileName;
 
-    @Value("${hub.server.url}")
-    public void setHubServerUrl(final String hubServerUrl) {
-        this.hubServerUrl = hubServerUrl;
-    }
+	@Value("${vulnerability.file.name}")
+	public void setVulnerabilityFileName(final String vulnerabilityFileName) {
+		this.vulnerabilityFileName = vulnerabilityFileName;
+	}
 
-    private String hubProxyHost;
+	private String logLevel;
 
-    @Value("${hub.proxy.host}")
-    public void setHubProxyHost(final String hubProxyHost) {
-        this.hubProxyHost = hubProxyHost;
-    }
+	@Value("${logging.level.com.blackducksoftware}")
+	public void setLogLevel(final String logLevel) {
+		this.logLevel = logLevel;
+	}
 
-    private String hubProxyPort;
+	public String getFortifyUserName() {
+		return fortifyUserName;
+	}
 
-    @Value("${hub.proxy.port}")
-    public void setHubProxyPort(final String hubProxyPort) {
-        this.hubProxyPort = hubProxyPort;
-    }
+	public String getFortifyPassword() {
+		return fortifyPassword;
+	}
 
-    private String hubProxyUser;
+	public String getFortifyServerUrl() {
+		return fortifyServerUrl;
+	}
 
-    @Value("${hub.proxy.user}")
-    public void setHubProxyUser(final String hubProxyUser) {
-        this.hubProxyUser = hubProxyUser;
-    }
+	public int getFortifyApplicationId() {
+		return fortifyApplicationId;
+	}
 
-    private String hubProxyPassword;
+	public String getVulnerabilityFileName() {
+		return vulnerabilityFileName;
+	}
 
-    @Value("${hub.proxy.password}")
-    public void setHubProxyPassword(final String hubProxyPassword) {
-        this.hubProxyPassword = hubProxyPassword;
-    }
+	public String getReportDir() {
+		return reportDir;
+	}
 
-    private String hubProxyNtlmDomain;
-
-    @Value("${hub.proxy.Ntlm.Domain}")
-    public void setHubProxyNtlmDomain(final String hubProxyNtlmDomain) {
-        this.hubProxyNtlmDomain = hubProxyNtlmDomain;
-    }
-
-    private String hubProxyNtlmWorkstation;
-
-    @Value("${hub.proxy.Ntlm.Workstation}")
-    public void setHubProxyNtlmWorkstation(final String hubProxyNtlmWorkstation) {
-        this.hubProxyNtlmWorkstation = hubProxyNtlmWorkstation;
-    }
-
-    private String hubProxyNoHost;
-
-    @Value("${hub.proxy.nohost}")
-    public void setHubProxyNoHost(final String hubProxyNoHost) {
-        this.hubProxyNoHost = hubProxyNoHost;
-    }
-
-    private String fortifyUserName;
-
-    @Value("${fortify.username}")
-    public void setFortifyUserName(final String fortifyUserName) {
-        this.fortifyUserName = fortifyUserName;
-    }
-
-    private String fortifyPassword;
-
-    @Value("${fortify.password}")
-    public void setFortifyPassword(final String fortifyPassword) {
-        this.fortifyPassword = fortifyPassword;
-    }
-
-    private String fortifyServerUrl;
-
-    @Value("${fortify.server.url}")
-    public void setFortifyServerUrl(final String fortifyServerUrl) {
-        this.fortifyServerUrl = fortifyServerUrl;
-    }
-
-    private String batchJobStatusFilePath;
-
-    @Value("${hub.fortify.batch.job.status.file.path}")
-    public void setBatchJobStatusFilePath(final String batchJobStatusFilePath) {
-        this.batchJobStatusFilePath = batchJobStatusFilePath;
-    }
-
-    private String reportDir;
-
-    @Value("${hub.fortify.report.dir}")
-    public void setReportDir(final String reportDir) {
-        this.reportDir = reportDir;
-    }
-
-    private String mappingJsonPath;
-
-    @Value("${hub.fortify.mapping.file.path}")
-    public void setMappingJsonPath(final String mappingJsonPath) {
-        this.mappingJsonPath = mappingJsonPath;
-    }
-
-    private String attributeFilePath;
-
-    @Value("${attribute.file}")
-    public void setAttributeFilePath(final String attributeFilePath) {
-        this.attributeFilePath = attributeFilePath;
-    }
-
-    private int maximumThreadSize;
-
-    @Value("${maximum.thread.size}")
-    public void setMaximumThreadSize(final int maximumThreadSize) {
-        this.maximumThreadSize = maximumThreadSize;
-    }
-
-    private boolean batchJobStatusCheck;
-
-    @Value("${batch.job.status.check}")
-    public void setBatchJobStatusCheck(final boolean batchJobStatusCheck) {
-        this.batchJobStatusCheck = batchJobStatusCheck;
-    }
-
-    private String pluginVersion;
-
-    @Value("${plugin.version}")
-    public void setPluginVersion(final String pluginVersion) {
-        this.pluginVersion = pluginVersion;
-    }
-
-    private String logLevel;
-
-    @Value("${logging.level.com.blackducksoftware}")
-    public void setLogLevel(final String logLevel) {
-        this.logLevel = logLevel;
-    }
-
-    public String getHubUserName() {
-        return hubUserName;
-    }
-
-    public String getHubPassword() {
-        return hubPassword;
-    }
-
-    public String getHubApiToken() {
-        return hubApiToken;
-    }
-
-    public boolean isHubAlwaysTrustCert() {
-        return hubAlwaysTrustCert;
-    }
-
-    public String getHubTimeout() {
-        return hubTimeout;
-    }
-
-    public String getHubServerUrl() {
-        return hubServerUrl;
-    }
-
-    public String getHubProxyHost() {
-        return hubProxyHost;
-    }
-
-    public String getHubProxyPort() {
-        return hubProxyPort;
-    }
-
-    public String getHubProxyUser() {
-        return hubProxyUser;
-    }
-
-    public String getHubProxyPassword() {
-        return hubProxyPassword;
-    }
-
-    public String getHubProxyNtlmDomain() {
-        return hubProxyNtlmDomain;
-    }
-
-    public String getHubProxyNtlmWorkstation() {
-        return hubProxyNtlmWorkstation;
-    }
-
-    public String getHubProxyNoHost() {
-        return hubProxyNoHost;
-    }
-
-    public String getFortifyUserName() {
-        return fortifyUserName;
-    }
-
-    public String getFortifyPassword() {
-        return fortifyPassword;
-    }
-
-    public String getFortifyServerUrl() {
-        return fortifyServerUrl;
-    }
-
-    public String getBatchJobStatusFilePath() {
-        return batchJobStatusFilePath;
-    }
-
-    public String getReportDir() {
-        return reportDir;
-    }
-
-    public String getMappingJsonPath() {
-        return mappingJsonPath;
-    }
-
-    public String getAttributeFilePath() {
-        return attributeFilePath;
-    }
-
-    public int getMaximumThreadSize() {
-        return maximumThreadSize;
-    }
-
-    public boolean isBatchJobStatusCheck() {
-        return batchJobStatusCheck;
-    }
-
-    public String getPluginVersion() {
-        return pluginVersion;
-    }
-
-    public String getLogLevel() {
-        return logLevel;
-    }
+	public String getLogLevel() {
+		return logLevel;
+	}
 }

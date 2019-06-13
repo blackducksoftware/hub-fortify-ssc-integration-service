@@ -41,12 +41,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.step.Initializer;
-import com.blackducksoftware.integration.fortify.batch.util.AttributeConstants;
-import com.blackducksoftware.integration.fortify.batch.util.HubServices;
-import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
-import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
-import com.blackducksoftware.integration.fortify.service.FortifyAttributeDefinitionApi;
 import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
 import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 
@@ -69,34 +64,10 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
-    @Autowired
-    private HubServices hubServices;
 
     @Autowired
     private PropertyConstants propertyConstants;
 
-    @Autowired
-    private AttributeConstants attributeConstants;
-
-    /**
-     * Created the bean for Fortify Application Version Api
-     *
-     * @return
-     */
-    @Bean
-    public FortifyApplicationVersionApi getFortifyApplicationVersionApi() {
-        return new FortifyApplicationVersionApi(propertyConstants);
-    }
-
-    /**
-     * Created the bean for Fortify Attribute Version Api
-     *
-     * @return
-     */
-    @Bean
-    public FortifyAttributeDefinitionApi getFortifyAttributeDefinitionApi() {
-        return new FortifyAttributeDefinitionApi(propertyConstants);
-    }
 
     /**
      * Created the bean to get the instance of Fortify File Token Api
@@ -118,15 +89,6 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
         return new FortifyUploadApi(propertyConstants);
     }
 
-    /**
-     * Created the bean to get the instance of Mapping Parser
-     *
-     * @return
-     */
-    @Bean
-    public MappingParser getMappingParser() {
-        return new MappingParser(getFortifyApplicationVersionApi(), getFortifyAttributeDefinitionApi(), propertyConstants, attributeConstants);
-    }
 
     /**
      * Create new Initializer task
@@ -134,8 +96,8 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      * @return Initializer
      */
     @Bean
-    public Initializer getMappingParserTask() {
-        return new Initializer(getMappingParser(), getFortifyFileTokenApi(), getFortifyUploadApi(), hubServices, propertyConstants);
+    public Initializer uploadVulnerabilityTask() {
+        return new Initializer(getFortifyFileTokenApi(), getFortifyUploadApi(), propertyConstants);
     }
 
     /**
@@ -161,7 +123,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
         return jobBuilderFactory.get("Push Blackduck Scan data to Fortify Job")
                 .incrementer(new RunIdIncrementer())
                 .listener(this)
-                .flow(createMappingParserStep())
+                .flow(uploadVulnerabilityStep())
                 .end().build();
     }
 
@@ -171,10 +133,9 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      * @return Step
      */
     @Bean
-    public Step createMappingParserStep() {
-        logger.info("Parse the Mapping.json -> Transform to Mapping parser object");
-        return stepBuilderFactory.get("Parse the Mapping.json -> Transform to Mapping parser object")
-                .tasklet(getMappingParserTask()).build();
+    public Step uploadVulnerabilityStep() {
+        return stepBuilderFactory.get("Push Blackduck Scan data to Fortify Job")
+                .tasklet(uploadVulnerabilityTask()).build();
     }
 
     /**
