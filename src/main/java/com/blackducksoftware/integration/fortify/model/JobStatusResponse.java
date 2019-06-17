@@ -35,23 +35,35 @@ import org.simpleframework.xml.Root;
  */
 @Root
 public final class JobStatusResponse implements Serializable {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
-
     @Element(name = "code")
     private int code;
 
     @Element(name = "msg")
     private String message;
 
+    @Element(name = "id", required = false)
+    private String id;
+
+    @Element(name = "invokingUserName", required = false)
+    private String invokingUserName;
+
+    @Element(name = "jobType", required = false)
+    private int jobType;
+
+    @Element(name = "jobState", required = false)
+    private int jobState;
+
     public JobStatusResponse() {
+
     }
 
-    public JobStatusResponse(final int code, final String message) {
+    public JobStatusResponse(int code, String message, String id, String invokingUserName, int jobType, int jobState) {
         this.code = code;
         this.message = message;
+        this.id = id;
+        this.invokingUserName = invokingUserName;
+        this.jobType = jobType;
+        this.jobState = jobState;
     }
 
     public int getCode() {
@@ -62,8 +74,25 @@ public final class JobStatusResponse implements Serializable {
         return message;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public String getInvokingUserName() {
+        return invokingUserName;
+    }
+
+    public int getJobType() {
+        return jobType;
+    }
+
+    public int getJobState() {
+        return jobState;
+    }
+
     @Override
     public String toString() {
-        return "JobStatusResponse [code=" + code + ", message=" + message + "]";
+        return "JobStatusResponse [code=" + code + ", message=" + message + ", id=" + id + ", invokingUserName=" + invokingUserName + ", jobType=" + jobType
+                + ", jobState=" + jobState + "]";
     }
 }
