@@ -77,7 +77,7 @@ public class CSVUtilsTest extends TestCase {
     }
 
     @Test
-    public void testWriteToCSV() {
+    public void testWriteToCSV() throws IntegrationException {
         System.out.println("Executing testWriteToCSV");
         ProjectVersionView projectVersionItem = null;
         List<VulnerableComponentView> vulnerableComponentViews = new ArrayList<>();
@@ -94,7 +94,7 @@ public class CSVUtilsTest extends TestCase {
         // assertNotNull(vulnerableComponentViews);
         // assertNotNull(bomUpdatedValueAt);
 
-        List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(vulnerableComponentViews, PROJECT_NAME, VERSION_NAME,
+        List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(hubServices, vulnerableComponentViews, PROJECT_NAME, VERSION_NAME,
                 bomUpdatedValueAt, propertyConstants);
         System.out.println("vulnerabilities size::" + vulnerabilities.size());
         vulnerabilities = VulnerabilityUtil.removeDuplicates(vulnerabilities);

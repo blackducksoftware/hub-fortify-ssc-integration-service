@@ -59,7 +59,7 @@ public class FortifyApplicationVersionApiTest extends TestCase {
 
     String FIELDS = "id";
 
-    String QUERY = "name:1.3%2Band%2Bproject.name:Logistics";
+    String QUERY = "name:1.0%2Band%2Bproject.name:HUB-FORTIFY-TEST1";
 
     @Autowired
     private FortifyApplicationVersionApi fortifyApplicationVersionApi;

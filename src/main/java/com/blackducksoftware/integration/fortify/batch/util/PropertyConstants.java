@@ -188,6 +188,13 @@ public class PropertyConstants {
         this.batchJobStatusCheck = batchJobStatusCheck;
     }
 
+    private boolean isPushForZeroVulnerability;
+
+    @Value("${hub.fortify.push.for.zero.vulnerability}")
+    public void setPushForZeroVulnerability(final boolean isPushForZeroVulnerability) {
+        this.isPushForZeroVulnerability = isPushForZeroVulnerability;
+    }
+
     private String pluginVersion;
 
     @Value("${plugin.version}")
@@ -297,4 +304,9 @@ public class PropertyConstants {
     public String getLogLevel() {
         return logLevel;
     }
+
+    public boolean isPushForZeroVulnerability() {
+        return isPushForZeroVulnerability;
+    }
+
 }

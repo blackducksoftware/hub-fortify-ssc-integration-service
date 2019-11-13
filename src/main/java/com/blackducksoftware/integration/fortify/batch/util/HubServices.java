@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.model.VersionRiskProfileView;
+import com.blackducksoftware.integration.fortify.hub.model.Recommendation;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.VulnerableComponentView;
 import com.blackducksoftware.integration.hub.api.view.MetaHandler;
@@ -141,6 +142,29 @@ public final class HubServices {
             return versionRiskProfileView.getBomLastUpdatedAt();
         }
         return null;
+    }
+
+    /**
+     * Get the Black Duck component version recommendations for the given component version
+     *
+     * @param componentVersionRemediatingUrl
+     * @return
+     * @throws IntegrationException
+     */
+    public Recommendation getComponentVersionRecommendations(final String componentVersionRemediatingUrl) throws IntegrationException {
+        logger.debug("Getting Black Duck component version remediating");
+        Recommendation recommendation = null;
+        if (componentVersionRemediatingUrl != null) {
+            final HubService hubResponseService = hubServicesFactory.createHubService();
+            try {
+                recommendation = hubResponseService.getResponse(componentVersionRemediatingUrl, Recommendation.class);
+            } catch (final IntegrationException e) {
+                if (!e.getMessage().contains("Error: 404 : 404")) {
+                    throw new IntegrationException(e);
+                }
+            }
+        }
+        return recommendation;
     }
 
     public HubService createHubService() {
