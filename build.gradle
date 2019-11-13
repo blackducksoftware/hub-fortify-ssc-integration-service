@@ -47,15 +47,19 @@ startScripts {
 }
 
 ext {
-	springBatchInfrastructure = '3.0.10.RELEASE'
+	springBeanVersion = '4.3.20.RELEASE'
+	springBootVersion = '1.5.11.RELEASE'
+	springBatchCoreAndInfrastructureVersion = '3.0.10.RELEASE'
+	apacheTomcatVersion = "8.5.47"
 	hubCommonVersion = '35.0.0'
 	retrofit2Version = '2.1.0'
 	okhttp3Version = '3.3.1'
 	powerMockitoVersion = '1.6.6'
-	jacksonDataFormatVersion = '2.9.7'
+	jacksonDataBindVersion = '2.9.10.1'
+	jacksonDataAnnotationVersion = '2.9.7'
 	simpleXmlFrameworkVersion = '2.7'
 	jUnitVersion = '4.+'
-	xstreamVersion = '1.4.10'
+	xstreamVersion = '1.4.11.1'
 	uploadDefs = new File("${rootDir}/uploadArtifacts.gradle")
 	HUB_USERNAME=System.getenv('HUB_USERNAME')
 	HUB_PASSWORD=System.getenv('HUB_PASSWORD')
@@ -75,17 +79,31 @@ repositories {
 }
 
 dependencies {
-	compile("org.springframework.boot:spring-boot-starter")
-	compile("org.springframework.boot:spring-boot-starter-batch") {
+	compile("org.springframework:spring-beans:${springBeanVersion}")
+	compile("org.springframework:spring-jdbc:${springBeanVersion}")
+	compile("org.springframework:spring-context:${springBeanVersion}")
+	compile("org.springframework:spring-expression:${springBeanVersion}")
+	compile("org.springframework:spring-aop:${springBeanVersion}")
+	compile("org.springframework:spring-core:${springBeanVersion}")
+	compile("org.springframework:spring-test:${springBeanVersion}")
+	compile("org.springframework:spring-tx:${springBeanVersion}")
+	compile("org.springframework.boot:spring-boot:${springBootVersion}")
+	compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
+	compile("org.springframework.boot:spring-boot-starter-batch:${springBootVersion}") {
 		exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
 	}
-	compile("org.springframework.batch:spring-batch-infrastructure:${springBatchInfrastructure}")
+	compile("org.springframework.boot:spring-boot-starter-logging:${springBootVersion}")
+	compile("org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}")
+	compile("org.springframework.boot:spring-boot-loader:${springBootVersion}")
+	compile("org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}")
+	compile("org.springframework.batch:spring-batch-core:${springBatchCoreAndInfrastructureVersion}")
+	compile("org.springframework.batch:spring-batch-infrastructure:${springBatchCoreAndInfrastructureVersion}")
 	compile("org.simpleframework:simple-xml:${simpleXmlFrameworkVersion}")
 	compile("com.thoughtworks.xstream:xstream:${xstreamVersion}")
-	compile("com.fasterxml.jackson.core:jackson-databind:${jacksonDataFormatVersion}")
+	compile("com.fasterxml.jackson.core:jackson-databind:${jacksonDataBindVersion}")
 	compile("com.blackducksoftware.integration:hub-common:${hubCommonVersion}")
 	compile("com.squareup.retrofit2:retrofit:${retrofit2Version}")
-	compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonDataFormatVersion}")
+	compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonDataAnnotationVersion}")
 	compile("com.squareup.retrofit2:converter-gson:${retrofit2Version}")
 	compile("com.google.code.gson:gson")
 	compile("com.squareup.okhttp3:okhttp:${okhttp3Version}")
@@ -93,10 +111,12 @@ dependencies {
 	compile("com.squareup.okhttp3:okhttp-urlconnection:${okhttp3Version}")
 	compile("com.squareup.retrofit2:converter-simplexml:${retrofit2Version}")
 	compile("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
+	compile("org.apache.tomcat:tomcat-juli:${apacheTomcatVersion}")
+	compile("org.apache.tomcat:tomcat-jdbc:${apacheTomcatVersion}")
 	testCompile("org.powermock:powermock-api-mockito:${powerMockitoVersion}")
 	testCompile("org.powermock:powermock-module-junit4:${powerMockitoVersion}")
 	testCompile("junit:junit:${jUnitVersion}")
-	testCompile("org.springframework.boot:spring-boot-starter-test")
+	testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 }
 
 task wrapper(type: Wrapper) {
