@@ -117,29 +117,28 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
                 || (!propertyConstants.isBatchJobStatusCheck())) {
             // Get the vulnerabilities for all Hub project versions and merge it
             List<Vulnerability> mergedVulnerabilities = mergeVulnerabilities(hubProjectVersions, projectVersionItems);
-            logger.debug("mergedVulnerabilities count::" + mergedVulnerabilities.size());
-            // if (mergedVulnerabilities.size() > 0) {
-            // if (hubProjectVersions.size() > 1) {
-            // Removing Duplicates within multiple Hub Project Versions.
-            mergedVulnerabilities = VulnerabilityUtil.removeDuplicates(mergedVulnerabilities);
-            logger.debug("removed duplicates mergedVulnerabilities count::" + mergedVulnerabilities.size());
-            // }
-            final String fileDir = propertyConstants.getReportDir();
-            final String fileName = hubProjectVersions.get(0).getHubProject() + UNDERSCORE + hubProjectVersions.get(0).getHubProjectVersion()
-                    + UNDERSCORE + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
+            logger.debug("isPushForZeroVulnerability::" + propertyConstants.isPushForZeroVulnerability() + ", mergedVulnerabilities count::"
+                    + mergedVulnerabilities.size());
+            if (propertyConstants.isPushForZeroVulnerability() || mergedVulnerabilities.size() > 0) {
+                // Removing Duplicates within multiple Hub Project Versions.
+                mergedVulnerabilities = VulnerabilityUtil.removeDuplicates(mergedVulnerabilities);
+                logger.debug("removed duplicates mergedVulnerabilities count::" + mergedVulnerabilities.size());
+                final String fileDir = propertyConstants.getReportDir();
+                final String fileName = hubProjectVersions.get(0).getHubProject() + UNDERSCORE + hubProjectVersions.get(0).getHubProjectVersion()
+                        + UNDERSCORE + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()) + ".csv";
 
-            // Write the vulnerabilities to CSV
-            CSVUtils.writeToCSV(mergedVulnerabilities, fileDir + fileName, ',');
+                // Write the vulnerabilities to CSV
+                CSVUtils.writeToCSV(mergedVulnerabilities, fileDir + fileName, ',');
 
-            // Get the file token for upload
-            final String token = getFileToken();
+                // Get the file token for upload
+                final String token = getFileToken();
 
-            // Upload the vulnerabilities CSV to Fortify
-            uploadCSV(token, fileDir + fileName, blackDuckFortifyMapperGroup.getFortifyApplicationId());
+                // Upload the vulnerabilities CSV to Fortify
+                uploadCSV(token, fileDir + fileName, blackDuckFortifyMapperGroup.getFortifyApplicationId());
 
-            // Delete the file token that is created for upload
-            fortifyFileTokenApi.deleteFileToken();
-            // }
+                // Delete the file token that is created for upload
+                fortifyFileTokenApi.deleteFileToken();
+            }
         }
         return true;
     }

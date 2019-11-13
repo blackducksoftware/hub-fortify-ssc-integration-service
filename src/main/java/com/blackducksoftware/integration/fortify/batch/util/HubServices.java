@@ -153,11 +153,18 @@ public final class HubServices {
      */
     public Recommendation getComponentVersionRecommendations(final String componentVersionRemediatingUrl) throws IntegrationException {
         logger.debug("Getting Black Duck component version remediating");
+        Recommendation recommendation = null;
         if (componentVersionRemediatingUrl != null) {
             final HubService hubResponseService = hubServicesFactory.createHubService();
-            return hubResponseService.getResponse(componentVersionRemediatingUrl, Recommendation.class);
+            try {
+                recommendation = hubResponseService.getResponse(componentVersionRemediatingUrl, Recommendation.class);
+            } catch (final IntegrationException e) {
+                if (!e.getMessage().contains("Error: 404 : 404")) {
+                    throw new IntegrationException(e);
+                }
+            }
         }
-        return null;
+        return recommendation;
     }
 
     public HubService createHubService() {
