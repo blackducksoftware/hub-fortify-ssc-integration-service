@@ -47,11 +47,12 @@ startScripts {
 }
 
 ext {
+	springBatchInfrastructure = '3.0.10.RELEASE'
 	hubCommonVersion = '35.0.0'
 	retrofit2Version = '2.1.0'
 	okhttp3Version = '3.3.1'
 	powerMockitoVersion = '1.6.6'
-	jacksonDataFormatVersion = '2.9.5'
+	jacksonDataFormatVersion = '2.9.7'
 	simpleXmlFrameworkVersion = '2.7'
 	jUnitVersion = '4.+'
 	xstreamVersion = '1.4.10'
@@ -78,6 +79,7 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter-batch") {
 		exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
 	}
+	compile("org.springframework.batch:spring-batch-infrastructure:${springBatchInfrastructure}")
 	compile("org.simpleframework:simple-xml:${simpleXmlFrameworkVersion}")
 	compile("com.thoughtworks.xstream:xstream:${xstreamVersion}")
 	compile("com.fasterxml.jackson.core:jackson-databind:${jacksonDataFormatVersion}")
