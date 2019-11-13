@@ -195,8 +195,8 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
             index++;
 
             // Convert the Hub Vulnerability component view to CSV Vulnerability object
-            final List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(vulnerableComponentViews, hubProjectVersion.getHubProject(),
-                    hubProjectVersion.getHubProjectVersion(), maxBomUpdatedDate, propertyConstants);
+            final List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(hubServices, vulnerableComponentViews,
+                    hubProjectVersion.getHubProject(), hubProjectVersion.getHubProjectVersion(), maxBomUpdatedDate, propertyConstants);
 
             // Add the vulnerabilities to the main list
             mergedVulnerabilities.addAll(vulnerabilities);
