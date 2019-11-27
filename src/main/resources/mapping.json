@@ -1,27 +1,26 @@
 [
     {
-      "hubProject": "Hub-Alpine-Test",
+      "hubProject": "fortify",
       "hubProjectVersion": "1.0",
       "fortifyApplication": "Hub-Fortify-Test1",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "Hub-Android-Test",
+      "hubProject": "fortify1",
       "hubProjectVersion": "1.0",
       "fortifyApplication": "Hub-Fortify-Test1",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "Hub-Android-Test",
+      "hubProject": "fortify1",
       "hubProjectVersion": "1.0",
       "fortifyApplication": "Hub-Fortify-Test2",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "Hub-Fortify-Test",
-      "hubProjectVersion": "1.0",
+      "hubProject": "fortify",
+      "hubProjectVersion": "2.0",
       "fortifyApplication": "Hub-Fortify|Test2",
       "fortifyApplicationVersion": "2|0"
     }
 ]
-
