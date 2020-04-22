@@ -28,13 +28,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
@@ -97,20 +100,22 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws DateTimeParseException, IntegrationException, IllegalArgumentException, JsonGenerationException, JsonMappingException,
-            FileNotFoundException, UnsupportedEncodingException, IOException {
+            FileNotFoundException, UnsupportedEncodingException, IOException, ParseException {
         logger.info("blackDuckFortifyMapper::" + blackDuckFortifyMapperGroup.toString());
         final List<HubProjectVersion> hubProjectVersions = blackDuckFortifyMapperGroup.getHubProjectVersion();
 
+        final SimpleDateFormat sdfr = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
+
         // Get the last successful runtime of the job
         final Date getLastSuccessfulJobRunTime = getLastSuccessfulJobRunTime(propertyConstants.getBatchJobStatusFilePath());
-        logger.debug("Last successful job excecution:" + getLastSuccessfulJobRunTime);
+        logger.debug("Last successful job excecution:" + sdfr.format(getLastSuccessfulJobRunTime));
 
         // Get the project version view from Hub and calculate the max BOM updated date
-        final List<ProjectVersionView> projectVersionItems = getProjectVersionItemsAndMaxBomUpdatedDate(hubProjectVersions);
+        final List<ProjectVersionView> projectVersionItems = getProjectVersionItemsAndMaxBomUpdatedDate(hubProjectVersions, sdfr);
         logger.info("Compare Dates: "
                 + ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)
                         || (!propertyConstants.isBatchJobStatusCheck())));
-        logger.debug("maxBomUpdatedDate:: " + maxBomUpdatedDate);
+        logger.debug("maxBomUpdatedDate:: " + sdfr.format(maxBomUpdatedDate));
         logger.debug("isBatchJobStatusCheck::" + propertyConstants.isBatchJobStatusCheck());
 
         if ((getLastSuccessfulJobRunTime != null && maxBomUpdatedDate.after(getLastSuccessfulJobRunTime)) || (getLastSuccessfulJobRunTime == null)
@@ -151,9 +156,10 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
      * @return
      * @throws IllegalArgumentException
      * @throws IntegrationException
+     * @throws ParseException
      */
-    private List<ProjectVersionView> getProjectVersionItemsAndMaxBomUpdatedDate(final List<HubProjectVersion> hubProjectVersions)
-            throws IllegalArgumentException, IntegrationException {
+    private List<ProjectVersionView> getProjectVersionItemsAndMaxBomUpdatedDate(final List<HubProjectVersion> hubProjectVersions, final SimpleDateFormat sdfr)
+            throws IllegalArgumentException, IntegrationException, ParseException {
         final List<ProjectVersionView> projectVersionItems = new ArrayList<>();
         for (final HubProjectVersion hubProjectVersion : hubProjectVersions) {
             final String projectName = hubProjectVersion.getHubProject();
@@ -162,12 +168,17 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
             // Get the project version
             final ProjectVersionView projectVersionItem = hubServices.getProjectVersion(projectName, projectVersion);
             projectVersionItems.add(projectVersionItem);
-            final Date bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
+
+            // Get BOM Last updated At
+            final DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
+            formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+            final Date bomUpdatedValueAt = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS")
+                    .parse(formatter.format(hubServices.getBomLastUpdatedAt(projectVersionItem)));
 
             if (maxBomUpdatedDate == null || bomUpdatedValueAt.after(maxBomUpdatedDate)) {
                 maxBomUpdatedDate = bomUpdatedValueAt;
             }
-            logger.debug("bomUpdatedValueAt::" + bomUpdatedValueAt);
+            logger.debug("bomUpdatedValueAt::" + sdfr.format(bomUpdatedValueAt));
         }
         return projectVersionItems;
     }
@@ -210,8 +221,9 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
      * @return
      * @throws IOException
      * @throws DateTimeParseException
+     * @throws ParseException
      */
-    private Date getLastSuccessfulJobRunTime(final String fileName) throws IOException, DateTimeParseException {
+    private Date getLastSuccessfulJobRunTime(final String fileName) throws IOException, DateTimeParseException, ParseException {
         BufferedReader br = null;
         FileReader fr = null;
         try {
@@ -220,8 +232,7 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
             String sCurrentLine;
             br = new BufferedReader(new FileReader(fileName));
             while ((sCurrentLine = br.readLine()) != null) {
-                final LocalDateTime localDateTime = LocalDateTime.parse(sCurrentLine, DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS"));
-                return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS").parse(sCurrentLine);
             }
         } catch (final IOException e) {
             logger.error(e.getMessage(), e);
@@ -230,6 +241,9 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
             logger.error(e.getMessage(), e);
             throw new DateTimeParseException("Error while parsing the date. Please make sure date time format is yyyy/MM/dd HH:mm:ss.SSS", e.getParsedString(),
                     e.getErrorIndex(), e);
+        } catch (final ParseException e) {
+            // TODO Auto-generated catch block
+            throw new ParseException("Error while parsing the date. Please make sure date time format is yyyy/MM/dd HH:mm:ss.SSS", e.getErrorOffset());
         } finally {
             if (br != null) {
                 br.close();

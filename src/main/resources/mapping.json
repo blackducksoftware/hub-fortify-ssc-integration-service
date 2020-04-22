@@ -1,25 +1,25 @@
 [
     {
-      "hubProject": "fortify",
-      "hubProjectVersion": "1.0",
+      "hubProject": "parser",
+      "hubProjectVersion": "2.0.2",
       "fortifyApplication": "Hub-Fortify-Test1",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "fortify1",
-      "hubProjectVersion": "1.0",
+      "hubProject": "ssc",
+      "hubProjectVersion": "2.0.8",
       "fortifyApplication": "Hub-Fortify-Test1",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "fortify1",
-      "hubProjectVersion": "1.0",
+      "hubProject": "ssc",
+      "hubProjectVersion": "2.0.8",
       "fortifyApplication": "Hub-Fortify-Test2",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "fortify",
-      "hubProjectVersion": "2.0",
+      "hubProject": "parser",
+      "hubProjectVersion": "2.0.3",
       "fortifyApplication": "Hub-Fortify|Test2",
       "fortifyApplicationVersion": "2|0"
     }
