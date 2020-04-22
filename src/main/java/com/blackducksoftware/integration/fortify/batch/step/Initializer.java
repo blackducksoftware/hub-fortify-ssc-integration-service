@@ -31,9 +31,11 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -121,7 +123,9 @@ public class Initializer implements Tasklet, StepExecutionListener {
      */
     @Override
     public void beforeStep(final StepExecution stepExecution) {
-        startJobTimeStamp = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS").format(LocalDateTime.now());
+        final LocalDateTime localDateTime = LocalDateTime.parse(LocalDateTime.now().toString(),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+        startJobTimeStamp = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()).toString();
     }
 
     /**
