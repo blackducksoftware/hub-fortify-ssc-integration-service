@@ -108,7 +108,9 @@ public class BlackDuckFortifyPushThread implements Callable<Boolean> {
 
         // Get the last successful runtime of the job
         final Date getLastSuccessfulJobRunTime = getLastSuccessfulJobRunTime(propertyConstants.getBatchJobStatusFilePath());
-        logger.debug("Last successful job excecution:" + sdfr.format(getLastSuccessfulJobRunTime));
+        if (getLastSuccessfulJobRunTime != null) {
+            logger.debug("Last successful job excecution:" + sdfr.format(getLastSuccessfulJobRunTime));
+        }
 
         // Get the project version view from Hub and calculate the max BOM updated date
         final List<ProjectVersionView> projectVersionItems = getProjectVersionItemsAndMaxBomUpdatedDate(hubProjectVersions, sdfr);
