@@ -22,14 +22,18 @@
  */
 package com.blackducksoftware.integration.fortify.batch.job;
 
+import java.io.IOException;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.util.HubServices;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.batch.util.RestConnectionHelper;
+import com.blackducksoftware.integration.fortify.service.FortifyUnifiedLoginTokenApi;
 
 @Configuration
 public class SpringConfiguration {
@@ -41,6 +45,18 @@ public class SpringConfiguration {
     @Bean
     public HubServices getHubServices(final PropertyConstants propertyConstants) {
         return new HubServices(RestConnectionHelper.createHubServicesFactory(propertyConstants));
+    }
+    
+    /**
+     * Created the bean for Fortify Unified Login Token Api
+     * 
+     * @return
+     * @throws IntegrationException
+     * @throws IOException
+     */
+    @Bean
+    public FortifyUnifiedLoginTokenApi getFortifyUnifiedLoginTokenApi(final PropertyConstants propertyConstants) {
+        return new FortifyUnifiedLoginTokenApi(propertyConstants);
     }
 
     /**

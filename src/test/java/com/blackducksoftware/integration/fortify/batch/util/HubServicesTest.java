@@ -36,10 +36,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
+import com.blackducksoftware.integration.fortify.service.FortifyUnifiedLoginTokenApi;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.VulnerableComponentView;
 import com.google.gson.JsonIOException;
@@ -47,15 +47,13 @@ import com.google.gson.JsonIOException;
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestApplication.class)
-@ContextConfiguration(classes = { SpringConfiguration.class, BlackDuckFortifyJobConfig.class, BatchSchedulerConfig.class, PropertyConstants.class })
+@SpringBootTest(classes = { MappingParser.class, VulnerabilityUtil.class })
+@ContextConfiguration(classes = { PropertyConstants.class, AttributeConstants.class, SpringConfiguration.class, BlackDuckFortifyJobConfig.class,
+        BatchSchedulerConfig.class })
 public class HubServicesTest extends TestCase {
     private String PROJECT_NAME;
 
     private String VERSION_NAME;
-
-    @Autowired
-    private HubServices hubServices;
 
     @Autowired
     private MappingParser mappingParser;
@@ -63,31 +61,48 @@ public class HubServicesTest extends TestCase {
     @Autowired
     private PropertyConstants propertyConstants;
 
+    @Autowired
+    private HubServices hubServices;
+
+    @Autowired
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
+
+    @Autowired
+    private FortifyUnifiedLoginTokenApi fortifyUnifiedLoginTokenApi;
+
     @Override
     @Before
     public void setUp() throws JsonIOException, IOException, IntegrationException {
-        final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = mappingParser
-                .createMapping(propertyConstants.getMappingJsonPath());
+        final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = mappingParser.createMapping(propertyConstants.getMappingJsonPath());
         PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProject();
         VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProjectVersion();
     }
 
     @Test
-    public void getProjectVersion() {
+    public void hubServiceTest() throws JsonIOException, IOException, IntegrationException {
+        getBomLastUpdatedAt();
+        getProjectVersion();
+        getVulnerability();
+        getProjectVersionWithInvalidProjectName();
+        getProjectVersionWithInvalidVersionName();
+        cleanUpUnifiedLoginToken();
+    }
+
+    public void getBomLastUpdatedAt() throws IntegrationException {
+        System.out.println("Executing getBomLastUpdatedAt");
+        final ProjectVersionView projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
+        final Date bomLastUpdatedAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
+        System.out.println("bomLastUpdatedAt::" + bomLastUpdatedAt);
+        // assertNotNull(bomLastUpdatedAt);
+    }
+
+    public void getProjectVersion() throws IntegrationException {
         System.out.println("Executing getProjectVersion");
-        ProjectVersionView projectVersionItem = null;
-        try {
-            projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
-            System.out.println("projectVersionItem: " + projectVersionItem);
-        } catch (final IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (final IntegrationException e) {
-            e.printStackTrace();
-        }
+        ProjectVersionView projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
+        System.out.println("projectVersionItem: " + projectVersionItem);
         // assertNotNull(projectVersionItem);
     }
 
-    @Test
     public void getProjectVersionWithInvalidProjectName() {
         System.out.println("Executing getProjectVersionWithInvalidProjectName");
         ProjectVersionView projectVersionItem = null;
@@ -95,6 +110,7 @@ public class HubServicesTest extends TestCase {
             projectVersionItem = hubServices.getProjectVersion("Solr1", VERSION_NAME);
         } catch (final IllegalArgumentException e) {
             e.printStackTrace();
+            throw new IllegalArgumentException(e.getMessage());
         } catch (final IntegrationException e) {
             // e.printStackTrace();
             System.out.println("Error message::" + e.getMessage());
@@ -103,7 +119,6 @@ public class HubServicesTest extends TestCase {
         assertNull(projectVersionItem);
     }
 
-    @Test
     public void getProjectVersionWithInvalidVersionName() {
         System.out.println("Executing getProjectVersionWithInvalidVersionName");
         ProjectVersionView projectVersionItem = null;
@@ -111,6 +126,7 @@ public class HubServicesTest extends TestCase {
             projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, "3.10");
         } catch (final IllegalArgumentException e) {
             e.printStackTrace();
+            throw new IllegalArgumentException(e.getMessage());
         } catch (final IntegrationException e) {
             // e.printStackTrace();
             System.out.println("Error message::" + e.getMessage());
@@ -119,35 +135,17 @@ public class HubServicesTest extends TestCase {
         assertNull(projectVersionItem);
     }
 
-    @Test
-    public void getVulnerability() throws Exception {
+    public void getVulnerability() throws IntegrationException {
         System.out.println("Executing getVulnerability");
-        ProjectVersionView projectVersionItem = null;
-        try {
-            projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
-        } catch (final IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (final IntegrationException e) {
-            e.printStackTrace();
-        }
+        ProjectVersionView projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
         final List<VulnerableComponentView> vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItem);
         System.out.println("vulnerableComponentViews size::" + vulnerableComponentViews.size());
         // assertNotNull(vulnerableComponentViews);
     }
 
-    @Test
-    public void getBomLastUpdatedAt() throws IllegalArgumentException, IntegrationException {
-        System.out.println("Executing getBomLastUpdatedAt");
-        ProjectVersionView projectVersionItem = null;
-        try {
-            projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
-        } catch (final IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (final IntegrationException e) {
-            e.printStackTrace();
+    private void cleanUpUnifiedLoginToken() throws JsonIOException, IOException, IntegrationException {
+        if (blackDuckFortifyJobConfig.getFortifyToken().getData() != null && blackDuckFortifyJobConfig.getFortifyToken().getData().getId() != 0) {
+            fortifyUnifiedLoginTokenApi.deleteUnifiedLoginToken(blackDuckFortifyJobConfig.getFortifyToken().getData().getId());
         }
-        final Date bomLastUpdatedAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
-        System.out.println("bomLastUpdatedAt::" + bomLastUpdatedAt);
-        // assertNotNull(bomLastUpdatedAt);
     }
 }

@@ -59,9 +59,9 @@ public final class FortifyApplicationVersionApi extends FortifyService {
 
     private final FortifyApplicationVersionApiService apiService;
 
-    public FortifyApplicationVersionApi(final PropertyConstants propertyConstants) {
+    public FortifyApplicationVersionApi(final PropertyConstants propertyConstants, final String token) {
         super(propertyConstants);
-        okBuilder = getHeader(propertyConstants);
+        okBuilder = getHeader(propertyConstants, token);
         retrofit = new Retrofit.Builder().baseUrl(propertyConstants.getFortifyServerUrl())
                 .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
         apiService = retrofit.create(FortifyApplicationVersionApiService.class);

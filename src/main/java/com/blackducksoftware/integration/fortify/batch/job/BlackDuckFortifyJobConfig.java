@@ -22,6 +22,7 @@
  */
 package com.blackducksoftware.integration.fortify.batch.job;
 
+import java.io.IOException;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -39,6 +40,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
 import com.blackducksoftware.integration.fortify.batch.step.Initializer;
 import com.blackducksoftware.integration.fortify.batch.util.AttributeConstants;
@@ -48,6 +50,8 @@ import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.service.FortifyApplicationVersionApi;
 import com.blackducksoftware.integration.fortify.service.FortifyAttributeDefinitionApi;
 import com.blackducksoftware.integration.fortify.service.FortifyFileTokenApi;
+import com.blackducksoftware.integration.fortify.service.FortifyToken;
+import com.blackducksoftware.integration.fortify.service.FortifyUnifiedLoginTokenApi;
 import com.blackducksoftware.integration.fortify.service.FortifyUploadApi;
 
 /**
@@ -77,54 +81,72 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
 
     @Autowired
     private AttributeConstants attributeConstants;
+    
+    @Autowired
+    private FortifyUnifiedLoginTokenApi fortifyUnifiedLoginTokenApi;
+    
+    @Bean
+    public FortifyToken getFortifyToken() throws IOException, IntegrationException {
+        return new FortifyToken(fortifyUnifiedLoginTokenApi);
+    }
 
     /**
      * Created the bean for Fortify Application Version Api
-     *
+     * 
      * @return
+     * @throws IntegrationException
+     * @throws IOException
      */
     @Bean
-    public FortifyApplicationVersionApi getFortifyApplicationVersionApi() {
-        return new FortifyApplicationVersionApi(propertyConstants);
+    public FortifyApplicationVersionApi getFortifyApplicationVersionApi() throws IOException, IntegrationException {
+        return new FortifyApplicationVersionApi(propertyConstants, "FortifyToken " + getFortifyToken().getData().getToken());
     }
 
     /**
      * Created the bean for Fortify Attribute Version Api
      *
      * @return
+     * @throws IntegrationException
+     * @throws IOException
      */
     @Bean
-    public FortifyAttributeDefinitionApi getFortifyAttributeDefinitionApi() {
-        return new FortifyAttributeDefinitionApi(propertyConstants);
+    public FortifyAttributeDefinitionApi getFortifyAttributeDefinitionApi() throws IOException, IntegrationException {
+        return new FortifyAttributeDefinitionApi(propertyConstants, "FortifyToken " + getFortifyToken().getData().getToken());
     }
 
     /**
      * Created the bean to get the instance of Fortify File Token Api
      *
      * @return
+     * @throws IntegrationException
+     * @throws IOException
      */
     @Bean
-    public FortifyFileTokenApi getFortifyFileTokenApi() {
-        return new FortifyFileTokenApi(propertyConstants);
+    public FortifyFileTokenApi getFortifyFileTokenApi() throws IOException, IntegrationException {
+        return new FortifyFileTokenApi(propertyConstants, "FortifyToken " + getFortifyToken().getData().getToken());
     }
 
     /**
      * Created the bean to get the instance of Fortify Upload Api
      *
      * @return
+     * @throws IntegrationException
+     * @throws IOException
      */
     @Bean
-    public FortifyUploadApi getFortifyUploadApi() {
-        return new FortifyUploadApi(propertyConstants);
+    public FortifyUploadApi getFortifyUploadApi() throws IOException, IntegrationException {
+        return new FortifyUploadApi(propertyConstants, "FortifyToken " + getFortifyToken().getData().getToken());
     }
 
     /**
      * Created the bean to get the instance of Mapping Parser
      *
      * @return
+     * @throws IntegrationException
+     * @throws IOException
      */
     @Bean
-    public MappingParser getMappingParser() {
+    public MappingParser getMappingParser() throws IOException, IntegrationException {
         return new MappingParser(getFortifyApplicationVersionApi(), getFortifyAttributeDefinitionApi(), propertyConstants, attributeConstants);
     }
 
@@ -132,9 +154,11 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      * Create new Initializer task
      *
      * @return Initializer
+     * @throws IntegrationException
+     * @throws IOException
      */
     @Bean
-    public Initializer getMappingParserTask() {
+    public Initializer getMappingParserTask() throws IOException, IntegrationException {
         return new Initializer(getMappingParser(), getFortifyFileTokenApi(), getFortifyUploadApi(), hubServices, propertyConstants);
     }
 
@@ -145,8 +169,7 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Scheduled(cron = "${cron.expressions}")
     public void execute() throws Exception {
-        final JobParameters param = new JobParametersBuilder().addString("JobID",
-                String.valueOf(System.currentTimeMillis())).toJobParameters();
+        final JobParameters param = new JobParametersBuilder().addString("JobID", String.valueOf(System.currentTimeMillis())).toJobParameters();
         batchScheduler.jobLauncher().run(pushBlackDuckScanToFortifyJob(), param);
     }
 
@@ -154,9 +177,11 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      * Create the job to push the vulnerability data from BlackDuck to Fortify Job
      *
      * @return Job
+     * @throws IntegrationException
+     * @throws IOException
      */
     @Bean
-    public Job pushBlackDuckScanToFortifyJob() {
+    public Job pushBlackDuckScanToFortifyJob() throws IOException, IntegrationException {
         logger.info("Push Blackduck Scan data to Fortify Job");
         return jobBuilderFactory.get("Push Blackduck Scan data to Fortify Job")
                 .incrementer(new RunIdIncrementer())
@@ -169,9 +194,11 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      * Add the Mapping parser task to the job
      *
      * @return Step
+     * @throws IntegrationException
+     * @throws IOException
      */
     @Bean
-    public Step createMappingParserStep() {
+    public Step createMappingParserStep() throws IOException, IntegrationException {
         logger.info("Parse the Mapping.json -> Transform to Mapping parser object");
         return stepBuilderFactory.get("Parse the Mapping.json -> Transform to Mapping parser object")
                 .tasklet(getMappingParserTask()).build();
@@ -182,6 +209,15 @@ public class BlackDuckFortifyJobConfig implements JobExecutionListener {
      */
     @Override
     public void afterJob(final JobExecution jobExecution) {
+        try {
+            if (getFortifyToken().getData() != null && getFortifyToken().getData().getId() != 0) {
+                fortifyUnifiedLoginTokenApi.deleteUnifiedLoginToken(getFortifyToken().getData().getId());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IntegrationException e) {
+            e.printStackTrace();
+        }
         logger.info("Job completed at::" + new Date());
     }
 

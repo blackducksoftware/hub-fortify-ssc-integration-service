@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,11 +38,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
 import com.blackducksoftware.integration.fortify.batch.model.Vulnerability;
+import com.blackducksoftware.integration.fortify.service.FortifyUnifiedLoginTokenApi;
 import com.blackducksoftware.integration.hub.api.generated.view.ProjectVersionView;
 import com.blackducksoftware.integration.hub.api.generated.view.VulnerableComponentView;
 import com.google.gson.JsonIOException;
@@ -49,8 +50,9 @@ import com.google.gson.JsonIOException;
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestApplication.class)
-@ContextConfiguration(classes = { SpringConfiguration.class, BlackDuckFortifyJobConfig.class, BatchSchedulerConfig.class, PropertyConstants.class })
+@SpringBootTest(classes = CSVUtils.class)
+@ContextConfiguration(classes = { PropertyConstants.class, AttributeConstants.class, SpringConfiguration.class, BlackDuckFortifyJobConfig.class,
+        BatchSchedulerConfig.class })
 public class CSVUtilsTest extends TestCase {
     private String PROJECT_NAME;
 
@@ -66,45 +68,52 @@ public class CSVUtilsTest extends TestCase {
 
     @Autowired
     private PropertyConstants propertyConstants;
+    
+    @Autowired
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
+    
+    @Autowired
+    private FortifyUnifiedLoginTokenApi fortifyUnifiedLoginTokenApi;
 
     @Override
     @Before
     public void setUp() throws JsonIOException, IOException, IntegrationException {
-        final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = mappingParser
-                .createMapping(propertyConstants.getMappingJsonPath());
+        final List<BlackDuckFortifyMapperGroup> blackDuckFortifyMappers = mappingParser.createMapping(propertyConstants.getMappingJsonPath());
         PROJECT_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProject();
         VERSION_NAME = blackDuckFortifyMappers.get(0).getHubProjectVersion().get(0).getHubProjectVersion();
     }
 
     @Test
-    public void testWriteToCSV() throws IntegrationException {
+    public void testWriteToCSV() throws IntegrationException, IOException {
         System.out.println("Executing testWriteToCSV");
         ProjectVersionView projectVersionItem = null;
         List<VulnerableComponentView> vulnerableComponentViews = new ArrayList<>();
-        try {
-            projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
-            vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItem);
-            bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
-        } catch (final IllegalArgumentException e1) {
-            e1.printStackTrace();
-        } catch (final IntegrationException e1) {
-            e1.printStackTrace();
-        }
+
+        projectVersionItem = hubServices.getProjectVersion(PROJECT_NAME, VERSION_NAME);
+        vulnerableComponentViews = hubServices.getVulnerabilityComponentViews(projectVersionItem);
+        bomUpdatedValueAt = hubServices.getBomLastUpdatedAt(projectVersionItem);
+
         System.out.println("vulnerableComponentViews size::" + vulnerableComponentViews.size());
-        // assertNotNull(vulnerableComponentViews);
-        // assertNotNull(bomUpdatedValueAt);
 
         List<Vulnerability> vulnerabilities = VulnerabilityUtil.transformMapping(hubServices, vulnerableComponentViews, PROJECT_NAME, VERSION_NAME,
                 bomUpdatedValueAt, propertyConstants);
         System.out.println("vulnerabilities size::" + vulnerabilities.size());
         vulnerabilities = VulnerabilityUtil.removeDuplicates(vulnerabilities);
         System.out.println("vulnerabilities size::" + vulnerabilities.size());
-        // assertEquals(vulnerableComponentViews.size(), vulnerabilities.size());
+
         try {
-            // csvUtils.writeToCSV(vulnerabilities, PROJECT_NAME + "_" + VERSION_NAME + new Date(), ',');
             CSVUtils.writeToCSV(vulnerabilities, "sample.csv", ',');
-        } catch (final Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
+            throw new IOException(e.getMessage());
+        }
+    }
+    
+    @Override
+    @After
+    public void tearDown() throws JsonIOException, IOException, IntegrationException {
+        if (blackDuckFortifyJobConfig.getFortifyToken().getData() != null && blackDuckFortifyJobConfig.getFortifyToken().getData().getId() != 0) {
+            fortifyUnifiedLoginTokenApi.deleteUnifiedLoginToken(blackDuckFortifyJobConfig.getFortifyToken().getData().getId());
         }
     }
 }

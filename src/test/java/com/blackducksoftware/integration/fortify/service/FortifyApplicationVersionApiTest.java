@@ -25,6 +25,8 @@ package com.blackducksoftware.integration.fortify.service;
 import java.io.IOException;
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +36,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
+import com.blackducksoftware.integration.fortify.batch.util.AttributeConstants;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.FortifyApplicationResponse;
 import com.blackducksoftware.integration.fortify.model.UpdateFortifyApplicationAttributesRequest;
+import com.google.gson.JsonIOException;
 
 import junit.framework.TestCase;
 
@@ -53,8 +56,9 @@ import junit.framework.TestCase;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestApplication.class)
-@ContextConfiguration(classes = { SpringConfiguration.class, BlackDuckFortifyJobConfig.class, BatchSchedulerConfig.class, PropertyConstants.class })
+@SpringBootTest(classes = { MappingParser.class, FortifyApplicationVersionApi.class })
+@ContextConfiguration(classes = { PropertyConstants.class, AttributeConstants.class, SpringConfiguration.class, BlackDuckFortifyJobConfig.class,
+        BatchSchedulerConfig.class, String.class })
 public class FortifyApplicationVersionApiTest extends TestCase {
 
     String FIELDS = "id";
@@ -62,16 +66,20 @@ public class FortifyApplicationVersionApiTest extends TestCase {
     String QUERY = "name:1.0%2Band%2Bproject.name:HUB-FORTIFY-TEST1";
 
     @Autowired
-    private FortifyApplicationVersionApi fortifyApplicationVersionApi;
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
 
     @Autowired
     private MappingParser mappingParser;
+    
+    @Autowired
+    private FortifyUnifiedLoginTokenApi fortifyUnifiedLoginTokenApi;
 
-    @Test
-    public void getApplicationVersionTest() throws IOException, IntegrationException {
-        System.out.println("Executing getApplicationVersionTest");
-        final FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, QUERY);
-        assertTrue(response.getData().size() > 0);
+    private FortifyApplicationVersionApi fortifyApplicationVersionApi;
+
+    @Override
+    @Before
+    public void setUp() throws IOException, IntegrationException {
+        fortifyApplicationVersionApi = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi();
     }
 
     @Test
@@ -83,6 +91,7 @@ public class FortifyApplicationVersionApiTest extends TestCase {
         try {
             updateApplicationAttributesTest(id);
             commitApplicationVersion(id);
+            getApplicationVersionTest();
         } catch (final IOException e) {
             throw new IOException(e);
         } catch (final IntegrationException e) {
@@ -90,6 +99,12 @@ public class FortifyApplicationVersionApiTest extends TestCase {
         } finally {
             deleteApplicationVersion(id);
         }
+    }
+    
+    public void getApplicationVersionTest() throws IOException, IntegrationException {
+        System.out.println("Executing getApplicationVersionTest");
+        final FortifyApplicationResponse response = fortifyApplicationVersionApi.getApplicationVersionByName(FIELDS, QUERY);
+        assertTrue(response.getData().size() > 0);
     }
 
     public void updateApplicationAttributesTest(final int parentId) throws IOException, IntegrationException {
@@ -113,5 +128,13 @@ public class FortifyApplicationVersionApiTest extends TestCase {
         final String TEMPLATE = "Prioritized-HighRisk-Project-Template";
         return new CreateApplicationRequest(fortifyProjectVersion, "Built using API", true, false,
                 new CreateApplicationRequest.Project("", fortifyProjectName, "Built using API", TEMPLATE), TEMPLATE);
+    }
+    
+    @Override
+    @After
+    public void tearDown() throws JsonIOException, IOException, IntegrationException {
+        if (blackDuckFortifyJobConfig.getFortifyToken().getData() != null && blackDuckFortifyJobConfig.getFortifyToken().getData().getId() != 0) {
+            fortifyUnifiedLoginTokenApi.deleteUnifiedLoginToken(blackDuckFortifyJobConfig.getFortifyToken().getData().getId());
+        }
     }
 }

@@ -1,25 +1,25 @@
 [
     {
-      "hubProject": "parser",
-      "hubProjectVersion": "2.0.2",
+      "hubProject": "bds_jenkins_test",
+      "hubProjectVersion": "2020_08_03--15_20_21",
       "fortifyApplication": "Hub-Fortify-Test1",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "ssc",
-      "hubProjectVersion": "2.0.8",
+      "hubProject": "MK-CallGraphProject",
+      "hubProjectVersion": "1.0",
       "fortifyApplication": "Hub-Fortify-Test1",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "ssc",
-      "hubProjectVersion": "2.0.8",
+      "hubProject": "MK-CallGraphProject",
+      "hubProjectVersion": "1.0",
       "fortifyApplication": "Hub-Fortify-Test2",
       "fortifyApplicationVersion": "1.0"
     },
     {
-      "hubProject": "parser",
-      "hubProjectVersion": "2.0.3",
+      "hubProject": "bds_jenkins_test",
+      "hubProjectVersion": "2020_08_04--03_06_46",
       "fortifyApplication": "Hub-Fortify|Test2",
       "fortifyApplicationVersion": "2|0"
     }

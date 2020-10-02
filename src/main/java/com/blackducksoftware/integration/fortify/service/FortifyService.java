@@ -29,7 +29,6 @@ import com.blackducksoftware.integration.fortify.batch.util.FortifyExceptionUtil
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 
 import okhttp3.Authenticator;
-import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 import okhttp3.Request;
@@ -55,7 +54,7 @@ public abstract class FortifyService {
         return propertyConstants;
     }
 
-    public static Builder getHeader(final PropertyConstants propertyConstants) {
+    public static Builder getHeader(final PropertyConstants propertyConstants, final String token) {
         final HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         if (propertyConstants.getLogLevel().equalsIgnoreCase("INFO")) {
             logging.setLevel(Level.BASIC);
@@ -67,8 +66,7 @@ public abstract class FortifyService {
 
             @Override
             public Request authenticate(final Route route, final Response response) throws IOException {
-                final String credential = Credentials.basic(propertyConstants.getFortifyUserName(), propertyConstants.getFortifyPassword());
-                if (credential.equals(response.request().header("Authorization"))) {
+                if (token.equals(response.request().header("Authorization"))) {
                     try {
                         FortifyExceptionUtil.verifyFortifyResponseCode(response.code(), "Unauthorized access of Fortify Api");
                     } catch (final IntegrationException e) {
@@ -76,7 +74,7 @@ public abstract class FortifyService {
                     }
                     return null;
                 }
-                return response.request().newBuilder().header("Authorization", credential).build();
+                return response.request().newBuilder().header("Authorization", token).build();
             }
         });
 

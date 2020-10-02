@@ -25,7 +25,7 @@ package com.blackducksoftware.integration.fortify.batch.util;
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,46 +35,51 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
 import com.blackducksoftware.integration.fortify.batch.model.BlackDuckFortifyMapperGroup;
+import com.blackducksoftware.integration.fortify.service.FortifyUnifiedLoginTokenApi;
 import com.google.gson.JsonIOException;
 
 import junit.framework.TestCase;
 
 /**
- * MappingParser Tests using Mockito
- *
- * @author hsathe
+ * MappingParser Tests
+ * 
+ * @author manikan
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestApplication.class)
-@ContextConfiguration(classes = { SpringConfiguration.class, BlackDuckFortifyJobConfig.class, BatchSchedulerConfig.class, PropertyConstants.class })
+@SpringBootTest(classes = MappingParser.class)
+@ContextConfiguration(classes = { PropertyConstants.class, AttributeConstants.class, SpringConfiguration.class, BlackDuckFortifyJobConfig.class,
+        BatchSchedulerConfig.class })
 public class MappingParserTest extends TestCase {
-
-    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
+    
+    @Autowired
+    private MappingParser mappingParser;
 
     @Autowired
     private PropertyConstants propertyConstants;
-
-    @Override
-    @Before
-    public void setUp() throws JsonIOException, IOException, IntegrationException {
-        blackDuckFortifyJobConfig = new BlackDuckFortifyJobConfig();
-    }
+    
+    @Autowired
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
+    
+    @Autowired
+    private FortifyUnifiedLoginTokenApi fortifyUnifiedLoginTokenApi;
 
     @Test
-    public void testMappingFileParser() throws Exception {
+    public void testMappingFileParser() throws JsonIOException, IOException, IntegrationException {
         System.out.println("Executing testMappingFileParser");
-        List<BlackDuckFortifyMapperGroup> mapping;
-        try {
-            mapping = blackDuckFortifyJobConfig.getMappingParser().createMapping(propertyConstants.getMappingJsonPath());
-            assertNotNull(mapping);
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Logger info to be added
+        List<BlackDuckFortifyMapperGroup> mapping = mappingParser.createMapping(propertyConstants.getMappingJsonPath());
+        System.out.println("mapping: " + mapping);
+        assertNotNull(mapping);
+    }
+    
+    @Override
+    @After
+    public void tearDown() throws JsonIOException, IOException, IntegrationException {
+        if (blackDuckFortifyJobConfig.getFortifyToken().getData() != null && blackDuckFortifyJobConfig.getFortifyToken().getData().getId() != 0) {
+            fortifyUnifiedLoginTokenApi.deleteUnifiedLoginToken(blackDuckFortifyJobConfig.getFortifyToken().getData().getId());
         }
     }
 }

@@ -46,9 +46,9 @@ public final class FortifyAttributeDefinitionApi extends FortifyService {
 
     private final FortifyAttributeDefinitionApiService apiService;
 
-    public FortifyAttributeDefinitionApi(final PropertyConstants propertyConstants) {
+    public FortifyAttributeDefinitionApi(final PropertyConstants propertyConstants, final String token) {
         super(propertyConstants);
-        okBuilder = getHeader(propertyConstants);
+        okBuilder = getHeader(propertyConstants, token);
         retrofit = new Retrofit.Builder().baseUrl(propertyConstants.getFortifyServerUrl())
                 .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
         apiService = retrofit.create(FortifyAttributeDefinitionApiService.class);

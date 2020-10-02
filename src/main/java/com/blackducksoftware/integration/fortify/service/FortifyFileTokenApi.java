@@ -53,9 +53,9 @@ public final class FortifyFileTokenApi extends FortifyService {
 
     private final FortifyFileTokenApiService apiService;
 
-    public FortifyFileTokenApi(final PropertyConstants propertyConstants) {
+    public FortifyFileTokenApi(final PropertyConstants propertyConstants, final String token) {
         super(propertyConstants);
-        okBuilder = getHeader(propertyConstants);
+        okBuilder = getHeader(propertyConstants, token);
         retrofit = new Retrofit.Builder().baseUrl(propertyConstants.getFortifyServerUrl())
                 .addConverterFactory(GsonConverterFactory.create()).client(okBuilder.build()).build();
         apiService = retrofit.create(FortifyFileTokenApiService.class);

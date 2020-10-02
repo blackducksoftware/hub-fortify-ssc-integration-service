@@ -26,7 +26,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,40 +38,53 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
+import com.blackducksoftware.integration.fortify.batch.util.AttributeConstants;
 import com.blackducksoftware.integration.fortify.batch.util.MappingParser;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.CommitFortifyApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.CreateApplicationRequest;
 import com.blackducksoftware.integration.fortify.model.FileToken;
 import com.blackducksoftware.integration.fortify.model.UpdateFortifyApplicationAttributesRequest;
+import com.google.gson.JsonIOException;
 
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestApplication.class)
-@ContextConfiguration(classes = { SpringConfiguration.class, BlackDuckFortifyJobConfig.class, BatchSchedulerConfig.class, PropertyConstants.class })
+@SpringBootTest(classes = { MappingParser.class, FortifyApplicationVersionApi.class, FortifyFileTokenApi.class, FortifyUploadApi.class })
+@ContextConfiguration(classes = { PropertyConstants.class, AttributeConstants.class, SpringConfiguration.class, BlackDuckFortifyJobConfig.class,
+        BatchSchedulerConfig.class, String.class })
 public class FortifyUploadApiTest extends TestCase {
 
     @Autowired
-    private FortifyUploadApi fortifyUploadApi;
-
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
+    
     @Autowired
-    private FortifyFileTokenApi fortifyFileTokenApi;
-
-    @Autowired
-    private FortifyApplicationVersionApi fortifyApplicationVersionApi;
+    private FortifyUnifiedLoginTokenApi fortifyUnifiedLoginTokenApi;
 
     @Autowired
     private MappingParser mappingParser;
+
+    private FortifyUploadApi fortifyUploadApi;
+
+    private FortifyFileTokenApi fortifyFileTokenApi;
+
+    private FortifyApplicationVersionApi fortifyApplicationVersionApi;
+
+    @Override
+    @Before
+    public void setUp() throws IOException, IntegrationException {
+        fortifyApplicationVersionApi = blackDuckFortifyJobConfig.getFortifyApplicationVersionApi();
+        fortifyFileTokenApi = blackDuckFortifyJobConfig.getFortifyFileTokenApi();
+        fortifyUploadApi = blackDuckFortifyJobConfig.getFortifyUploadApi();
+    }
 
     @Test
     public void uploadCSVFile() throws Exception {
         int id = 0;
         try {
-            CreateApplicationRequest createApplicationRequest = createApplicationVersionRequest("Fortify-Test", "1.0");
+            CreateApplicationRequest createApplicationRequest = createApplicationVersionRequest("Fortify-Test10", "1.0");
             id = fortifyApplicationVersionApi.createApplicationVersion(createApplicationRequest);
             assertNotNull(id);
             updateApplicationAttributesTest(id);
@@ -121,5 +136,13 @@ public class FortifyUploadApiTest extends TestCase {
         String TEMPLATE = "Prioritized-HighRisk-Project-Template";
         return new CreateApplicationRequest(fortifyProjectVersion, "Built using API", true, false,
                 new CreateApplicationRequest.Project("", fortifyProjectName, "Built using API", TEMPLATE), TEMPLATE);
+    }
+    
+    @Override
+    @After
+    public void tearDown() throws JsonIOException, IOException, IntegrationException {
+        if (blackDuckFortifyJobConfig.getFortifyToken().getData() != null && blackDuckFortifyJobConfig.getFortifyToken().getData().getId() != 0) {
+            fortifyUnifiedLoginTokenApi.deleteUnifiedLoginToken(blackDuckFortifyJobConfig.getFortifyToken().getData().getId());
+        }
     }
 }
