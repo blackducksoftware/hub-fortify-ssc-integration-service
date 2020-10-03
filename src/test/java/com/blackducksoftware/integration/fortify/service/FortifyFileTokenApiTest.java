@@ -22,7 +22,11 @@
  */
 package com.blackducksoftware.integration.fortify.service;
 
+import java.io.IOException;
+
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,37 +34,55 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.fortify.batch.BatchSchedulerConfig;
-import com.blackducksoftware.integration.fortify.batch.TestApplication;
 import com.blackducksoftware.integration.fortify.batch.job.BlackDuckFortifyJobConfig;
 import com.blackducksoftware.integration.fortify.batch.job.SpringConfiguration;
+import com.blackducksoftware.integration.fortify.batch.util.AttributeConstants;
 import com.blackducksoftware.integration.fortify.batch.util.PropertyConstants;
 import com.blackducksoftware.integration.fortify.model.FileToken;
+import com.google.gson.JsonIOException;
 
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestApplication.class)
-@ContextConfiguration(classes = { SpringConfiguration.class, BlackDuckFortifyJobConfig.class, BatchSchedulerConfig.class, PropertyConstants.class })
+@SpringBootTest(classes = FortifyFileTokenApi.class)
+@ContextConfiguration(classes = { PropertyConstants.class, AttributeConstants.class, SpringConfiguration.class, BlackDuckFortifyJobConfig.class,
+        BatchSchedulerConfig.class, String.class })
 public class FortifyFileTokenApiTest extends TestCase {
 
     @Autowired
+    private BlackDuckFortifyJobConfig blackDuckFortifyJobConfig;
+    
+    @Autowired
+    private FortifyUnifiedLoginTokenApi fortifyUnifiedLoginTokenApi;
+
     private FortifyFileTokenApi fortifyFileTokenApi;
 
+    @Override
+    @Before
+    public void setUp() throws IOException, IntegrationException {
+        fortifyFileTokenApi = blackDuckFortifyJobConfig.getFortifyFileTokenApi();
+    }
+
     @Test
-    public void getFileToken() throws Exception {
+    public void getAndDeleteFileToken() throws Exception {
         System.out.println("Executing getFileToken");
         FileToken fileToken = new FileToken("UPLOAD");
 
         String fileTokenResponse = fortifyFileTokenApi.getFileToken(fileToken);
         System.out.println("fileTokenResponse::" + fileTokenResponse);
         Assert.assertNotNull(fileTokenResponse);
-    }
-
-    @Test
-    public void deleteFileToken() throws Exception {
+        
         System.out.println("Executing deleteFileToken");
         fortifyFileTokenApi.deleteFileToken();
     }
-
+    
+    @Override
+    @After
+    public void tearDown() throws JsonIOException, IOException, IntegrationException {
+        if (blackDuckFortifyJobConfig.getFortifyToken().getData() != null && blackDuckFortifyJobConfig.getFortifyToken().getData().getId() != 0) {
+            fortifyUnifiedLoginTokenApi.deleteUnifiedLoginToken(blackDuckFortifyJobConfig.getFortifyToken().getData().getId());
+        }
+    }
 }

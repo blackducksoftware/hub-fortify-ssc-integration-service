@@ -34,7 +34,7 @@ tasks.withType(JavaCompile) {
 }
 
 group 'com.blackducksoftware.integration.fortify'
-version = '2.0.9'
+version = '2.0.10'
 
 mainClassName = 'com.blackducksoftware.integration.fortify.Application'
 
@@ -50,16 +50,17 @@ ext {
 	springBeanVersion = '4.3.20.RELEASE'
 	springBootVersion = '1.5.11.RELEASE'
 	springBatchCoreAndInfrastructureVersion = '3.0.10.RELEASE'
-	apacheTomcatVersion = "8.5.47"
+	apacheTomcatVersion = "8.5.58"
 	hubCommonVersion = '35.0.0'
-	retrofit2Version = '2.1.0'
-	okhttp3Version = '3.3.1'
+	retrofit2Version = '2.9.0'
+	okhttp3Version = '4.0.1'
 	powerMockitoVersion = '1.6.6'
-	jacksonDataBindVersion = '2.9.10.1'
+	jacksonDataBindVersion = '2.9.10.6'
 	jacksonDataAnnotationVersion = '2.9.7'
-	simpleXmlFrameworkVersion = '2.7'
+	simpleXmlFrameworkVersion = '2.7.1'
 	jUnitVersion = '4.+'
 	xstreamVersion = '1.4.11.1'
+	logbackVersion = '1.2.2'
 	uploadDefs = new File("${rootDir}/uploadArtifacts.gradle")
 	HUB_USERNAME=System.getenv('HUB_USERNAME')
 	HUB_PASSWORD=System.getenv('HUB_PASSWORD')
@@ -113,6 +114,9 @@ dependencies {
 	compile("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
 	compile("org.apache.tomcat:tomcat-juli:${apacheTomcatVersion}")
 	compile("org.apache.tomcat:tomcat-jdbc:${apacheTomcatVersion}")
+	compile("ch.qos.logback:logback-core:${logbackVersion}")
+	compile("ch.qos.logback:logback-classic:${logbackVersion}")
+	compile("ch.qos.logback:logback-access:${logbackVersion}")
 	testCompile("org.powermock:powermock-api-mockito:${powerMockitoVersion}")
 	testCompile("org.powermock:powermock-module-junit4:${powerMockitoVersion}")
 	testCompile("junit:junit:${jUnitVersion}")

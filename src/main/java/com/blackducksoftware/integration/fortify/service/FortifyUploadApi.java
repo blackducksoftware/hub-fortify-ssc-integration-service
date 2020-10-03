@@ -55,9 +55,9 @@ public final class FortifyUploadApi extends FortifyService {
 
     private final String URL;
 
-    public FortifyUploadApi(final PropertyConstants propertyConstants) {
+    public FortifyUploadApi(final PropertyConstants propertyConstants, final String token) {
         super(propertyConstants);
-        okBuilder = getHeader(propertyConstants);
+        okBuilder = getHeader(propertyConstants, token);
         okHttpClient = okBuilder.build();
         URL = propertyConstants.getFortifyServerUrl() + "upload/resultFileUpload.html?mat=";
     }
